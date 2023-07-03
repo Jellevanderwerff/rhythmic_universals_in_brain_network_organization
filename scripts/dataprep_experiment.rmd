@@ -20,10 +20,13 @@ if (!require('pacman')) install.packages('pacman')
 p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'entropy')
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path('0 - dataprep.rmd'))
+here::i_am(file.path('scripts', 'dataprep_pilot.rmd'))
+
+# select correct here
+here <- here::here
 
 # Load custom helper functions
-source(here('functions.R'))
+source(here('scripts', 'helper_functions.R'))
 
 ```
 
@@ -34,7 +37,7 @@ source(here('functions.R'))
 ####### EXPERIMENT CONFIG PARAMETERS #######
 
 # Read in the experiment config file
-config <- read.ini(here('Input', 'config.txt'))
+config <- read.ini(here('data', 'experiment', 'raw', 'config.txt'))
 # Change data types
 for (i in seq_along(config$experiment)) {
   config$experiment[i] <- as.double(config$experiment[i])
@@ -46,9 +49,8 @@ for (i in seq_along(config$training)) {
 ############# FILE LOCATIONS ############
 
 # folders
-input_dir <- here('Input')
-data_participants_info_dir <- here('Input', 'data_participants_info')
-data_participants_tapping_dir <- here('Input', 'data_participants_tapping')
+data_participants_info_dir <- here('data', 'experiment', 'raw', 'data_participants_info')
+data_participants_tapping_dir <- here('data', 'experiment', 'raw', 'data_participants_tapping')
 
 # files
 data_participants_info_filenames <- list.files(data_participants_info_dir)
@@ -120,11 +122,14 @@ Remove all responses that have a different number of responses than the number o
 ```{r cleaning}
 
 tapping.clean <- tapping.raw[0, ]
+tapping.removed <- tapping.raw[0, ]
 
 for (row_i in seq_len(nrow(tapping.raw))) {
   tapping_row <- tapping.raw[row_i, ]
   if (tapping_row$length == (length(splitPythonListString(tapping_row$resp_ITIs))) + 1) {
     tapping.clean <- rbind(tapping.clean, tapping_row)
+  } else {
+    tapping.removed <- rbind(tapping.removed, tapping_row)
   }
 }
 
@@ -164,23 +169,13 @@ for (row_i in seq_len(nrow(tapping.clean))) {
 # Fix age datatype
 ITIs$age <- as.integer(ITIs$age)
 
-# Save it and clean up
-saveRDS(ITIs, here('Dataframes', 'ITIs.rds'))
-write.csv(ITIs, here('Dataframes', 'ITIs.csv'))
-
-# gdata::keep(list=c('calculatePDVs', 'config', 'participants.info', 'splitPythonListString'), sure = TRUE)
 
 ```
-
-
-
 
 
 # ITI by trial dataframe
 
 ```{r per-trial}
-
-ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
 
 ITIs.bytrial <- ddply(ITIs, .(pp_id, age, gender, L1, handedness, musical_experience, stim_id, sequence_id,
                               stim_tempo_intended, stim_tempo,
@@ -193,19 +188,12 @@ ITIs.bytrial <- ddply(ITIs, .(pp_id, age, gender, L1, handedness, musical_experi
 
 ITIs.bytrial$edit_distance_avg <- ITIs.bytrial$edit_distance / ITIs.bytrial$length
 
-saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
-write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
-
-gdata::keep(list=c('calculatePDVs', 'config', 'participants.info', 'pp_ids', 'tapping.raw', 'splitPythonListString', 'ITIs', 'ITIs.bytrial'), sure=TRUE)
-
 ```
 
 
-# Binning
+# Calculate entropy
 
 ```{r entropy-ITIs}
-
-ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
 
 entropies <- double()
 
@@ -230,14 +218,10 @@ for (sequence_id in ITIs.bytrial$sequence_id) {
 
 ITIs.bytrial$resp_entropy <- entropies
 
-saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
-write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
 
 ```
 
 ```{r entropy-IOIs}
-
-ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
 
 entropies <- double()
 
@@ -260,19 +244,25 @@ for (sequence_id in ITIs.bytrial$sequence_id) {
 
 ITIs.bytrial$stim_entropy <- entropies
 
-saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
-write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
 
 ```
 
 ```{r entropy-diff}
 
-ITIs.bytrial <- readRDS(here('Dataframes', 'ITIs_bytrial.rds'))
-
 ITIs.bytrial$entropy_diff <- ITIs.bytrial$resp_entropy - ITIs.bytrial$stim_entropy
 
-saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
-write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
+```
 
+
+# save
+
+```{r write-out}
+
+saveRDS(ITIs, here('data', 'experiment', 'processed', 'ITIs.rds'))
+write.csv(ITIs, here('data', 'experiment', 'processed', 'ITIs.csv'))
+
+saveRDS(ITIs.bytrial, here('data', 'experiment', 'processed', 'ITIs_bytrial.rds'))
+write.csv(ITIs.bytrial, here('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
 
 ```
+
