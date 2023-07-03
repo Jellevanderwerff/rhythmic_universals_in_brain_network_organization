@@ -1,0 +1,278 @@
+---
+title: "NPOR: Data preparation"
+author: jellevanderwerff
+date: 04/04/2022
+output:
+    html_notebook:
+        code_folding: hide
+---
+
+# Loading packages
+
+```{r load-packages}
+
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require('pacman')) install.packages('pacman')
+
+# load packages
+p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'entropy')
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path('0 - dataprep.rmd'))
+
+# Load custom helper functions
+source(here('functions.R'))
+
+```
+
+# Loading data
+
+```{r load-data}
+
+####### EXPERIMENT CONFIG PARAMETERS #######
+
+# Read in the experiment config file
+config <- read.ini(here('Input', 'config.txt'))
+# Change data types
+for (i in seq_along(config$experiment)) {
+  config$experiment[i] <- as.double(config$experiment[i])
+}
+for (i in seq_along(config$training)) {
+  config$training[i] <- as.double(config$training[i])
+}
+
+############# FILE LOCATIONS ############
+
+# folders
+input_dir <- here('Input')
+data_participants_info_dir <- here('Input', 'data_participants_info')
+data_participants_tapping_dir <- here('Input', 'data_participants_tapping')
+
+# files
+data_participants_info_filenames <- list.files(data_participants_info_dir)
+data_participants_tapping_filenames <- list.files(data_participants_tapping_dir)
+
+##### INITIAL DATAFRAME ######
+pp_ids <- integer()
+
+# First the general participant info file
+if (length(data_participants_info_filenames) > 1) {
+  stop("Error: More than one file in the data_participants_info dir")
+} else {
+  participants.info <-
+    read.csv(file.path(data_participants_info_dir,
+                       data_participants_info_filenames[1]))
+}
+
+# Then all the participant files
+for (i in seq_along(data_participants_tapping_filenames)) {
+  filename <- data_participants_tapping_filenames[i]
+  if (endsWith(filename, '.csv')) {
+    pp_id <- as.integer(str_extract(filename, "[0-9]+"))
+    pp_ids <- c(pp_ids, pp_id)
+
+    assign(sprintf("participant.tapping.%d", pp_id),
+           read.csv(file.path(data_participants_tapping_dir, filename)))
+
+  } else {
+    stop("Files other than csv files in the participant tapping data dir")
+  }
+}
+
+# Combine everything into one df
+
+# start with an empty df
+tapping.raw <- data.frame(matrix(nrow=0, ncol=30))
+# get colnames from one of the df's and add column pp_id
+colnames(tapping.raw) <- c('pp_id', colnames(get(paste0("participant.tapping.", pp_ids[1]))))
+
+for (pp_id in pp_ids) {
+  temp_list <- get(str_glue("participant.tapping.{pp_id}"))
+
+  temp_df <- as.data.frame(temp_list)
+
+  # add pp_id to df as column
+  for (i in seq_len(nrow(temp_df))) {
+    temp_df$pp_id[i] <- pp_id
+  }
+  # combine with empty list
+  tapping.raw <- rbind(tapping.raw, temp_df)
+
+}
+
+# clean up
+gdata::keep(list=c('calculatePDVs', 'config', 'participants.info', 'pp_ids', 'tapping.raw', 'splitPythonListString'), sure=TRUE)
+
+```
+
+```{r prepare-participants-info}
+
+# Could do some recoding here
+
+```
+
+# Cleaning
+
+Remove all responses that have a different number of responses than the number of events in the stimulus:
+
+```{r cleaning}
+
+tapping.clean <- tapping.raw[0, ]
+
+for (row_i in seq_len(nrow(tapping.raw))) {
+  tapping_row <- tapping.raw[row_i, ]
+  if (tapping_row$length == (length(splitPythonListString(tapping_row$resp_ITIs))) + 1) {
+    tapping.clean <- rbind(tapping.clean, tapping_row)
+  }
+}
+
+
+```
+
+
+# ITI dataframe
+
+```{r ITIs}
+
+col_names <- c("pp_id", "age", "gender", "L1", "handedness", "musical_experience", "stim_id", "sequence_id", "length", 'n_resp', "stim_tempo_intended",
+               "stim_tempo", 'stim_sd', 'interval_i', 'stim_ioi', "resp_iti", "ioi_iti_diff")
+ITIs <- data.frame(matrix(nrow = 0, ncol = length(col_names)))
+
+for (row_i in seq_len(nrow(tapping.clean))) {
+  tapping_row <- tapping.clean[row_i, ]
+  pp_id <- tapping_row$pp_id
+  participant_row <- participants.info[participants.info$pp_id == pp_id, ]
+  out_list <- as.list(participant_row)
+  out_list$stim_id <- tapping_row$stim_id
+  out_list$sequence_id <- paste(pp_id, tapping_row$stim_id, sep="_")
+  out_list$length <- tapping_row$length
+  out_list$n_resp <- as.integer(length(splitPythonListString(tapping_row$resp_ITIs)) + 1)
+  out_list$stim_tempo_intended <- tapping_row$int_tempo
+  out_list$stim_tempo <- mean(diff(as.double(splitPythonListString(tapping_row$stim_onsets))))
+  out_list$stim_sd <- sd(diff(as.double(splitPythonListString(tapping_row$stim_onsets))))
+  out_list$interval_i <- 1:(out_list$length-1)
+  out_list$stim_ioi <- diff(as.double(splitPythonListString(tapping_row$stim_onsets)))
+  out_list$resp_iti <- as.double(splitPythonListString(tapping_row$resp_ITIs))
+  out_list$ioi_iti_diff <- abs(out_list$stim_ioi - out_list$resp_iti)
+
+  ITIs <- rbind(ITIs, as.data.frame(out_list))
+
+}
+
+# Fix age datatype
+ITIs$age <- as.integer(ITIs$age)
+
+# Save it and clean up
+saveRDS(ITIs, here('Dataframes', 'ITIs.rds'))
+write.csv(ITIs, here('Dataframes', 'ITIs.csv'))
+
+# gdata::keep(list=c('calculatePDVs', 'config', 'participants.info', 'splitPythonListString'), sure = TRUE)
+
+```
+
+
+
+
+
+# ITI by trial dataframe
+
+```{r per-trial}
+
+ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
+
+ITIs.bytrial <- ddply(ITIs, .(pp_id, age, gender, L1, handedness, musical_experience, stim_id, sequence_id,
+                              stim_tempo_intended, stim_tempo,
+                              stim_sd, length, n_resp),
+                      dplyr::summarize,
+                      ITI_mean = mean(resp_iti),
+                      ITI_sd = sd(resp_iti),
+                      edit_distance = sum(ioi_iti_diff)
+                      )
+
+ITIs.bytrial$edit_distance_avg <- ITIs.bytrial$edit_distance / ITIs.bytrial$length
+
+saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
+write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
+
+gdata::keep(list=c('calculatePDVs', 'config', 'participants.info', 'pp_ids', 'tapping.raw', 'splitPythonListString', 'ITIs', 'ITIs.bytrial'), sure=TRUE)
+
+```
+
+
+# Binning
+
+```{r entropy-ITIs}
+
+ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
+
+entropies <- double()
+
+i <- 1
+
+for (sequence_id in ITIs.bytrial$sequence_id) {
+  sequence_tempo <- ITIs.bytrial$ITI_mean[ITIs.bytrial$sequence_id == sequence_id]
+  sequence_itis <- ITIs$resp_iti[ITIs$sequence_id == sequence_id]
+
+  binsize <- sequence_tempo/8
+  cutpoints <- c(0, cumsum(rep(binsize, times=100)))
+  cutpoints_shifted <- cutpoints - (binsize/2)
+
+  sequence_itis_cut <- cut(sequence_itis, breaks=cutpoints_shifted, labels = FALSE)
+  occurrences <- table(sequence_itis_cut)
+
+  sequence_entropy <- entropy(occurrences)
+
+  entropies <- c(entropies, sequence_entropy)
+
+}
+
+ITIs.bytrial$resp_entropy <- entropies
+
+saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
+write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
+
+```
+
+```{r entropy-IOIs}
+
+ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
+
+entropies <- double()
+
+for (sequence_id in ITIs.bytrial$sequence_id) {
+  sequence_tempo <- ITIs.bytrial$stim_tempo[ITIs.bytrial$sequence_id == sequence_id]
+  sequence_iois <- ITIs$stim_ioi[ITIs$sequence_id == sequence_id]
+
+  binsize <- sequence_tempo/8 # 1/32th notes, assuming 1/4th is the ioi
+  cutpoints <- c(0, cumsum(rep(binsize, times=100)))
+  cutpoints_shifted <- cutpoints - (binsize/2)
+
+  sequence_iois_cut <- cut(sequence_iois, breaks=cutpoints_shifted, labels = FALSE)
+  occurrences <- table(sequence_iois_cut)
+
+  sequence_entropy <- entropy(occurrences)
+
+  entropies <- c(entropies, sequence_entropy)
+
+}
+
+ITIs.bytrial$stim_entropy <- entropies
+
+saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
+write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
+
+```
+
+```{r entropy-diff}
+
+ITIs.bytrial <- readRDS(here('Dataframes', 'ITIs_bytrial.rds'))
+
+ITIs.bytrial$entropy_diff <- ITIs.bytrial$resp_entropy - ITIs.bytrial$stim_entropy
+
+saveRDS(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.rds'))
+write.csv(ITIs.bytrial, here('Dataframes', 'ITIs_bytrial.csv'))
+
+
+```

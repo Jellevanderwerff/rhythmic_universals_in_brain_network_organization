@@ -1,0 +1,139 @@
+---
+title: "NPOR: Tables"
+author: jellevanderwerff
+date: 05/05/2022
+output:
+    html_notebook:
+        code_folding: hide
+        toc: true
+        toc_float: true
+---
+
+```{r load-packages, message = FALSE, echo = FALSE}
+
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require('pacman')) install.packages('pacman')
+
+# load packages
+p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 'knitr', 'kableExtra')
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path('2 - Tables.rmd'))
+
+# Load custom helper functions
+source(here('functions.R'))
+
+# Knitr output settingsecho = TRUE,
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = TRUE,
+                      message = FALSE)
+
+```
+
+
+```{r load-data, echo = FALSE}
+
+ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
+ITIs.bytrial <- readRDS(here('Dataframes', 'ITIs_bytrial.rds'))
+
+```
+
+# Group-level descriptive statistics
+
+```{r descriptives-group-level}
+trial_descriptives <- ddply(ITIs.bytrial, .(stim_tempo_intended, length), dplyr::summarize,
+                            n = length(sequence_id),
+                            mean_stim_tempo = mean(stim_tempo),
+                            stim_sd = mean(stim_sd),
+                            mean_tapping_tempo = mean(ITI_mean),
+                            mean_sd = mean(ITI_sd),
+                            mean_edit_distance = mean(edit_distance),
+                            mean_edit_distance_avg = mean(edit_distance_avg),
+                            mean_stim_entropy = mean(stim_entropy),
+                            mean_resp_entropy = mean(resp_entropy),
+                            mean_entropy_diff = mean(entropy_diff))
+
+col_names <- c("Tempo cond.",
+               "Length",
+               "n",
+               "IOI mean",
+               "IOI SD",
+               "ITI mean",
+               "ITI SD",
+               "Edit distance (total)",
+               "Edit distance (per interval)",
+               "Stim entropy",
+               "Resp entropy",
+               "Entropy difference")
+
+kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
+
+```
+
+
+# Descriptive statistics by subject
+```{r iti-bytrial-descriptives-by-subject}
+trial_descriptives <- ddply(ITIs.bytrial, .(pp_id), dplyr::summarize,
+                            n = length(sequence_id),
+                            mean_stim_tempo = mean(stim_tempo),
+                            stim_sd = mean(stim_sd),
+                            mean_tapping_tempo = mean(ITI_mean),
+                            mean_sd = mean(ITI_sd),
+                            mean_edit_distance = mean(edit_distance),
+                            mean_edit_distance_avg = mean(edit_distance_avg),
+                            mean_stim_entropy = mean(stim_entropy),
+                            mean_resp_entropy = mean(resp_entropy),
+                            mean_entropy_diff = mean(entropy_diff))
+
+col_names <- c("Subject",
+               "n",
+               "IOI mean",
+               "IOI SD",
+               "ITI mean",
+               "ITI SD",
+               "Edit distance (total)",
+               "Edit distance (per interval)",
+               "Stim entropy",
+               "Resp entropy",
+               "Entropy difference")
+
+kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
+
+
+```
+
+# Descriptive statistics by subject, tempo, and length
+
+```{r iti-bytrial-descriptives-by-subject-by-condition}
+trial_descriptives <- ddply(ITIs.bytrial, .(stim_tempo_intended, length, pp_id), dplyr::summarize,
+                            n = length(sequence_id),
+                            mean_stim_tempo = mean(stim_tempo),
+                            stim_sd = mean(stim_sd),
+                            mean_tapping_tempo = mean(ITI_mean),
+                            mean_sd = mean(ITI_sd),
+                            mean_edit_distance = mean(edit_distance),
+                            mean_edit_distance_avg = mean(edit_distance_avg),
+                            mean_stim_entropy = mean(stim_entropy),
+                            mean_resp_entropy = mean(resp_entropy),
+                            mean_entropy_diff = mean(entropy_diff))
+
+col_names <- c("Tempo cond.",
+               "Length",
+               "Subject",
+               "n",
+               "IOI mean",
+               "IOI SD",
+               "ITI mean",
+               "ITI SD",
+               "Edit distance (total)",
+               "Edit distance (per interval)",
+               "Stim entropy",
+               "Resp entropy",
+               "Entropy difference")
+
+kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
+
+
+```

@@ -1,0 +1,47 @@
+# Experiment config
+
+[training]
+# Number of trials in one round (there's multiple rounds that use the same stimuli)
+number_of_trials = 4
+
+# Number of successful trials needed to get through the training phase
+number_of_successful_trials_needed = 3
+
+# Failing criteria
+min_resp_short = 4
+max_resp_short = 4
+min_resp_long = 7
+max_resp_long = 9
+
+[experiment]
+# number of trials
+n_trials = 192
+n_trials_per_block = 48
+trials_per_cell = 48
+
+# Left and right bounds (a and b) of uniform distribution
+slow_a = 350
+slow_b = 850
+fast_a = 150
+fast_b = 650
+
+# How big of a gap for preventing subliminal perturbations? Will be added on both sides.
+slow_gap = 60
+fast_gap = 40
+
+# Number of events per sequence
+length_short = 4
+length_long = 5
+
+
+# Amount of silence added at the beginning (in ms)
+amount_of_silence_beginning = 1000
+
+# Amount of additional silence added at the end (as a fraction of the played back stimulus duration), used in the JS
+amount_of_silence_end = 1.5
+
+# Maximum experiment duration in minutes (this is the summed total of all stimuli times two)
+# Doesn't take into account the breaks in between the blocks etc.
+maximum_experiment_duration = 18
+# How much extra time do we calculate for stuff like loading/durations that are difficult to calculate.
+maximum_duration_slack = 1
