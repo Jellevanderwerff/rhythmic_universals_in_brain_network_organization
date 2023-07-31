@@ -19,7 +19,7 @@ if (!require("pacman")) install.packages("pacman")
 p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "entropy")
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path("scripts", "dataprep.rmd"))
+here::i_am(file.path("scripts", "dataprep_pilot.rmd"))
 
 # select correct here
 here <- here::here
@@ -174,74 +174,18 @@ ITIs.bytrial <- ddply(ITIs, .(
 ),
 dplyr::summarize,
 ITI_mean = mean(resp_iti),
-ITI_sd = sd(resp_iti),
-edit_distance = sum(ioi_iti_diff)
+ITI_sd = sd(resp_iti)
 )
 
-ITIs.bytrial$edit_distance_avg <- ITIs.bytrial$edit_distance / ITIs.bytrial$length
 ```
 
 
-# Calculate entropy
-
-```{r entropy-ITIs}
-entropies <- double()
-
-i <- 1
-
-for (sequence_id in ITIs.bytrial$sequence_id) {
-  sequence_tempo <- ITIs.bytrial$ITI_mean[ITIs.bytrial$sequence_id == sequence_id]
-  sequence_itis <- ITIs$resp_iti[ITIs$sequence_id == sequence_id]
-
-  binsize <- sequence_tempo / 8
-  cutpoints <- c(0, cumsum(rep(binsize, times = 100)))
-  cutpoints_shifted <- cutpoints - (binsize / 2)
-
-  sequence_itis_cut <- cut(sequence_itis, breaks = cutpoints_shifted, labels = FALSE)
-  occurrences <- table(sequence_itis_cut)
-
-  sequence_entropy <- entropy(occurrences)
-
-  entropies <- c(entropies, sequence_entropy)
-}
-
-ITIs.bytrial$resp_entropy <- entropies
-```
-
-```{r entropy-IOIs}
-entropies <- double()
-
-for (sequence_id in ITIs.bytrial$sequence_id) {
-  sequence_tempo <- ITIs.bytrial$stim_tempo[ITIs.bytrial$sequence_id == sequence_id]
-  sequence_iois <- ITIs$stim_ioi[ITIs$sequence_id == sequence_id]
-
-  binsize <- sequence_tempo / 8 # 1/32th notes, assuming 1/4th is the ioi
-  cutpoints <- c(0, cumsum(rep(binsize, times = 100)))
-  cutpoints_shifted <- cutpoints - (binsize / 2)
-
-  sequence_iois_cut <- cut(sequence_iois, breaks = cutpoints_shifted, labels = FALSE)
-  occurrences <- table(sequence_iois_cut)
-
-  sequence_entropy <- entropy(occurrences)
-
-  entropies <- c(entropies, sequence_entropy)
-}
-
-ITIs.bytrial$stim_entropy <- entropies
-```
-
-```{r entropy-diff}
-ITIs.bytrial$entropy_diff <- ITIs.bytrial$resp_entropy - ITIs.bytrial$stim_entropy
-```
 
 
 # save
 
 ```{r write-out}
-saveRDS(ITIs, here("data", "pilot", "processed", "ITIs.rds"))
-write.csv(ITIs, here("data", "pilot", "processed", "ITIs.csv"))
-
-saveRDS(ITIs.bytrial, here("data", "pilot", "processed", "ITIs_bytrial.rds"))
-write.csv(ITIs.bytrial, here("data", "pilot", "processed", "ITIs_bytrial.csv"))
+write.csv(ITIs, here("data", "pilot", "processed", "ITIs.csv"), row.names = FALSE)
+write.csv(ITIs.bytrial, here("data", "pilot", "processed", "ITIs_bytrial.csv"), row.names = FALSE)
 ```
 

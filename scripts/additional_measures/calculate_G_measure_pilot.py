@@ -11,7 +11,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Load data
-raw_df = pd.read_csv(os.path.join('..', 'data', 'pilot', 'processed', 'ITIs.csv'))
+raw_df = pd.read_csv(os.path.join('data', 'pilot', 'processed', 'ITIs.csv'))
 
 # clean
 clean_df = raw_df[raw_df.resp_iti < 1200]
@@ -92,13 +92,17 @@ G_df.pp_id = G_df.pp_id.astype(int)
 G_df.stim_tempo_intended = G_df.stim_tempo_intended.astype(int)
 
 # open ITIs and ITIs_bytrial
-ITIs = pd.read_csv(os.path.join('..', 'data', 'pilot', 'processed', 'ITIs.csv'), index_col=0)
-ITIs_bytrial = pd.read_csv(os.path.join('..', 'data', 'pilot', 'processed', 'ITIs_bytrial.csv'), index_col=0)
+ITIs = pd.read_csv(os.path.join('data', 'pilot', 'processed', 'ITIs.csv'))
+ITIs_bytrial = pd.read_csv(os.path.join('data', 'pilot', 'processed', 'ITIs_bytrial.csv'))
 
 # add G measure to ITIs and ITIs_bytrial
 ITIs = pd.merge(ITIs, G_df, on=['pp_id', 'stim_tempo_intended'])
 ITIs_bytrial = pd.merge(ITIs_bytrial, G_df, on=['pp_id', 'stim_tempo_intended'])
 
+# sort
+ITIs = ITIs.sort_values(by = ["pp_id", "stim_id"]).reset_index(drop = True)
+ITIs_bytrial = ITIs_bytrial.sort_values(by = ["pp_id", "stim_id"]).reset_index(drop = True)
+
 # save
-ITIs.to_csv(os.path.join('..', 'data', 'pilot', 'processed', 'ITIs.csv'))
-ITIs_bytrial.to_csv(os.path.join('..', 'data', 'pilot', 'processed', 'ITIs_bytrial.csv'))
+ITIs.to_csv(os.path.join('data', 'pilot', 'processed', 'ITIs.csv'), index = False)
+ITIs_bytrial.to_csv(os.path.join('data', 'pilot', 'processed', 'ITIs_bytrial.csv'), index = False)
