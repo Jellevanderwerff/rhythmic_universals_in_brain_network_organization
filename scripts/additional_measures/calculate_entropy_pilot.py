@@ -14,10 +14,10 @@ for sequence, sequence_df in ITIs.groupby('sequence_id'):
     resp_entropy = thebeat.stats.get_rhythmic_entropy(resp, bin_fraction=1/16)
     ITIs.loc[ITIs['sequence_id'] == sequence, 'stim_entropy'] = stim_entropy
     ITIs.loc[ITIs['sequence_id'] == sequence, 'resp_entropy'] = resp_entropy
-    ITIs.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = stim_entropy - resp_entropy
+    ITIs.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = resp_entropy - stim_entropy
     ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'stim_entropy'] = stim_entropy
     ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'resp_entropy'] = resp_entropy
-    ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = stim_entropy - resp_entropy
+    ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = resp_entropy - stim_entropy
 
 # Save the data
 ITIs.to_csv(os.path.join('data', 'pilot', 'processed', 'ITIs.csv'), index=False)

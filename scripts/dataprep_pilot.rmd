@@ -189,3 +189,19 @@ write.csv(ITIs, here("data", "pilot", "processed", "ITIs.csv"), row.names = FALS
 write.csv(ITIs.bytrial, here("data", "pilot", "processed", "ITIs_bytrial.csv"), row.names = FALSE)
 ```
 
+# Additional measures
+
+Here we calculate additional measures using the scripts in the 'scripts/additional_measures' folder.
+If not using Linux/Mac OS, you can run the scripts in that folder separately rather than using
+the code below.
+
+```{bash}
+
+python3 ./scripts/additional_measures/calculate_editdistance_pilot.py
+python3 ./scripts/additional_measures/calculate_entropy_pilot.py
+python3 ./scripts/additional_measures/calculate_G_measure_pilot.py
+python3 ./scripts/additional_measures/calculate_rhythmic_contours_pilot.py
+python3 ./scripts/additional_measures/pp_measures_pilot.py
+
+
+```

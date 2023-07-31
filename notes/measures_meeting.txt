@@ -13,19 +13,22 @@ Question:
 
 To-do measures:
 
-- shannon entropy
-- tempo range (i.e. SD of response tempi within PP's)
-- sequential interval ratios
+x shannon entropy
+x tempo range (i.e. SD of response tempi within PP's)
+-
+
+x sequential interval ratios
 	- calculate the difference between sequential interval ratios of the stimulus and the response ()
 - phase space plots
-- k-means clustering score (Silhouette score)
+x k-means clustering score (Silhouette score)
 - bias towards binary ratios (Procrustes analysis or templates > paper by Peter Keller)
 	- 4 tones
 	- 5 tones
 - bias towards ternary ratios (Procrustes analysis or templates > paper by Peter Keller)
 	- 4 tones
 	- 5 tones
-- rhythmic contours
+x rhythmic contours
+	i.e. 'ABAB' etc.
 
 
 Visualizations
