@@ -25,7 +25,7 @@ for sequence_id, sequence_df in ITIs.groupby("sequence_id"):
     ITIs_bytrial.loc[ITIs_bytrial["sequence_id"] == sequence_id, "edit_distance"] = edit_distance
 
 
-# change col data types
+# change col data types 
 ITIs.edit_distance = ITIs.edit_distance.astype(int)
 ITIs_bytrial.edit_distance = ITIs_bytrial.edit_distance.astype(int)
 

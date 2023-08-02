@@ -154,7 +154,7 @@ for (row_i in seq_len(nrow(tapping.clean))) {
   out_list$interval_i <- 1:(out_list$length - 1)
   out_list$stim_ioi <- diff(as.double(splitPythonListString(tapping_row$stim_onsets)))
   out_list$resp_iti <- as.double(splitPythonListString(tapping_row$resp_ITIs))
-  out_list$ioi_iti_diff <- abs(out_list$stim_ioi - out_list$resp_iti)
+  out_list$ioi_iti_diff <- abs(out_list$resp_iti - out_list$stim_ioi)
 
   ITIs <- rbind(ITIs, as.data.frame(out_list))
 }
