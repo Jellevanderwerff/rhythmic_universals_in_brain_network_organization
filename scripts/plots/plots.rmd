@@ -22,7 +22,7 @@ if (!require('pacman')) install.packages('pacman')
 p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 'gghighlight', 'ggridges', 'viridis', 'RColorBrewer')
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path('1 - Plots.rmd'))
+here::i_am(file.path('scripts', 'plots', 'plots.Rmd'))
 
 # Load custom helper functions
 source(here('functions.R'))

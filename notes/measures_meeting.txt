@@ -30,6 +30,8 @@ x k-means clustering score (Silhouette score)
 x rhythmic contours
 	i.e. 'ABAB' etc.
 
+'shorter', 'longer', 'longer', 'shorter'
+
 
 Visualizations
 - how to visualize clusters of IOIs
