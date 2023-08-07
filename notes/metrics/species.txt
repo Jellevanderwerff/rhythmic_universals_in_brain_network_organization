@@ -1,0 +1,30 @@
+Human                                            492
+Macaca mulatta                                     8
+Taeniopygia guttata                                5
+Zalophus californianus                             3
+Macaca fascicularis                                3
+Pan troglodytes                                    3
+Gryllus bimaculatus                                2
+Callithrix jacchus                                 2
+Sabra rat                                          2
+Long-evans rat                                     2
+Fischer-344 rat                                    2
+C57/bl6j, thy1-chr2-yfp, pvalb-cre, gad67-gfp      1
+Sturnus vulgaris                                   1
+Cavia porcellus                                    1
+C57bl/6                                            1
+C57bl                                              1
+Felis catus                                        1
+Macaca afscicularis                                1
+Pan paniscus                                       1
+Macaca fuscata                                     1
+Mouse                                              1
+Spheniscus demersus                                1
+Meriones unguiculatus                              1
+Lonchura oryzivora                                 1
+Rattus norvegicus                                  1
+Gallus gallus domesticus                           1
+Wistar rat                                         1
+Wister rat                                         1
+C57bl/6j                                           1
+C57bl/6jrj                                         1

@@ -19,13 +19,13 @@ output:
 if (!require('pacman')) install.packages('pacman')
 
 # load packages
-p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 'gghighlight', 'ggridges', 'viridis', 'RColorBrewer')
+p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 
+'gghighlight', 'ggridges', 'viridis', 'RColorBrewer', 'lemon', 'scico')
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
 here::i_am(file.path('scripts', 'plots', 'plots.Rmd'))
 
-# Load custom helper functions
-source(here('functions.R'))
+source(here('scripts', 'custom_ggplot_theme.R'))
 
 # Knitr output settings
 knitr::opts_chunk$set(
@@ -35,102 +35,45 @@ knitr::opts_chunk$set(
   out.width = '100%'
 )
 
-```
-
-
-```{r load-data, echo = FALSE}
-
-ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
-ITIs.bytrial <- readRDS(here('Dataframes', 'ITIs_bytrial.rds'))
-
-```
-
-# Tempo
-
-```{r hist-tempo-by-pp}
-
-ITIs.bytrial.tempdiff <- ITIs.bytrial
-ITIs.bytrial.tempdiff$tempdiff <- ITIs.bytrial.tempdiff$ITI_mean - ITIs.bytrial.tempdiff$stim_tempo
-
-ggplot(ITIs.bytrial.tempdiff, aes(x = tempdiff, fill = factor(pp_id), group = factor(pp_id))) +
-  geom_density(alpha = 0.5) +
-  labs(x = "Difference between tapping tempo and actual tempo (ms)",
-       y = "Density",
-       fill = "Person",
-       title = "Difference between average sequence IOI and average tapping ITI", subtitle = "Negative values mean rushing, positive values mean lagging.")
-
-ggsave(here('Plots', 'tempdiff.png'), device = "png")
-
-
-
-
-```
-
-```{r group-ioi-vs-iti}
-
-# melt
-ioi.iti <- melt(ITIs, measure.vars = c("stim_ioi", "resp_iti"))
-
-ggplot(ioi.iti, aes(x = value, fill = variable, group = variable)) +
-  geom_density(alpha = 0.5, bw = 5) +
-  geom_rug(aes(colour = variable), alpha = 0.5, show.legend = FALSE) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scale = "free",
-             labeller = as_labeller(c('4' = '4 events',
-                                      '5' = '5 events',
-                                      '400' = 'Fast trials (400 ms mean IOI)',
-                                      '600' = 'Slow trials (600 ms mean IOI)'))) +
-  labs(x = "IOI/ITI", y = "Density", fill = "Stim/Response") +
-  scale_fill_jama(labels = c("Stimulus", "Response")) +
-  scale_colour_jama()
-
-ggsave(here('Plots', 'ITI_vs_IOI.png'), device = "png")
-
-
-```
-
-```{r individual-itis-and-iois}
-
-ggplot(ITIs[ITIs$resp_iti < 1900,], aes(x = resp_iti, fill = factor(pp_id))) +
-  geom_density(alpha = 0.5, bw = 15) +
-  geom_density(aes(x = stim_ioi), colour = "red", linetype = 3, size = 1.2, inherit.aes = FALSE, show.legend = FALSE, bw = 15) +
-  geom_rug(aes(colour = factor(pp_id)), alpha = 0.2, show.legend = FALSE) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scales = "free",
-             labeller = as_labeller(c('4' = '4 events',
-                                      '5' = '5 events',
-                                      '400' = 'Fast trials (400 ms mean IOI)',
-                                      '600' = 'Slow trials (600 ms mean IOI)'))) +
-  labs(x = "Distribution of intervals between taps",
-       y = "Density",
-       fill = "Subject",
-       title = "Inter-tap intervals",
-       subtitle = "The red dotted line represents the stimulus intervals") +
-  scale_fill_viridis(discrete = TRUE, option = "A") +
-  scale_colour_viridis(discrete = TRUE, option = "A")
-
-ggsave(here('Plots', 'ITIs and IOIs.png'))
+labels <- as_labeller(c(
+  '400' = '400 ms',
+  '600' = '600 ms',
+  '4' = '4 events',
+  '5' = '5 events'
+))
 
 ```
 
 
-# Variance
+```{r load-data}
 
-```{r density sd}
+ITIs <- read.csv(here('data', 'experiment', 'processed', 'ITIs.csv'))
+ITIs.bytrial <- read.csv(here('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
+pp.measures <- read.csv(here('data', 'experiment', 'processed', 'by_pp.csv'))
+interval.ratios <- read.csv(here('data', 'experiment', 'processed', 'interval_ratios.csv'))
 
-sd.diff <- melt(ITIs.bytrial, measure.vars = c("stim_sd", "ITI_sd"))
+```
 
-ggplot(sd.diff, aes(x = value, fill = variable)) +
-  geom_density(alpha = 0.5) +
-  geom_rug(aes(colour = variable), show.legend = FALSE, alpha = 0.5) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scale = "free",
-             labeller = as_labeller(c('4' = '4 events',
-                                      '5' = '5 events',
-                                      '400' = 'Fast trials (400 ms mean IOI)',
-                                      '600' = 'Slow trials (600 ms mean IOI)'))) +
-  labs(x = "SD of sequence intervals", y = "Density", fill = "Stim/Response") +
-  scale_fill_jama(labels = c("Stimulus", "Response")) +
-  scale_colour_jama()
+```{r datatypes}
 
-ggsave(here('Plots', 'sd.png'), device = "png")
+pp.measures$pp_id <- as.factor(pp.measures$pp_id)
+pp.measures$stim_tempo_intended <- as.factor(pp.measures$stim_tempo_intended)
+pp.measures$length <- as.factor(pp.measures$length)
+
+pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = '_'))
+
+
+ITIs$pp_id <- as.factor(ITIs$pp_id)
+ITIs$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = '_'))
+
+ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = '_'))
+ITIs.bytrial$pp_id <- as.factor(ITIs.bytrial$pp_id)
+
+
+interval.ratios$pp_id <- as.factor(interval.ratios$pp_id)
+interval.ratios$condition <- as.factor(paste(interval.ratios$stim_tempo_intended, interval.ratios$length, sep = '_'))
+
+```
 
 
 ```
@@ -138,101 +81,102 @@ ggsave(here('Plots', 'sd.png'), device = "png")
 
 
 
-
-
-
-
-# Entropy
-
-## Values
-
-```{r entropy-density}
-
-labels <- as_labeller(c('4' = '4 events',
-                        '5' = '5 events',
-                        '400' = 'Fast trials (400 ms mean IOI)',
-                        '600' = 'Slow trials (600 ms mean IOI)'))
-
-ggplot(ITIs.bytrial,
-       aes(x = resp_entropy, fill = factor(pp_id))) +
-  geom_density(alpha = 0.5, bw = 0.025) +
-  geom_density(aes(x = stim_entropy), inherit.aes = FALSE, colour = "red", size = 1.2, linetype = 2, show.legend = FALSE, bw = 0.025) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scales = "free_y", labeller = labels) +
-  labs(x = "Shannon entropy",
-       y = "Density",
-       fill = "Subject",
-       title = "Stimulus and response entropy",
-       subtitle = "Stimulus entropy values are indicated by red dotted line") +
-  scale_fill_viridis(discrete = TRUE, option = "A") +
-  coord_cartesian(xlim = c(-0.2, 1.5))
-
-ggsave(here('Plots', 'entropy_density.png'))
-
 ```
 
-```{r entropy-histogram}
+## Participant measures
 
-labels <- as_labeller(c('4' = '4 events',
-                        '5' = '5 events',
-                        '400' = 'Fast trials (400 ms mean IOI)',
-                        '600' = 'Slow trials (600 ms mean IOI)'))
+###  G score
 
-ggplot(ITIs.bytrial,
-       aes(x = resp_entropy, fill = factor(pp_id))) +
-  geom_histogram(alpha = 0.5) +
-  geom_histogram(aes(x = stim_entropy), inherit.aes = FALSE, colour = "red", linetype = 3, show.legend = FALSE, alpha = 0.5) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scales = "free", labeller = labels) +
-  labs(x = "Shannon entropy",
-       y = "Density",
-       fill = "Subject",
-       title = "Entropy",
-       subtitle = "Stimulus entropy values are indicated by red dotted line") +
-  scale_fill_viridis(discrete = TRUE, option = "A") +
-  scale_colour_viridis(discrete = TRUE, option = "A")
+```{r g-score}
 
-```
-
-
-## Difference
-
-
-```{r iti-entropy-diff-histogram}
-
-
-labels <- as_labeller(c('4' = '4 events',
-                        '5' = '5 events',
-                        '400' = 'Fast trials (400 ms mean IOI)',
-                        '600' = 'Slow trials (600 ms mean IOI)'))
-
-ggplot(ITIs.bytrial, aes(x = entropy_diff, fill = factor(pp_id), group = factor(pp_id))) +
-  geom_histogram(alpha = 0.8) +
-  facet_wrap(~factor(length) + factor(stim_tempo_intended), scales = "free", labeller = labels) +
-  labs(x = "Difference in Shannon entropy between stimulus and response",
-       y = "Count",
-       fill = "Subject",
-       title = "Entropic difference",
-       subtitle = "A value of zero indicates entropy was the same for stimulus and response.
-Negative values indicate subject reducing entropy. Positive values indicate subject increasing entropy.")
-
-ggsave(here('Plots', 'entropy_diff.png'))
-#        scale_fill_manual(values = c("#557885", "#557885", "#557885", "#557885", "#557885", "#DF8F44"),
-#                           labels = c("911", '916', '917', '920', '921', 'Stimulus'))
+ggplot(pp.measures, aes(x = condition, y = G, colour = factor(pp_id), label = pp_id)) +
+geom_point() +
+geom_text(size = 8, vjust = 1, hjust = -0.3) +
+theme_jelle()
 
 ```
 
 
 
+### Tempo difference
 
-## Individual differences
+```{r tempo-diff}
 
-```{r entropy-ids}
-
-ggplot(ITIs.bytrial, aes(x = entropy_diff)) +
-  geom_histogram(alpha = 0.8) +
-  facet_wrap(~factor(pp_id)) +
-  labs(x = "Entropy difference", y = "Count", title = "Entropy difference by participant",
-       subtitle = "A value of zero indicates entropy was the same for stimulus and response. Negative values indicate subject reducing entropy. Positive values indicate subject increasing entropy.")
+ggplot(pp.measures, aes(x = tempo_diff_avg, y = condition, colour = factor(pp_id), label = pp_id)) +
+geom_pointrange(aes(xmin = tempo_diff_avg - tempo_diff_sd, xmax = tempo_diff_avg + tempo_diff_sd)) +
+facet_grid(~condition)
 
 ```
 
 
+### Entropy
+
+```{r entropy}
+
+ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
+stat_summary(geom = "pointrange", position = position_dodge(width = 0.5)) +
+facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+theme_jelle() +
+theme(axis.title.x=element_blank(),
+      axis.text.x=element_blank(),
+      axis.ticks.x=element_blank()) +
+labs(y = 'Entropy difference', title = "Entropy difference by participant and condition",
+subtitle = "Negative values mean participants decreased entropy")
+
+```')
+
+```
+
+
+## Distributions
+
+### ITI ridges
+
+```{r ITI-ridges}
+
+ggplot(ITIs, aes(x = resp_iti, y = factor(pp_id), fill = factor(pp_id))) +
+geom_density_ridges(alpha = 0.75) + 
+theme_ridges() +
+facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+theme_jelle() +
+labs(x = 'ITI [ms]', y = 'Participant')
+
+```
+
+### Interval ratios
+
+Here with the conditions plotted as facets:
+
+```{r intervalratios-ridges}
+
+ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = factor(pp_id))) +
+geom_density_ridges(alpha = 0.75, show.legend = FALSE) + 
+theme_ridges() +
+facet_rep_grid(rows = vars(stim_tempo_intended), cols = vars(length), repeat.tick.labels = "x", 
+        labeller = labels) +
+theme_jelle() +
+xlim(0, 1) +
+scale_x_continuous(labels = c('', '1:3', '1:2', '1:1', '2:1', '3:1', ''), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
+geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = 'dashed', color = 'grey') +
+labs(x = 'Interval ratio', y = 'Participant')
+
+ggsave(here('plots', 'intervalratios-ridges.pdf'))
+
+```
+
+
+```{r intervalratios-ridges-condition}
+
+ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = condition)) +
+geom_density_ridges(alpha = 0.6) + 
+theme_ridges() +
+theme_jelle() +
+xlim(0, 1) +
+scale_x_continuous(labels = c('', '1:3', '1:2', '1:1', '2:1', '3:1', ''), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
+geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = 'dashed', color = 'grey') +
+labs(x = 'Interval ratio', y = 'Participant') +
+scale_fill_npg(labels = c('400 ms, 4 events', '400 ms, 5 events', '600 ms, 4 events', '600 ms, 5 events'))
+
+ggsave(here('plots', 'intervalratios-ridges-2.pdf'))
+
+```
