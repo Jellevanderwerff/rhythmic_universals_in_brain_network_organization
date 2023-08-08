@@ -12,88 +12,81 @@ output:
 # Preliminaries
 
 ```{r load-packages, echo = FALSE, warning = FALSE, message = FALSE}
-
 ############# PACKAGES AND OTHER PRELIMINARIES ############
 
 # for easy loading of packages
-if (!require('pacman')) install.packages('pacman')
+if (!require("pacman")) install.packages("pacman")
 
 # load packages
-p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 
-'gghighlight', 'ggridges', 'viridis', 'RColorBrewer', 'lemon', 'scico')
+p_load(
+  "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
+  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico"
+)
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path('scripts', 'plots', 'plots.Rmd'))
+here::i_am(file.path("scripts", "plots", "plots.Rmd"))
 
-source(here('scripts', 'custom_ggplot_theme.R'))
+source(here("scripts", "custom_ggplot_theme.R"))
 
 # Knitr output settings
 knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
   message = FALSE,
-  out.width = '100%'
+  out.width = "100%",
+  cache = TRUE
 )
 
 labels <- as_labeller(c(
-  '400' = '400 ms',
-  '600' = '600 ms',
-  '4' = '4 events',
-  '5' = '5 events'
+  "400" = "400 ms",
+  "600" = "600 ms",
+  "4" = "4 events",
+  "5" = "5 events"
 ))
-
 ```
 
 
 ```{r load-data}
-
-ITIs <- read.csv(here('data', 'experiment', 'processed', 'ITIs.csv'))
-ITIs.bytrial <- read.csv(here('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
-pp.measures <- read.csv(here('data', 'experiment', 'processed', 'by_pp.csv'))
-interval.ratios <- read.csv(here('data', 'experiment', 'processed', 'interval_ratios.csv'))
-
+ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
+ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "by_pp.csv"))
+interval.ratios <- read.csv(here("data", "experiment", "processed", "interval_ratios.csv"))
 ```
 
 ```{r datatypes}
-
 pp.measures$pp_id <- as.factor(pp.measures$pp_id)
 pp.measures$stim_tempo_intended <- as.factor(pp.measures$stim_tempo_intended)
 pp.measures$length <- as.factor(pp.measures$length)
 
-pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = '_'))
+pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = "_"))
 
 
 ITIs$pp_id <- as.factor(ITIs$pp_id)
-ITIs$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = '_'))
+ITIs$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = "_"))
 
-ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = '_'))
+ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = "_"))
 ITIs.bytrial$pp_id <- as.factor(ITIs.bytrial$pp_id)
 
 
 interval.ratios$pp_id <- as.factor(interval.ratios$pp_id)
-interval.ratios$condition <- as.factor(paste(interval.ratios$stim_tempo_intended, interval.ratios$length, sep = '_'))
-
+interval.ratios$condition <- as.factor(paste(interval.ratios$stim_tempo_intended, interval.ratios$length, sep = "_"))
 ```
 
-
-```
-
-
-
-
-```
 
 ## Participant measures
 
 ###  G score
 
 ```{r g-score}
-
-ggplot(pp.measures, aes(x = condition, y = G, colour = factor(pp_id), label = pp_id)) +
-geom_point() +
-geom_text(size = 8, vjust = 1, hjust = -0.3) +
-theme_jelle()
-
+ggplot(pp.measures, aes(x = condition, y = G, fill = condition)) +
+  geom_point(size = 1, show.legend = FALSE) +
+  scale_x_discrete(labels = c("400_4" = "400 ms\n4 events", "400_5" = "400 ms\n5 events", "600_4" = "600 ms\n4 events", "600_5" = "600 ms\n5 events")) +
+  geom_violin(alpha = 0.5, show.legend = FALSE) +
+  geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
+  theme_jelle() +
+  labs(x = "Condition", y = "G measure", title = "Grammatical redundancy by condition")
+ggsave(here("plots", "g-score.pdf"))
+```
 ```
 
 
@@ -101,29 +94,89 @@ theme_jelle()
 ### Tempo difference
 
 ```{r tempo-diff}
+pp.measures.std <- ddply(pp.measures, .(pp_id, stim_tempo_intended, length), summarize,
+  y = tempo_diff_avg,
+  ymin = tempo_diff_avg - tempo_diff_sd,
+  ymax = tempo_diff_avg + tempo_diff_sd
+)
 
-ggplot(pp.measures, aes(x = tempo_diff_avg, y = condition, colour = factor(pp_id), label = pp_id)) +
-geom_pointrange(aes(xmin = tempo_diff_avg - tempo_diff_sd, xmax = tempo_diff_avg + tempo_diff_sd)) +
-facet_grid(~condition)
 
+ggplot(pp.measures.std, aes(x = 1, y = y, colour = factor(pp_id), label = pp_id)) +
+  geom_pointrange(aes(ymin = ymin, ymax = ymax), position = position_dodge(width = 0.1)) +
+  theme_jelle() +
+  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  ) +
+  labs(
+    y = "Tempo difference [ms]", title = "Tempo difference by participant and condition",
+    subtitle = "Negative values mean participants decreased tempo.", colour = "Participant",
+    caption = "Error bars indicate ± SD.\nNote that the values presented here are averages of 
+    positive and negative numbers, which complicates interpretation."
+  ) +
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 12))
+
+ggsave(here("plots", "tempo-diff.pdf"))
+```
 ```
 
 
 ### Entropy
 
 ```{r entropy}
-
 ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
-stat_summary(geom = "pointrange", position = position_dodge(width = 0.5)) +
-facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
-theme_jelle() +
-theme(axis.title.x=element_blank(),
-      axis.text.x=element_blank(),
-      axis.ticks.x=element_blank()) +
-labs(y = 'Entropy difference', title = "Entropy difference by participant and condition",
-subtitle = "Negative values mean participants decreased entropy")
+  stat_summary(geom = "pointrange", position = position_dodge(width = 0.1)) +
+  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+  theme_jelle() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  ) +
+  labs(
+    y = "Entropy difference", title = "Entropy difference by participant and condition",
+    subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
+  )
+ggsave(here("plots", "entropy.pdf"))
+```
+```
+```
 
-```')
+
+### Preference for binary or ternary ratios
+
+```{r binary-ternary-dataprep}
+binary.ternary <- reshape2::melt(pp.measures,
+  id.vars = c("pp_id", "stim_tempo_intended", "length"),
+  measure.vars = c("preference_binary_D", "preference_ternary_D")
+)
+
+colnames(binary.ternary) <- c("pp_id", "stim_tempo_intended", "length", "ratio_type", "KS_D")
+binary.ternary$ratio_type <- as.character(binary.ternary$ratio_type)
+binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_binary_D"] <- "Binary"
+binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_ternary_D"] <- "Ternary"
+binary.ternary$ratio_type <- as.factor(binary.ternary$ratio_type)
+
+```
+
+```{r binary-ternary}
+
+ggplot(binary.ternary, aes(x = ratio_type, y = KS_D, fill = ratio_type)) +
+  geom_violin(alpha = 0.5, show.legend = FALSE) +
+  geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
+  geom_point(size = 1, show.legend = FALSE, position = position_jitter(width = 0.2)) +
+  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+  theme_jelle() +
+  labs(
+    x = "Ratio type", y = "Kolmigorov-Smirnov D", title = "Preference for binary vs. ternary ratios",
+    subtitle = "Higher values mean more preference", colour = "Participant"
+  )
+ggsave(here("plots", "binary-ternary.pdf"))
+```
+```
+```
 
 ```
 
@@ -133,50 +186,48 @@ subtitle = "Negative values mean participants decreased entropy")
 ### ITI ridges
 
 ```{r ITI-ridges}
-
-ggplot(ITIs, aes(x = resp_iti, y = factor(pp_id), fill = factor(pp_id))) +
-geom_density_ridges(alpha = 0.75) + 
-theme_ridges() +
-facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
-theme_jelle() +
-labs(x = 'ITI [ms]', y = 'Participant')
-
+ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id)) +
+  geom_density_ridges(alpha = 0.75, show.legend = FALSE) +
+  theme_ridges(center = TRUE) +
+  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
+  theme_jelle() +
+  labs(x = "ITI [ms]", y = "Participant")
+ggsave(here("plots", "ITI-ridges.pdf"))
 ```
+
+
 
 ### Interval ratios
 
 Here with the conditions plotted as facets:
 
 ```{r intervalratios-ridges}
-
 ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = factor(pp_id))) +
-geom_density_ridges(alpha = 0.75, show.legend = FALSE) + 
-theme_ridges() +
-facet_rep_grid(rows = vars(stim_tempo_intended), cols = vars(length), repeat.tick.labels = "x", 
-        labeller = labels) +
-theme_jelle() +
-xlim(0, 1) +
-scale_x_continuous(labels = c('', '1:3', '1:2', '1:1', '2:1', '3:1', ''), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
-geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = 'dashed', color = 'grey') +
-labs(x = 'Interval ratio', y = 'Participant')
+  geom_density_ridges(alpha = 0.75, show.legend = FALSE) +
+  theme_ridges(center = TRUE) +
+  facet_rep_grid(
+    rows = vars(stim_tempo_intended), cols = vars(length), repeat.tick.labels = "x",
+    labeller = labels
+  ) +
+  theme_jelle() +
+  xlim(0, 1) +
+  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
+  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
+  labs(x = "Interval ratio", y = "Participant")
 
-ggsave(here('plots', 'intervalratios-ridges.pdf'))
-
+ggsave(here("plots", "intervalratios-ridges.pdf"))
 ```
 
 
 ```{r intervalratios-ridges-condition}
-
 ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = condition)) +
-geom_density_ridges(alpha = 0.6) + 
-theme_ridges() +
-theme_jelle() +
-xlim(0, 1) +
-scale_x_continuous(labels = c('', '1:3', '1:2', '1:1', '2:1', '3:1', ''), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
-geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = 'dashed', color = 'grey') +
-labs(x = 'Interval ratio', y = 'Participant') +
-scale_fill_npg(labels = c('400 ms, 4 events', '400 ms, 5 events', '600 ms, 4 events', '600 ms, 5 events'))
+  geom_density_ridges(alpha = 0.6) +
+  # theme_ridges() +
+  xlim(0, 1) +
+  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
+  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
+  labs(x = "Interval ratio", y = "Participant", fill = "Condition") +
+  theme_jelle(labels = c("400 ms; 4 events", "400 ms; 5 events", "600 ms; 4 events", "600 ms; 5 events"))
 
-ggsave(here('plots', 'intervalratios-ridges-2.pdf'))
-
+ggsave(here("plots", "intervalratios-ridges-2.pdf"))
 ```
