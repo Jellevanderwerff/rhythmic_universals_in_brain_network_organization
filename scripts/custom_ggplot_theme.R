@@ -1,4 +1,4 @@
-theme_jelle <- function(labels = NULL) {
+theme_jelle <- function() {
   font <- "Helvetica"
   theme <- list(
     ggplot2::theme(
@@ -61,8 +61,8 @@ theme_jelle <- function(labels = NULL) {
       colour = guide_legend(label.position = "left"), # second item in list
       fill = guide_legend(label.position = "left")
     ), # third item in list
-    scico::scale_colour_scico_d(palette = "roma", labels = labels), # fourth item in list
-    scico::scale_fill_scico_d(palette = "roma", labels = labels) # fifth item in list
+    scico::scale_colour_scico_d(palette = "roma"), # fourth item in list
+    scico::scale_fill_scico_d(palette = "roma") # fifth item in list
   )
 
   return(theme)

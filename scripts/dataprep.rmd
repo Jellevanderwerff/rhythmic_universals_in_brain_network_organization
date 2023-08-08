@@ -142,6 +142,7 @@ ITIs <- data.frame(matrix(nrow = 0, ncol = length(col_names)))
 for (row_i in seq_len(nrow(tapping.clean))) {
   tapping_row <- tapping.clean[row_i, ]
   pp_id <- tapping_row$pp_id
+  print(pp_id)
   participant_row <- participants.info[participants.info$pp_id == pp_id, ]
   out_list <- as.list(participant_row)
   out_list$stim_id <- tapping_row$stim_id
@@ -159,8 +160,32 @@ for (row_i in seq_len(nrow(tapping.clean))) {
   ITIs <- rbind(ITIs, as.data.frame(out_list))
 }
 
-# Fix age datatype
-ITIs$age <- as.integer(ITIs$age)
+```
+
+
+# Recoding
+
+```{r recoding}
+
+# Make everything capitalized
+ITIs$gender <- str_to_title(ITIs$gender)
+ITIs$L1 <- str_to_title(ITIs$L1)
+
+# Recode gender
+ITIs$gender <- dplyr::recode(ITIs$gender,
+  "Woman" = "Female",
+  "F" = "Female",
+  "M" = "Male",
+  "Man" = "Male",
+  "Trans Woman" = "Trans woman",
+  .missing = "ERROR")
+
+# Recode L1
+ITIs$L1 <- dplyr::recode(ITIs$L1,
+  "German, Polish" = "German",
+  "French " = "French"
+)
+
 ```
 
 
