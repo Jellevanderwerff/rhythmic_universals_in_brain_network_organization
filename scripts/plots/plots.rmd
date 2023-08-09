@@ -102,8 +102,7 @@ pp.measures.std <- ddply(pp.measures, .(pp_id, stim_tempo_intended, length), sum
 ggplot(pp.measures.std, aes(x = 1, y = y, colour = factor(pp_id), label = pp_id)) +
   geom_pointrange(aes(ymin = ymin, ymax = ymax), position = position_dodge(width = 0.1)) +
   theme_jelle() +
-  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels, 
-  scales = "free_y") +
+  facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
@@ -112,13 +111,12 @@ ggplot(pp.measures.std, aes(x = 1, y = y, colour = factor(pp_id), label = pp_id)
   labs(
     y = "Tempo difference [ms]", title = "Tempo difference by participant and condition",
     subtitle = "Negative values mean participants decreased tempo.", colour = "Participant",
-    caption = "Y axis scales are different for upper and lower plots.\nError bars indicate ± SD.\nThe values presented here are averages of 
+    caption = "Error bars indicate ± SD.\nNote that the values presented here are averages of 
     positive and negative numbers, which complicates interpretation in terms of precision."
   ) +
-  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 12)) + 
-  theme(panel.spacing.y = unit(2, "lines"))
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 12))
 
-#ggsave(here("plots", "tempo-diff.pdf"), scale = 1.2)
+ggsave(here("plots", "tempo-diff.pdf"))
 ```
 
 
