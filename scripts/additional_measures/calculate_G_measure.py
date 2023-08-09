@@ -64,6 +64,7 @@ for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
         # Loop over participants
         for pp_id, pp_df in length_df.groupby('pp_id'):
             data = pp_df.resp_iti.values.reshape(-1, 1)  # Reshape 1-D data
+            print(data)
             kmeans = KMeans(n_clusters=3, max_iter=1000)
             kmeans.fit(data)
             silhouette = silhouette_score(data, kmeans.labels_)
