@@ -107,10 +107,6 @@ for (pp_id in pp_ids) {
 gdata::keep(list = c("calculatePDVs", "config", "participants.info", "pp_ids", "tapping.raw", "splitPythonListString"), sure = TRUE)
 ```
 
-```{r prepare-participants-info}
-# Could do some recoding here
-```
-
 # Cleaning
 
 Remove all responses that have a different number of responses than the number of events in the stimulus:
@@ -168,22 +164,22 @@ for (row_i in seq_len(nrow(tapping.clean))) {
 ```{r recoding}
 
 # Make everything capitalized
-ITIs$gender <- str_to_title(ITIs$gender)
-ITIs$L1 <- str_to_title(ITIs$L1)
+ITIs$gender <- str_to_lower(ITIs$gender)
+ITIs$L1 <- str_to_lower(ITIs$L1)
 
 # Recode gender
 ITIs$gender <- dplyr::recode(ITIs$gender,
-  "Woman" = "Female",
-  "F" = "Female",
-  "M" = "Male",
-  "Man" = "Male",
-  "Trans Woman" = "Trans woman",
+  "woman" = "female",
+  "f" = "female",
+  "m" = "male",
+  "man" = "male",
+  "trans woman" = "trans woman",
   .missing = "ERROR")
 
 # Recode L1
 ITIs$L1 <- dplyr::recode(ITIs$L1,
-  "German, Polish" = "German",
-  "French " = "French"
+  "german, polish" = "german",
+  "french " = "french"
 )
 
 ```

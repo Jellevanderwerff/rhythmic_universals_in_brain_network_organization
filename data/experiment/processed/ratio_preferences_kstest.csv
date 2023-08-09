@@ -367,3 +367,11 @@ pp_id,stim_tempo_intended,length,hypo_distribution,ks_statistic
 65,600,4,ternary,0.334
 65,600,5,binary,0.263
 65,600,5,ternary,0.118
+66,400,4,binary,0.501
+66,400,4,ternary,0.296
+66,400,5,binary,0.529
+66,400,5,ternary,0.32
+66,600,4,binary,0.389
+66,600,4,ternary,0.193
+66,600,5,binary,0.405
+66,600,5,ternary,0.212

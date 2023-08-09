@@ -5,6 +5,8 @@ Here we calculate the redundancy statistic G (Jamieson & Mewhort, 2005).
 The steps are:
 
 1. Use elbow method to find optimal number k of clusters
+    #todo Should we use Silhouette score instead? I mean, everyone can have a different number
+    of clusters, right?
 2. Do K-means clustering to find bins (for each participant and condition separately)
 3. Calculate G for each participant
     - Loop over different conditions
