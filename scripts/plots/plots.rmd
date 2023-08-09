@@ -84,7 +84,7 @@ ggplot(pp.measures, aes(x = condition, y = G, fill = condition)) +
   geom_violin(alpha = 0.5, show.legend = FALSE) +
   geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
   theme_jelle() +
-  labs(x = "Condition", y = expression(italic(G)~measure), title = "Grammatical redundancy by condition")
+  labs(x = "Condition", y = expression(italic(G)~measure), title = "Grammatical redundancy by condition", subtitle = "Higher values mean more grammatical structure.")
 ggsave(here("plots", "g-score.pdf"))
 ```
 
