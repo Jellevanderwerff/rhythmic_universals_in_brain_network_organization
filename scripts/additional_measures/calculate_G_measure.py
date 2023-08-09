@@ -64,14 +64,6 @@ for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
     for length, length_df in tempo_df.groupby('length'):
         # Loop over participants
         for pp_id, pp_df in length_df.groupby('pp_id'):
-<<<<<<< HEAD
-            data = pp_df.resp_iti.values.reshape(-1, 1)  # Reshape 1-D data
-            print(data)
-            kmeans = KMeans(n_clusters=3, max_iter=1000)
-            kmeans.fit(data)
-            silhouette = silhouette_score(data, kmeans.labels_)
-            kmeans_clusters = sorted(kmeans.cluster_centers_)
-=======
             # Reshape horizontal data to vertical
             data = pp_df.resp_iti.values.reshape(-1, 1)
 
@@ -97,7 +89,6 @@ for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
             # So, the first boundary that we have is in between the center of cluster 1 and cluster 0
             # Everything to the left of that center is the first cluster
             bin_left_boundaries = [kmeans_clusters[i] + (kmeans_clusters[i + 1] - kmeans_clusters[i]) / 2 for i in range(len(kmeans_clusters) - 1)]
->>>>>>> G_measure_with_silhouette_scores
 
             # Make dataframe for k-means clusters and concatenate
             pp_df_output = pd.DataFrame({
