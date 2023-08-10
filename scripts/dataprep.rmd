@@ -163,7 +163,7 @@ for (row_i in seq_len(nrow(tapping.clean))) {
 
 ```{r recoding}
 
-# Make everything capitalized
+# Make everything lowercase
 ITIs$gender <- str_to_lower(ITIs$gender)
 ITIs$L1 <- str_to_lower(ITIs$L1)
 

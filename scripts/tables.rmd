@@ -1,7 +1,7 @@
 ---
 title: "NPOR: Tables"
 author: jellevanderwerff
-date: 05/05/2022
+date: 09/08/2022
 output:
     html_notebook:
         code_folding: hide
@@ -10,130 +10,111 @@ output:
 ---
 
 ```{r load-packages, message = FALSE, echo = FALSE}
-
 ############# PACKAGES AND OTHER PRELIMINARIES ############
 
 # for easy loading of packages
-if (!require('pacman')) install.packages('pacman')
+if (!require("pacman")) install.packages("pacman")
 
 # load packages
-p_load('stringr', 'ini', 'gdata', 'plyr', 'dplyr', 'here', 'ggplot2', 'reshape2', 'ggsci', 'knitr', 'kableExtra')
+p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci", "knitr", "kableExtra")
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path('2 - Tables.rmd'))
+here::i_am(file.path("scripts", "tables.Rmd"))
 
 # Load custom helper functions
-source(here('functions.R'))
+source(here("scripts", "helper_functions.R"))
 
 # Knitr output settingsecho = TRUE,
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = TRUE,
-                      message = FALSE)
-
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = TRUE,
+    message = FALSE
+)
 ```
 
 
 ```{r load-data, echo = FALSE}
-
-ITIs <- readRDS(here('Dataframes', 'ITIs.rds'))
-ITIs.bytrial <- readRDS(here('Dataframes', 'ITIs_bytrial.rds'))
-
+ITIs <- readRDS(here("Dataframes", "ITIs.rds"))
+ITIs.bytrial <- readRDS(here("Dataframes", "ITIs_bytrial.rds"))
+interval.ratios.maxima <- readRDS(here("Dataframes", "interval_ratios_maxima.rds"))
 ```
 
 # Group-level descriptive statistics
 
 ```{r descriptives-group-level}
 trial_descriptives <- ddply(ITIs.bytrial, .(stim_tempo_intended, length), dplyr::summarize,
-                            n = length(sequence_id),
-                            mean_stim_tempo = mean(stim_tempo),
-                            stim_sd = mean(stim_sd),
-                            mean_tapping_tempo = mean(ITI_mean),
-                            mean_sd = mean(ITI_sd),
-                            mean_edit_distance = mean(edit_distance),
-                            mean_edit_distance_avg = mean(edit_distance_avg),
-                            mean_stim_entropy = mean(stim_entropy),
-                            mean_resp_entropy = mean(resp_entropy),
-                            mean_entropy_diff = mean(entropy_diff))
+    n = length(sequence_id),
+    mean_stim_tempo = mean(stim_tempo),
+    stim_sd = mean(stim_sd),
+    mean_tapping_tempo = mean(ITI_mean),
+    mean_sd = mean(ITI_sd),
+    median_edit_distance = median(edit_distance),
+    mean_stim_entropy = mean(stim_entropy),
+    mean_resp_entropy = mean(resp_entropy),
+    mean_entropy_diff = mean(entropy_diff),
+    G_mean = mean(G),
+    G_sd = sd(G)
+)
 
-col_names <- c("Tempo cond.",
-               "Length",
-               "n",
-               "IOI mean",
-               "IOI SD",
-               "ITI mean",
-               "ITI SD",
-               "Edit distance (total)",
-               "Edit distance (per interval)",
-               "Stim entropy",
-               "Resp entropy",
-               "Entropy difference")
+col_names <- c(
+    "Tempo cond.",
+    "Length cond.",
+    "n",
+    "IOI mean",
+    "IOI SD",
+    "ITI mean",
+    "ITI SD",
+    "Edit distance median",
+    "Stim entropy mean",
+    "Resp entropy mean",
+    "Entropy difference",
+    "G mean",
+    "G SD"
+)
 
 kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
-
 ```
 
 
-# Descriptive statistics by subject
-```{r iti-bytrial-descriptives-by-subject}
-trial_descriptives <- ddply(ITIs.bytrial, .(pp_id), dplyr::summarize,
-                            n = length(sequence_id),
-                            mean_stim_tempo = mean(stim_tempo),
-                            stim_sd = mean(stim_sd),
-                            mean_tapping_tempo = mean(ITI_mean),
-                            mean_sd = mean(ITI_sd),
-                            mean_edit_distance = mean(edit_distance),
-                            mean_edit_distance_avg = mean(edit_distance_avg),
-                            mean_stim_entropy = mean(stim_entropy),
-                            mean_resp_entropy = mean(resp_entropy),
-                            mean_entropy_diff = mean(entropy_diff))
+# Interval ratios
 
-col_names <- c("Subject",
-               "n",
-               "IOI mean",
-               "IOI SD",
-               "ITI mean",
-               "ITI SD",
-               "Edit distance (total)",
-               "Edit distance (per interval)",
-               "Stim entropy",
-               "Resp entropy",
-               "Entropy difference")
+```{r interval-ratios}
 
-kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
+ratios_summary <- ddply(interval.ratios.maxima, .(stim_tempo_intended, length), dplyr::summarize,
+n_maxima_median = median(n_maxima),
+n_maxima_mode = getmode(n_maxima))
 
+col_names <- c("Tempo cond.", "Length cond.", "Median n maxima", "Mode n maxima")
+
+kbl(ratios_summary, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
 ```
 
-# Descriptive statistics by subject, tempo, and length
+```{r interval-ratios-maxima-frequencies}
 
-```{r iti-bytrial-descriptives-by-subject-by-condition}
-trial_descriptives <- ddply(ITIs.bytrial, .(stim_tempo_intended, length, pp_id), dplyr::summarize,
-                            n = length(sequence_id),
-                            mean_stim_tempo = mean(stim_tempo),
-                            stim_sd = mean(stim_sd),
-                            mean_tapping_tempo = mean(ITI_mean),
-                            mean_sd = mean(ITI_sd),
-                            mean_edit_distance = mean(edit_distance),
-                            mean_edit_distance_avg = mean(edit_distance_avg),
-                            mean_stim_entropy = mean(stim_entropy),
-                            mean_resp_entropy = mean(resp_entropy),
-                            mean_entropy_diff = mean(entropy_diff))
+# the code below is super stupid; but too tired too find another method for now
+ratios_summary <- ddply(interval.ratios.maxima, .(stim_tempo_intended, length, n_maxima), dplyr::summarize,
+n = length(n_maxima))
 
-col_names <- c("Tempo cond.",
-               "Length",
-               "Subject",
-               "n",
-               "IOI mean",
-               "IOI SD",
-               "ITI mean",
-               "ITI SD",
-               "Edit distance (total)",
-               "Edit distance (per interval)",
-               "Stim entropy",
-               "Resp entropy",
-               "Entropy difference")
+ratios_summary$sum <- NA
 
-kbl(trial_descriptives, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
+sums <- ddply(interval.ratios.maxima, .(stim_tempo_intended, length), summarize,
+total_observations = length(n_maxima))
 
+for (tempo in unique(ratios_summary$stim_tempo_intended)) {
+    for (length in unique(ratios_summary$length)) {
+        sum <- sums$total_observations[(sums$stim_tempo_intended == tempo) & (sums$length == length)]
+        ratios_summary$sum[(ratios_summary$stim_tempo_intended == tempo) & (ratios_summary$length == length)] <- sum
+    }
+}
 
+ratios_summary$percentage <- round(ratios_summary$n / ratios_summary$sum * 100, 2)
+
+col_names <- c("Tempo cond.", "Length cond.", "n maxima", "n", "sum_n", "percentage")
+
+kbl(ratios_summary, col.names = col_names) %>% kable_styling("striped", position = "left", full_width = FALSE)
 ```

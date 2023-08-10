@@ -31,6 +31,7 @@ import thebeat
 import pandas as pd
 import numpy as np
 import scipy.stats
+import scipy.signal
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
@@ -112,4 +113,42 @@ ratio_preferences.hypo_distribution = ratio_preferences.hypo_distribution.astype
 
 # Write out
 ratio_preferences.to_csv(os.path.join('data', 'experiment', 'processed', 'ratio_preferences_kstest.csv'), index=False)
+
+
+# # Local maxima
+
+# In[8]:
+
+
+local_maxima = pd.DataFrame()
+
+x = np.arange(0, 1, 0.001)  # points at which to evaluate density
+
+for pp_id, pp_df in ratios.groupby('pp_id'):
+        for tempo, tempo_df in pp_df.groupby('stim_tempo_intended'):
+            for length, length_df in tempo_df.groupby('length'):
+                # Calculate y values for the measured distributions
+                measured_kde = scipy.stats.gaussian_kde(length_df.interval_ratio.values)
+                measured_y_values = measured_kde.evaluate(x)
+                maxima = scipy.signal.argrelmax(measured_y_values)[0]
+                x_values = [x[maximum] for maximum in maxima]
+
+                df_piece = pd.DataFrame({
+                    'pp_id': pp_id,
+                    'stim_tempo_intended': tempo,
+                    'length': length,
+                    'n_maxima': len(maxima),
+                    'maximum_i': range(len(maxima)),
+                    'maximum_location': x_values
+                })
+
+                local_maxima = pd.concat([local_maxima, df_piece])
+
+print(local_maxima.head())
+
+local_maxima = local_maxima.sort_values(by=['pp_id', 'stim_tempo_intended', 'length', 'maximum_i']).reset_index(drop=True)
+
+local_maxima.to_csv(os.path.join('data', 'experiment', 'processed', 'ratios_localmaxima.csv'), index=False)
+                                         
+                                    
 

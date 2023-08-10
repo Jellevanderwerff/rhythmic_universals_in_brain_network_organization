@@ -9,6 +9,7 @@ output:
         toc_float: true
 ---
 
+
 # Preliminaries
 
 ```{r load-packages, echo = FALSE, warning = FALSE, message = FALSE}
@@ -34,6 +35,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   out.width = "100%",
+  fig.width = 10,
+  fig.height = 10,
   cache = TRUE
 )
 
@@ -51,6 +54,7 @@ ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
 ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
 pp.measures <- read.csv(here("data", "experiment", "processed", "by_pp.csv"))
 interval.ratios <- read.csv(here("data", "experiment", "processed", "interval_ratios.csv"))
+interval.ratios.maxima <- read.csv(here("data", "experiment", "processed", "ratios_localmaxima.csv"))
 ```
 
 ```{r datatypes}
@@ -70,26 +74,41 @@ ITIs.bytrial$pp_id <- as.factor(ITIs.bytrial$pp_id)
 
 interval.ratios$pp_id <- as.factor(interval.ratios$pp_id)
 interval.ratios$condition <- as.factor(paste(interval.ratios$stim_tempo_intended, interval.ratios$length, sep = "_"))
+
+interval.ratios.maxima$pp_id <- as.factor(interval.ratios.maxima$pp_id)
+interval.ratios.maxima$stim_tempo_intended <- as.factor(interval.ratios.maxima$stim_tempo_intended)
+interval.ratios.maxima$length <- as.factor(interval.ratios.maxima$length)
+interval.ratios.maxima$condition <- as.factor(paste(interval.ratios.maxima$stim_tempo_intended, interval.ratios.maxima$length, sep = "_"))
 ```
 
 
-## Participant measures
+# Participant measures
 
-###  G score
+##  G score
 
 ```{r g-score}
-ggplot(pp.measures, aes(x = condition, y = G, fill = condition)) +
-  geom_point(size = 1, show.legend = FALSE) +
-  scale_x_discrete(labels = c("400_4" = "400 ms\n4 events", "400_5" = "400 ms\n5 events", "600_4" = "600 ms\n4 events", "600_5" = "600 ms\n5 events")) +
-  geom_violin(alpha = 0.5, show.legend = FALSE) +
-  geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
+ggplot(pp.measures, aes(x = condition, y = G, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
   theme_jelle() +
-  labs(x = "Condition", y = expression(italic(G)~measure), title = "Grammatical redundancy by condition", subtitle = "Higher values mean more grammatical structure.")
+  labs(
+    x = "Condition",
+    y = expression(italic(G) ~ measure),
+    title = "Grammatical redundancy by condition",
+    subtitle = "Higher values mean more grammatical structure"
+  )
 ggsave(here("plots", "g-score.pdf"))
 ```
 
 
-### Tempo difference
+## Tempo difference
 
 ```{r tempo-diff}
 pp.measures.std <- ddply(pp.measures, .(pp_id, stim_tempo_intended, length), summarize,
@@ -110,8 +129,8 @@ ggplot(pp.measures.std, aes(x = 1, y = y, colour = factor(pp_id), label = pp_id)
   ) +
   labs(
     y = "Tempo difference [ms]", title = "Tempo difference by participant and condition",
-    subtitle = "Negative values mean participants decreased tempo.", colour = "Participant",
-    caption = "Error bars indicate ± SD.\nNote that the values presented here are averages of 
+    subtitle = "Negative values mean participants tapped faster than the stimulus", colour = "Participant",
+    caption = "Error bars indicate ± SD.\nNote that the values presented here are averages of
     positive and negative numbers, which complicates interpretation in terms of precision."
   ) +
   theme(legend.title = element_text(size = 12), legend.text = element_text(size = 12))
@@ -120,28 +139,26 @@ ggsave(here("plots", "tempo-diff.pdf"))
 ```
 
 
-```{r tempo-diff}
-
-ggplot(pp.measures, aes(x = 1, y = tempo_diff_abs_avg, colour = pp_id, label = pp_id)) +
-
-```
-
-### Rhythmic contours edit distance
+## Rhythmic contours edit distance
 
 ```{r rhythmic-contours}
-
-ggplot(ITIs.bytrial, aes(x = condition, y = rhythmic_contours_edit_distance, fill = condition)) +
-  geom_point(size = 1, show.legend = FALSE) +
-  geom_violin(alpha = 0.5, show.legend = FALSE) +
-  geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
-  scale_x_discrete(labels = c("400_4" = "400 ms\n4 events", "400_5" = "400 ms\n5 events", "600_4" = "600 ms\n4 events", "600_5" = "600 ms\n5 events")) +
+ggplot(ITIs.bytrial, aes(x = rhythmic_contours_edit_distance, fill = condition)) +
+  geom_bar(stat = "count", show.legend = FALSE) +
+  facet_rep_grid(
+    rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels,
+    repeat.tick.labels = "x"
+  ) +
   theme_jelle() +
-  labs(x = "Condition", y = "Rhythmic contours", title = "Rhythmic contours edit distance by condition", 
-  subtitle = "Edit distance in terms of rhythmic contours", colour = "Participant") 
-
+  labs(
+    x = "Number of edits", y = "Count", title = "Rhythmic contours edit distance by condition",
+    caption = "The edit distance here is calculated by comparing two strings (one for the stimulus,
+one for the response) of e.g. As and Bs, where the symbols indicate
+whether an interval was longer or shorter than the previous one.",
+    colour = "Participant"
+  )
 ```
 
-### Entropy
+## Entropy
 
 ```{r entropy}
 ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
@@ -158,10 +175,9 @@ ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
     subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
   )
 ggsave(here("plots", "entropy.pdf"))
-
 ```
 
-### Preference for binary or ternary ratios
+## Preference for binary or ternary ratios
 
 ```{r binary-ternary-dataprep}
 binary.ternary <- reshape2::melt(pp.measures,
@@ -174,11 +190,9 @@ binary.ternary$ratio_type <- as.character(binary.ternary$ratio_type)
 binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_binary_D"] <- "Binary"
 binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_ternary_D"] <- "Ternary"
 binary.ternary$ratio_type <- as.factor(binary.ternary$ratio_type)
-
 ```
 
 ```{r binary-ternary}
-
 ggplot(binary.ternary, aes(x = ratio_type, y = KS_D, fill = ratio_type)) +
   geom_violin(alpha = 0.5, show.legend = FALSE) +
   geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
@@ -186,41 +200,39 @@ ggplot(binary.ternary, aes(x = ratio_type, y = KS_D, fill = ratio_type)) +
   facet_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels) +
   theme_jelle() +
   labs(
-    x = "Ratio type", y = expression("Kolmigorov-Smirnov"~italic(D)), title = "Preference for binary vs. ternary ratios",
+    x = "Ratio type", y = expression("Kolmigorov-Smirnov" ~ italic(D)), title = "Preference for binary vs. ternary ratios",
     subtitle = "Higher values mean more preference", colour = "Participant"
   )
 ggsave(here("plots", "binary-ternary.pdf"))
 ```
 
+# Distributions
 
+## ITI ridges
 
-## Distributions
-
-### ITI ridges
-
-```{r ITI-ridges}
+```{r ITI-ridges, fig.width = 20, fig.height = 20}
 ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id, colour = pp_id)) +
   geom_density_ridges(scale = 4, alpha = 0.9, show.legend = FALSE, color = "white") +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
+  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
   theme_jelle() +
-  labs(x = "ITI [ms]", y = "Participant", title = "Inter-tap intervals produced by participants by condition",
-  subtitle = "Dashed line indicates (intended) tempo of condition") +
-  xlim(0, 1000) +
+  scale_x_continuous(breaks = seq(0, 1200, 200)) +
+  coord_cartesian(xlim = c(0, 1200)) +
+  labs(
+    x = "ITI [ms]", y = "Participant", title = "Inter-tap intervals produced by participants by condition",
+    subtitle = "Dashed line indicates (intended) tempo of condition"
+  ) +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 400, ], aes(xintercept = 400), linetype = "dashed", color = "grey") +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 600, ], aes(xintercept = 600), linetype = "dashed", color = "grey")
 ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
 ```
 
-
-
-### Interval ratios
+## Interval ratios
 
 Here with the conditions plotted as facets:
 
-```{r intervalratios-ridges}
+```{r intervalratios-ridges, fig.width = 20, fig.height = 20}
 ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = factor(pp_id))) +
   geom_density_ridges(scale = 4, alpha = 0.9, show.legend = FALSE, color = "white", from = 0.15, to = 0.85) +
-  #theme_ridges(center = TRUE) +
   facet_rep_grid(
     rows = vars(stim_tempo_intended), cols = vars(length), repeat.tick.labels = "x",
     labeller = labels
@@ -229,26 +241,93 @@ ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = factor
   coord_cartesian(xlim = c(0.15, 0.88)) +
   scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
   geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
-  labs(x = "Interval ratio", y = "Participant",
-  title = "Interval ratios by participant and condition",
-  subtitle = TeX("Interval ratios calculated as $ITI_k = \\frac{ITI_k}{ITI_k + ITI_{k+1}}$"), fill = "Participant")
+  labs(
+    x = "Interval ratio", y = "Participant",
+    title = "Interval ratios by participant and condition",
+    subtitle = TeX("Interval ratios calculated as $ITI_k = \\frac{ITI_k}{ITI_k + ITI_{k+1}}$"), fill = "Participant"
+  )
 
 ggsave(here("plots", "intervalratios-ridges.pdf"), width = 20, height = 20)
 ```
 
 
-```{r intervalratios-ridges-condition}
-ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = condition)) +
-  geom_density_ridges(alpha = 0.6) +
-  # theme_ridges() +
-  xlim(0, 1) +
-  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
-  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
-  labs(x = "Interval ratio", y = "Participant", fill = "Condition") +
-  theme_jelle()
+## Local maxima
 
-ggsave(here("plots", "intervalratios-ridges-2.pdf"))
+```{r ratios-localmaxima}
+interval.ratios.summary <- ddply(interval.ratios.maxima, .(condition, stim_tempo_intended, length, n_maxima, maximum_i), summarize,
+  maximum = mean(maximum_location),
+  maximum_min_sd = mean(maximum_location) - sd(maximum_location),
+  maximum_plus_sd = mean(maximum_location) + sd(maximum_location),
+  n_observations = length(maximum_location)
+)
+interval.ratios.summary.n_observations <- ddply(interval.ratios.maxima, .(condition, stim_tempo_intended, length, n_maxima), dplyr::summarize,
+  n = paste0(length(n_maxima), " pp's")
+)
+
+
+ggplot(interval.ratios.summary, aes(x = maximum, y = factor(n_maxima), xmin = maximum_min_sd, xmax = maximum_plus_sd, colour = condition)) +
+  coord_cartesian(xlim = c(0, 1)) +
+  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
+  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
+  geom_pointrange(show.legend = FALSE, size = 0.5, linewidth = 1) +
+  facet_rep_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels, repeat.tick.labels = "x") +
+  theme_jelle() +
+  labs(
+    x = "Location of local maximum (in integer ratios)",
+    y = "Number of local maxima in participant's data",
+    title = "Local maxima in interval ratio distributions",
+    subtitle = "For a unimodal distribution, the number of local maxima is 1.\nFor a bimodal distribution, 2, etc.",
+    caption = "Values averaged over participants"
+  ) +
+  geom_text(
+    inherit.aes = FALSE, aes(x = 1, y = n_maxima, label = n),
+    data = interval.ratios.summary.n_observations,
+    nudge_y = 0.1,
+    hjust = 1,
+    size = 3,
+    show.legend = FALSE,
+    colour = "#cbcbcb"
+  )
+
+ggsave(here("plots", "ratios-localmaxima-summary.pdf"))
 ```
 
 
+By pp:
 
+
+```{r ratios-localmaxima-bypp, fig.height = 15}
+# Get the number of local maxima for each participant in a dataframe with the pp_id
+# and the number of local maxima
+n_maxima <- ddply(interval.ratios.maxima, .(pp_id, condition, stim_tempo_intended, length), summarize, n_maxima = n_maxima[1])
+
+ggplot(interval.ratios.maxima, aes(
+  x = maximum_location, y = factor(pp_id), colour = condition
+)) +
+  geom_point(size = 2, show.legend = FALSE) +
+  facet_rep_grid(rows = vars(stim_tempo_intended), cols = vars(length), labeller = labels, repeat.tick.labels = "x") +
+  scale_x_continuous(
+    labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""),
+    breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)
+  ) +
+  theme_jelle() +
+  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
+  labs(
+    x = "Location of local maximum", y = "Participant", title = "Local maxima in interval ratio distributions",
+    subtitle = "Local maxima indicate the highest points in a participant's interval ratios distribution",
+    caption = "Note that there may be different numbers of maxima for each participant/condition.
+The number of maxima is given at the end of the participant's row."
+  ) +
+  geom_text(
+    inherit.aes = FALSE,
+    aes(x = 1, y = pp_id, label = n_maxima),
+    data = n_maxima,
+    size = 4,
+    hjust = 0,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
+  scale_colour_scico_d(palette = "roma", begin = 0)
+
+ggsave(here("plots", "ratios-localmaxima-bypp.pdf"), height = 15, width = 10)
+```

@@ -47,6 +47,7 @@ theme_jelle <- function() {
       panel.grid.major.x = ggplot2::element_blank(),
       panel.background = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank(),
+      panel.spacing.y = ggplot2::unit(1, "lines"),
 
       ## FACETS
       strip.background = ggplot2::element_blank(),
