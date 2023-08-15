@@ -11,22 +11,11 @@ The steps are:
     - Loop over different conditions
     - Loop over participants
     - Discretize all the ITIs into k bins, so we have (in the case of
-    k = 3) the 'symbols' short, medium, and long
-    - Make a transition matrix of frequencies of transitions between symbols, 
-    so a matrix that looks something like this:
-
-             short | medium | long |      
-    short      0   |   1    |  2   |
-    medium     3   |   4    |  5   |
-    long       6   |   7    |  8   |
-    
-    Here, the number in the cell (i, j) denotes the number of times that symbol j follows symbol i.
-    So the rows are i, and the columns are the symbol that follows i (i.e. j)
-
-    - Turn this frequency matrix into probabilities by dividing each cell by the sum of the 
-    row
-    - Calculate entropy (U) on the basis of the probabilities
-    - Calculate G = 1 - U(targetgrammar) / U(referencegrammar)
+    k = 3) the 'symbols' A, B, and C
+    - The 'grammar' of the participant is made up of all the different combinations encountered
+    of those symbols, e.g. AB, BC, CA, etc.
+    - Calculate the frequencies and the probabilities for those bigrams
+    - Calculate G
 
 """
 
@@ -39,10 +28,11 @@ from sklearn.metrics import silhouette_score
 import scipy.stats
 import os
 import warnings
+import string
 
 # variables
 K_MIN = 2       # minimum number of clusters to test for
-K_MAX = 5      # maximum number of clusters to test for
+K_MAX = 8      # maximum number of clusters to test for
 
 #suppress warnings
 warnings.filterwarnings("ignore")
@@ -58,59 +48,62 @@ df_clusters = pd.DataFrame()
 # create df for silhouette scores
 df_silhouette = pd.DataFrame()
 
-# Loop over two tempi
-for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
-    # Loop over two lengths
-    for length, length_df in tempo_df.groupby('length'):
-        # Loop over participants
-        for pp_id, pp_df in length_df.groupby('pp_id'):
-            # Reshape horizontal data to vertical
-            data = pp_df.resp_iti.values.reshape(-1, 1)
+# Loop over whether we're doing stimulus or response
+for stim_resp in ('resp_iti', 'stim_ioi'):
+    # Loop over tempi
+    for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
+        # Loop over two lengths
+        for length, length_df in tempo_df.groupby('length'):
+            # Loop over participants
+            for pp_id, pp_df in length_df.groupby('pp_id'):
+                # Reshape horizontal data to vertical
+                data = pp_df[stim_resp].values.reshape(-1, 1)
 
-            silhouette_dict = {}
-            k_means_dict = {}
+                silhouette_dict = {}
+                k_means_dict = {}
 
-            # Calculate optimal number of clusters using Silhouette score
-            for k in range(K_MIN, K_MAX + 1):
-                kmeans = KMeans(n_clusters=k, max_iter=1000)
-                kmeans.fit(data)
-                k_means_dict[k] = kmeans
-                silhouette = silhouette_score(data, kmeans.labels_)
-                silhouette_dict[k] = silhouette
+                # Calculate optimal number of clusters using Silhouette score
+                for k in range(K_MIN, K_MAX + 1):
+                    kmeans = KMeans(n_clusters=k, max_iter=1000)
+                    kmeans.fit(data)
+                    k_means_dict[k] = kmeans
+                    silhouette = silhouette_score(data, kmeans.labels_)
+                    silhouette_dict[k] = silhouette
 
-            # Get optimal number of clusters, i.e. the maximum Silhouette score
-            k_clusters = max(silhouette_dict, key=silhouette_dict.get)
-            
-            # Get the clusters from the respective saved k-means object in the dict
-            kmeans_clusters = sorted(k_means_dict[k_clusters].cluster_centers_)
-            kmeans_clusters = [x for l in kmeans_clusters for x in l]  # unpack (for some reason the cluster_centers are all arrays themselves)
+                # Get optimal number of clusters, i.e. the maximum Silhouette score
+                k_clusters = max(silhouette_dict, key=silhouette_dict.get)
 
-            # Calculate left boundaries for clusters; i.e. in between the cluster centers
-            # So, the first boundary that we have is in between the center of cluster 1 and cluster 0
-            # Everything to the left of that center is the first cluster
-            bin_left_boundaries = [kmeans_clusters[i] + (kmeans_clusters[i + 1] - kmeans_clusters[i]) / 2 for i in range(len(kmeans_clusters) - 1)]
+                # Get the clusters from the respective saved k-means object in the dict
+                kmeans_clusters = sorted(k_means_dict[k_clusters].cluster_centers_)
+                kmeans_clusters = [x for l in kmeans_clusters for x in l]  # unpack (for some reason the cluster_centers are all arrays themselves)
 
-            # Make dataframe for k-means clusters and concatenate
-            pp_df_output = pd.DataFrame({
-                'pp_id': pp_id,
-                'stim_tempo_intended': tempo,
-                'length': length,
-                'k_clusters': k_clusters,
-                'bin_left_boundary_i': range(len(bin_left_boundaries)),
-                'bin_left_boundary': bin_left_boundaries
-            })
-            df_clusters = pd.concat([df_clusters, pp_df_output]).reset_index(drop=True)
+                # Calculate left boundaries for clusters; i.e. in between the cluster centers
+                # So, the first boundary that we have is in between the center of cluster 1 and cluster 0
+                # Everything to the left of that center is the first cluster
+                bin_left_boundaries = [kmeans_clusters[i] + (kmeans_clusters[i + 1] - kmeans_clusters[i]) / 2 for i in range(len(kmeans_clusters) - 1)]
 
-            # Make dataframe for silhouette scores and concatenate
-            pp_silhouette_output = pd.DataFrame({
-                'pp_id': pp_id,
-                'stim_tempo_intended': tempo,
-                'length': length,
-                'k_clusters': k_clusters,
-                'silhouette': silhouette
-            }, index=[0])
+                # Make dataframe for k-means clusters and concatenate
+                pp_df_output = pd.DataFrame({
+                    'pp_id': pp_id,
+                    'stim_tempo_intended': tempo,
+                    'length': length,
+                    'stim_resp': stim_resp,
+                    'k_clusters': k_clusters,
+                    'bin_left_boundary_i': range(len(bin_left_boundaries)),
+                    'bin_left_boundary': bin_left_boundaries
+                })
+                df_clusters = pd.concat([df_clusters, pp_df_output]).reset_index(drop=True)
 
-            df_silhouette = pd.concat([df_silhouette, pp_silhouette_output]).reset_index(drop=True)
+                # Make dataframe for silhouette scores and concatenate
+                pp_silhouette_output = pd.DataFrame({
+                    'pp_id': pp_id,
+                    'stim_tempo_intended': tempo,
+                    'length': length,
+                    'k_clusters': int(k_clusters),
+                    'silhouette': silhouette
+                }, index=[0])
+
+                df_silhouette = pd.concat([df_silhouette, pp_silhouette_output]).reset_index(drop=True)
 
 
 """
@@ -118,52 +111,58 @@ Now we calculate G.
 """
 
 # Create empty dataframe for G measure
-G_df = pd.DataFrame(columns=['pp_id', 'stim_tempo_intended', 'length', 'k_clusters', 'G'])
+G_df = pd.DataFrame(columns=['pp_id', 'stim_tempo_intended', 'length', 'stim_resp', 'k_clusters', 'G'])
 
-for pp_id, pp_df in df_clusters.groupby('pp_id'):
-    for tempo, pp_clusters_bytempo in pp_df.groupby('stim_tempo_intended'):
-        for length, pp_clusters_bytempoandlength in pp_clusters_bytempo.groupby('length'):
-            # Get k and left boundaries of bins
-            k = pp_clusters_bytempoandlength.k_clusters.values[0]
-            pp_bins_left_boundaries = pp_clusters_bytempoandlength.bin_left_boundary.values
+for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
+    for pp_id, pp_df in resp_type_df.groupby('pp_id'):
+        for tempo, pp_clusters_bytempo in pp_df.groupby('stim_tempo_intended'):
+            for length, pp_clusters_bytempoandlength in pp_clusters_bytempo.groupby('length'):
+                # Get k and left boundaries of bins
+                k = pp_clusters_bytempoandlength.k_clusters.values[0]
+                pp_bins_left_boundaries = pp_clusters_bytempoandlength.bin_left_boundary.values
 
-            # Create unconstrained grammar (uniform probabilities)
-            probabilities_unconstrained = np.array([1/k] * (k*k))  # * k would result in the same entropy value
-            U_unconstrained = scipy.stats.entropy(probabilities_unconstrained)
+                # This list will hold all the different combinations of durations encountered in the data in this condition
+                # (e.g. short-short, short-medium, etc., represented as a-z)
+                bigrams_observations = []
 
-            # Make empty k by k array which will hold the frequencies
-            freqs_pp_bytempoandlength = np.zeros((k, k))
-            # Loop over sequences
-            for sequence_id in ITIs[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length)].sequence_id.unique():
-                seq_itis = ITIs[ITIs.sequence_id == sequence_id].resp_iti.values
-                # Digitize
-                itis_digitized = np.digitize(seq_itis, bins=pp_bins_left_boundaries)
-                # Increase frequency of relevant position in matrix by one
-                for index in range(len(itis_digitized) - 1):
-                    i = itis_digitized[index]
-                    j = itis_digitized[index + 1]
-                    freqs_pp_bytempoandlength[i, j] += 1
+                # These are the symbols we will use (i.e. the k first letters of the alphabet)):
+                symbols = string.ascii_uppercase[:k]
 
-            # Turn frequencies into probabilities
-            # We divide each datapoint by the row sum for this
-            # The row sum in the resulting matrix should always sum to 1
-            probabilities_pp_bytempoandlength = np.empty((k, k))
-            for i in range(k):
-                probabilities_pp_bytempoandlength[i] = freqs_pp_bytempoandlength[i] / np.sum(freqs_pp_bytempoandlength[i])
+                # Loop over sequences
+                for sequence_id in ITIs[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length)].sequence_id.unique():
+                    # Get the response inter-tap intervals
+                    iois = ITIs[ITIs.sequence_id == sequence_id][stim_resp].values
+                    # Digitize responses into bins (i.e. we get the indices of the bins to which each ITI belongs)
+                    iois_symbol_indices = np.digitize(iois, pp_bins_left_boundaries)
+                    # Convert indices to symbols
+                    iois_symbols = [symbols[i] for i in iois_symbol_indices]
+                    # Add the bigrams to the list
+                    bigrams_observations.extend(list(zip(iois_symbols[:-1], iois_symbols[1:])))
+                    # Merge each bigram tuple into a string
+                    bigrams_observations = [''.join(bigram) for bigram in bigrams_observations]
+                    # Get unique bigrams
+                    bigrams_set = set(bigrams_observations)
+                    # Get the frequency of each bigram
+                    bigrams_frequencies = [bigrams_observations.count(bigram) for bigram in bigrams_set]
+                    # Get the probabilities
+                    bigrams_probabilities = [freq / sum(bigrams_frequencies) for freq in bigrams_frequencies]
+                    # Calculate entropies
+                    U_referencegrammar = scipy.stats.entropy([1/len(bigrams_set)] * len(bigrams_set))  # uniform probabilities
+                    U_targetgrammar = scipy.stats.entropy(bigrams_probabilities)
 
-            # Finally, we calculate G
-            U_pp_bytempoandlength = scipy.stats.entropy(probabilities_pp_bytempoandlength.flatten())
-            G_pp_bytempoandlength = 1 - (U_pp_bytempoandlength / U_unconstrained)
+                    # Galculate G
+                    G = 1 - (U_targetgrammar / U_referencegrammar)
 
-            pp_df = pd.DataFrame({
-                'pp_id': pp_id,
-                'stim_tempo_intended': tempo,
-                'length': length,
-                'k_clusters': k,
-                'G': G_pp_bytempoandlength
-            }, index=[0])
+                pp_df = pd.DataFrame({
+                    'pp_id': pp_id,
+                    'stim_tempo_intended': tempo,
+                    'length': length,
+                    'stim_resp': stim_resp,
+                    'k_clusters': k,
+                    'G': G
+                }, index=[0])
 
-            G_df = pd.concat([G_df, pp_df], ignore_index=True)
+                G_df = pd.concat([G_df, pp_df], ignore_index=True)
 
 
 G_df.sort_values(by=['pp_id', 'stim_tempo_intended', 'length']).reset_index(drop=True)
@@ -181,14 +180,39 @@ ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
 
 # add G measure to ITIs and ITIs_bytrial
-for pp_id, G_pp_df in G_df.groupby('pp_id'):
-    for tempo, G_pp_tempo_df in G_pp_df.groupby('stim_tempo_intended'):
-        for length, G_pp_tempo_length_df in G_pp_tempo_df.groupby('length'):
-            ITIs.loc[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length), 'G'] = G_pp_tempo_length_df.G.values[0]
-            ITIs.loc[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length), 'k_clusters'] = G_pp_tempo_length_df.k_clusters.values[0]
-            ITIs_bytrial.loc[(ITIs_bytrial.pp_id == pp_id) & (ITIs_bytrial.stim_tempo_intended == tempo) & (ITIs.length == length), 'G'] = G_pp_tempo_length_df.G.values[0]
-            ITIs_bytrial.loc[(ITIs_bytrial.pp_id == pp_id) & (ITIs_bytrial.stim_tempo_intended == tempo) & (ITIs.length == length), 'k_clusters'] = G_pp_tempo_length_df.k_clusters.values[0]
-    
+for stim_resp, stim_resp_df in G_df.groupby('stim_resp'):
+    for pp_id, G_pp_df in stim_resp_df.groupby('pp_id'):
+        for tempo, G_pp_tempo_df in G_pp_df.groupby('stim_tempo_intended'):
+            for length, G_pp_tempo_length_df in G_pp_tempo_df.groupby('length'):
+                ITIs.loc[
+                    (ITIs.pp_id == pp_id) &
+                    (ITIs.stim_tempo_intended == tempo) &
+                    (ITIs.length == length),
+                    f'G_{stim_resp[:-4]}'
+                    ] = G_pp_tempo_length_df.G.values[0]
+                ITIs.loc[
+                    (ITIs.pp_id == pp_id) &
+                    (ITIs.stim_tempo_intended == tempo) &
+                    (ITIs.length == length),
+                    f'k_clusters_{stim_resp[:-4]}'
+                    ] = G_pp_tempo_length_df.k_clusters.values[0]
+                ITIs_bytrial.loc[
+                    (ITIs_bytrial.pp_id == pp_id) &
+                    (ITIs_bytrial.stim_tempo_intended == tempo) &
+                    (ITIs.length == length),
+                    f'G_{stim_resp[:-4]}'
+                    ] = G_pp_tempo_length_df.G.values[0]
+                ITIs_bytrial.loc[
+                    (ITIs_bytrial.pp_id == pp_id) &
+                    (ITIs_bytrial.stim_tempo_intended == tempo) &
+                    (ITIs.length == length),
+                    f'k_clusters_{stim_resp[:-4]}'
+                    ] = G_pp_tempo_length_df.k_clusters.values[0]
+
+# calculate diff
+ITIs['G_diff'] = ITIs.G_resp - ITIs.G_stim
+ITIs_bytrial['G_diff'] = ITIs_bytrial.G_resp - ITIs_bytrial.G_stim
+
 # add silhouette score to ITIs and ITIs_bytrial
 for pp_id, silhouette_pp_df in df_silhouette.groupby('pp_id'):
     for tempo, silhouette_pp_tempo_df in silhouette_pp_df.groupby('stim_tempo_intended'):

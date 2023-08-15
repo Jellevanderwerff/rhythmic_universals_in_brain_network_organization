@@ -1,0 +1,52 @@
+---
+title: "NPOR: Validating measures"
+author: Jelle van der Werff
+date: 11/08/2023
+output:
+    html_notebook:
+        code_folding: hide
+        toc: true
+        toc_float: true
+---
+
+
+```{r load-packages, message = FALSE, echo = FALSE}
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load('here')
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "validating_measures.Rmd"))
+
+# Load custom helper functions
+source(here("scripts", "helper_functions.R"))
+
+# Knitr output settingsecho = TRUE,
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = TRUE,
+    message = FALSE
+)
+```
+
+
+```{r load-data}
+
+# Load data
+ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "by_pp.csv"))
+
+```
+
+# Validating measures
+
+Correlations between entropy and G
+```{r check-correlations-between-measures}
+cor(pp.measures$entropy_diff_avg, pp.measures$G_diff)
+```
+
+No correlation there.
