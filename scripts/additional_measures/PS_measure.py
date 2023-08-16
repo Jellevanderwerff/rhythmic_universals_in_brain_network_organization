@@ -1,10 +1,7 @@
 import pandas as pd
-import numpy as np
 import thebeat
 import numpy.typing as npt
 import re
-from collections import namedtuple
-import matplotlib.pyplot as plt
 
 def get_binary_sequence(ratios: npt.ArrayLike):
     output = []
@@ -45,21 +42,22 @@ def add_accents(binary_sequence: str):
 
 
 
-def calculate_PS(sequence, n_period_subdivisions=8, min_unit_size=1, max_unit_size=5):
+def calculate_PS(sequence, grid_ioi):
     """
-    Calculates the PS measure for a given ioi vector and metronome ioi
+    Calculates the PS measure for a given Sequence object.
 
     Assumptions:
 
     - We assume that the sequence starts at t=0, so there can be no silence at the beginning
+    - We assume that the provided Sequence constitutes one 'period'.
 
     Parameters
     ----------
 
     sequence : thebeat.core.Sequence
-        The sequence for which to calculate the PS-measure
-    n_period_subdivisions : int
-        The number of subdivisions of the period
+        The sequence for which to calculate the PS-measure.
+    grid_ioi : float
+        This number indicates the ioi of the underlying temporal grid.
 
     Returns
     -------
@@ -81,7 +79,7 @@ def calculate_PS(sequence, n_period_subdivisions=8, min_unit_size=1, max_unit_si
     }
 
     # Checks
-    if sequence.duration % (period_ioi / n_period_subdivisions) != 0:
+    if sequence.duration % grid_ioi != 0:
         raise ValueError('Sequence duration must be a multiple of the period IOI divided by n_period_subdivisions. Probably, you need to quantize the sequence \
                          first, e.g. using Sequence.quantize().')
 
@@ -95,6 +93,9 @@ def calculate_PS(sequence, n_period_subdivisions=8, min_unit_size=1, max_unit_si
     currently_lowest_C = None
     corresponding_u = None
     corresponding_loc = None
+
+    min_unit_size = 1
+    max_unit_size = int((sequence.duration / grid_ioi / 2) - 1)  # because everything _smaller_ than 1/2 period
 
     # Determine the best clock
     for unit_size in range(min_unit_size, max_unit_size + 1):
@@ -155,11 +156,8 @@ def calculate_PS(sequence, n_period_subdivisions=8, min_unit_size=1, max_unit_si
                     ci_sum += WEIGHTS['d2']
                 else:  # segment is unequally subdivided
                     ci_sum += WEIGHTS['d3']
-            else:  # if uneven
-                if segment_durations == segment_durations[::-1]:  # if symmetrical, it is equally subdivided
-                    ci_sum += WEIGHTS['d2']
-                else:  # if not symmetrical, it is unequally subdivided
-                    ci_sum += WEIGHTS['d3']
+            else:  # if uneven, cannot be subdivided equally
+                ci_sum += WEIGHTS['d3']
 
 
     # calculate m (i.e. number of 'new' strings)
@@ -185,20 +183,18 @@ def calculate_PS(sequence, n_period_subdivisions=8, min_unit_size=1, max_unit_si
     }
 
 
-r = thebeat.music.Rhythm.generate_random_rhythm(n_bars=2, allowed_note_values=[4, 8, 16])
-
-print(calculate_PS(r.to_sequence(), 2000))
-r = thebeat.music.Rhythm.generate_random_rhythm(n_bars=2, allowed_note_values=[4, 8])
-print(calculate_PS(r.to_sequence(), 2000))
-r = thebeat.music.Rhythm([500, 500, 500, 500])
-print(calculate_PS(r.to_sequence(), 2000))
-r = thebeat.music.Rhythm.
+seq = thebeat.Sequence.from_integer_ratios([2, 2, 4, 3, 1, 4], value_of_one=150)
+print(seq.duration)
+print(calculate_PS(seq, 150))
 
 
 
 
+
+
+
+# tests:
 """
-# tests
 patterns = [
     [1, 1, 1, 1, 3, 1, 2, 2, 4],
     [1, 1, 2, 2, 1, 1, 3, 1, 4],
@@ -239,8 +235,6 @@ patterns = [
 ]
 judged_scores = [1.56, 2.12, 2.08, 1.88, 1.80, 2.44, 2.20, 2.56, 3.00, 2.04, 2.76, 2.72, 3.00, 3.16, 2.04, 2.88, 2.60, 2.60, 2.64, 3.24, 3.08, 3.04, 3.04,
                  2.56, 2.56, 2.84, 3.60, 2.68, 3.28, 3.08, 3.52, 3.60, 3.04, 2.88, 3.08]
-PS_scores = [calculate_PS(thebeat.Sequence.from_integer_ratios(pattern, value_of_one=125), period_ioi=2000)['PS'] for pattern in patterns]
 
-
-print(PS_scores)
+PS_scores = [calculate_PS(thebeat.Sequence.from_integer_ratios(pattern, value_of_one=125), 125)['PS'] for pattern in patterns]
 """
