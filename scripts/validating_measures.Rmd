@@ -50,3 +50,20 @@ cor(pp.measures$entropy_diff_avg, pp.measures$G_diff)
 ```
 
 No correlation there.
+
+
+# G measure
+
+Below we check whether the G measure shows enough dispersion to be useful in an
+individual differences approach.
+
+```{r G-dispersion}
+
+# CoV
+cov <- ddply(pp.measures, .(stim_tempo_intended, length), summarise, cov = sd(G_diff) / mean(G_diff))
+cov_resp <- ddply(pp.measures, .(stim_tempo_intended, length), summarise, cov = sd(G_resp) / mean(G_resp))
+
+# Index of dispersion
+iod <- ddply(pp.measures, .(stim_tempo_intended, length), summarise, iod = var(G_diff) / mean(G_diff))
+
+```

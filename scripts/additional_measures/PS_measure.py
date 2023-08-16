@@ -2,14 +2,20 @@ import pandas as pd
 import thebeat
 import numpy.typing as npt
 import re
+from typing import Union
+import matplotlib.pyplot as plt
+import numpy as np
 
-def get_binary_sequence(ratios: npt.ArrayLike):
+def get_binary_sequence(iois: npt.ArrayLike, grid_ioi: float):
+
     output = []
 
-    for ratio in ratios:
-        output += [1]
-        output += [0] * (ratio - 1)
-
+    for ioi in iois:
+        if ioi == grid_ioi:
+            output += [1]
+        else:
+            output += [1]
+            output += [0] * (int(ioi / grid_ioi) - 1)  # can be zero
 
     return output
 
@@ -21,18 +27,30 @@ def add_accents(binary_sequence: str):
     count = 0
 
     while count < len(binary_sequence):
-        # If there's three consecutive 1s:
-        if binary_sequence[count:count+3] == '111':
+        # If an event is isolated (anywhere in the sequence)
+        if binary_sequence[count:count+3] == '010':
+            output += '020'
             count += 3
-            output += '212'
+        # If an event is isolated at the beginning of the sequence
+        elif count == 0 and binary_sequence[count:count+2] == '10':
+            output += '20'
+            count += 2
+        # If an event is isolated at the end of the sequence
+        elif count == len(binary_sequence) - 2 and binary_sequence[count:count+2] == '01':
+            output += '02'
+            count += 2
+        # If there's three OR MORE consecutive 1s:
+        elif binary_sequence[count:count+3] == '111':
+            m = re.search(r"111+", binary_sequence[count:])
+            n_ones = len(m.group(0))
+            output += '2'
+            output += '1' * (n_ones - 2)
+            output += '2'
+            count += n_ones
         # If there's two consecutive 1s:
         elif binary_sequence[count:count+2] == '11':
-            count += 2
             output += '12'
-        # If an event is isolated
-        elif binary_sequence[count:count+3] == '010':
-            count += 3
-            output += '020'
+            count += 2
         # Otherwise, add the event to the output, and move on
         else:
             output += binary_sequence[count]
@@ -42,7 +60,7 @@ def add_accents(binary_sequence: str):
 
 
 
-def calculate_PS(sequence, grid_ioi):
+def calculate_PS(sequence: Union[thebeat.core.Sequence, thebeat.music.Rhythm], grid_ioi: float):
     """
     Calculates the PS measure for a given Sequence object.
 
@@ -54,7 +72,7 @@ def calculate_PS(sequence, grid_ioi):
     Parameters
     ----------
 
-    sequence : thebeat.core.Sequence
+    sequence : thebeat.core.Sequence or thebeat.music.Rhythm
         The sequence for which to calculate the PS-measure.
     grid_ioi : float
         This number indicates the ioi of the underlying temporal grid.
@@ -86,8 +104,11 @@ def calculate_PS(sequence, grid_ioi):
     if sequence.onsets[0] != 0:
         raise ValueError('Sequence must start at time 0.')
 
+    if np.any(sequence.iois < grid_ioi):
+        raise ValueError("One of the inter-onset intervals (IOIs) is shorter than the grid_ioi.")
+
     # Get the binary sequence
-    binary_sequence = ''.join([str(x) for x in get_binary_sequence(sequence.integer_ratios)])
+    binary_sequence = ''.join([str(x) for x in get_binary_sequence(iois=sequence.iois, grid_ioi=grid_ioi)])
     accented_sequence = add_accents(binary_sequence)
 
     currently_lowest_C = None
@@ -137,31 +158,28 @@ def calculate_PS(sequence, grid_ioi):
     final_loc = corresponding_loc
 
     ## Calculate D
-    # Split up the original sequence into final_u-sized segments
-    segments = [binary_sequence[i:i + final_u] for i in range(0, len(binary_sequence), final_u)]
-
+    # Split up the binary sequence into parts of size final_u, starting at final_loc
+    segments = [binary_sequence[i:i+final_u] for i in range(final_loc - 1, len(binary_sequence), final_u)]
+    # Discard segments that are shorter than final_u
+    segments = [segment for segment in segments if len(segment) == final_u]
     # calculate the sum of the c_i's
     ci_sum = 0
     for segment in segments:
         # segment starts with silence (type N)
         if segment.startswith('0'):
             ci_sum += WEIGHTS['d4']
-        # segment is empty (type E)
-        elif re.search(r"^10*1$", segment):
-            ci_sum += WEIGHTS['d1']
-        else:  # segment is either equally or unequally subdivided
-            segment_durations = [len(x) for x in segment.split('0') if x != '']
-            if len(segment) % 2 == 0:  # if even
-                if all(x == segment_durations[0] for x in segment_durations):  # equally subdivided if all values are the same
-                    ci_sum += WEIGHTS['d2']
-                else:  # segment is unequally subdivided
-                    ci_sum += WEIGHTS['d3']
-            else:  # if uneven, cannot be subdivided equally
+        else:  # segment is either empty, or equally or unequally subdivided
+            # get the durations of the segment (e.g. 1-2, 1-1, etc.)
+            segment_durations = re.findall(r"10*", segment)
+            segment_durations = [len(x) for x in segment_durations]
+            if len(segment_durations) == 1:  # segment is empty if there is only one value (type E)
+                ci_sum += WEIGHTS['d1']
+            elif all(x == segment_durations[0] for x in segment_durations):  # equally subdivided if all durations are the same
+                ci_sum += WEIGHTS['d2']
+            else:  # unequally subdivided if not all durations are the same
                 ci_sum += WEIGHTS['d3']
 
-
-    # calculate m (i.e. number of 'new' strings)
-    # for each segment check whether the subsequent segment is the same:
+    # calculate m (i.e. number of 'new' strings when going from left to right)
     m = 0
     for i in range(len(segments) - 1):
         if segments[i] != segments[i + 1]:
@@ -183,58 +201,3 @@ def calculate_PS(sequence, grid_ioi):
     }
 
 
-seq = thebeat.Sequence.from_integer_ratios([2, 2, 4, 3, 1, 4], value_of_one=150)
-print(seq.duration)
-print(calculate_PS(seq, 150))
-
-
-
-
-
-
-
-# tests:
-"""
-patterns = [
-    [1, 1, 1, 1, 3, 1, 2, 2, 4],
-    [1, 1, 2, 2, 1, 1, 3, 1, 4],
-    [2, 1, 1, 2, 1, 1, 3, 1, 4],
-    [2, 2, 1, 1, 1, 1, 3, 1, 4],
-    [3, 1, 2, 2, 1, 1, 1, 1, 4],  # 5
-    [1, 1, 2, 1, 1, 2, 1, 3, 4],
-    [2, 1, 1, 1, 2, 1, 3, 1, 4],
-    [1, 3, 1, 1, 1, 1, 2, 2, 4],
-    [1, 3, 2, 1, 1, 2, 1, 1, 4],
-    [2, 1, 1, 2, 1, 1, 1, 3, 4],  # 10
-    [1, 1, 2, 1, 3, 1, 2, 1, 4],
-    [1, 2, 1, 1, 1, 2, 3, 1, 4],
-    [1, 2, 1, 2, 1, 1, 1, 3, 4],
-    [1, 3, 1, 2, 1, 2, 1, 1, 4],
-    [3, 1, 1, 2, 1, 1, 2, 1, 4],  # 15
-    [1, 2, 1, 1, 1, 2, 1, 3, 4],
-    [1, 2, 1, 1, 2, 1, 1, 3, 4],
-    [1, 2, 1, 1, 3, 1, 2, 1, 4],
-    [1, 3, 1, 2, 1, 1, 1, 2, 4],
-    [1, 3, 1, 2, 1, 1, 2, 1, 4],  # 20
-    [1, 1, 1, 1, 2, 1, 2, 3, 4],
-    [1, 1, 1, 1, 2, 1, 2, 3, 4],
-    [1, 1, 3, 1, 2, 1, 1, 2, 4],
-    [2, 1, 1, 3, 2, 1, 1, 1, 4],
-    [2, 3, 1, 1, 1, 2, 1, 1, 4],  # 25
-    [1, 1, 1, 2, 2, 3, 1, 1, 4],
-    [1, 2, 1, 1, 2, 3, 1, 1, 4],
-    [1, 2, 3, 1, 1, 2, 1, 1, 4],
-    [2, 1, 1, 1, 2, 3, 1, 1, 4],
-    [3, 1, 1, 1, 1, 2, 1, 2, 4],  # 30
-    [1, 1, 1, 2, 1, 1, 3, 2, 4],
-    [1, 1, 1, 3, 1, 2, 1, 2, 4],
-    [1, 2, 1, 1, 1, 3, 1, 2, 4],
-    [1, 2, 3, 1, 1, 1, 1, 2, 4],
-    [2, 3, 1, 1, 2, 1, 1, 1, 4],  # 35
-
-]
-judged_scores = [1.56, 2.12, 2.08, 1.88, 1.80, 2.44, 2.20, 2.56, 3.00, 2.04, 2.76, 2.72, 3.00, 3.16, 2.04, 2.88, 2.60, 2.60, 2.64, 3.24, 3.08, 3.04, 3.04,
-                 2.56, 2.56, 2.84, 3.60, 2.68, 3.28, 3.08, 3.52, 3.60, 3.04, 2.88, 3.08]
-
-PS_scores = [calculate_PS(thebeat.Sequence.from_integer_ratios(pattern, value_of_one=125), 125)['PS'] for pattern in patterns]
-"""

@@ -115,6 +115,27 @@ the lower the G score."
 ggsave(here("plots", "g-score.pdf"))
 ```
 
+## G bars
+```{r g-bars}
+
+ggplot(pp.measures, aes(x = pp_id, y = G_resp, fill = pp_id, colour = pp_id)) +
+geom_bar(stat = "identity", position = position_dodge(width = 0.5), show.legend = FALSE) +
+facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, ) +
+theme_jelle() +
+labs(x = "Participant", y = "G measure (response)",
+    title = "Grammatical redundancy by condition",
+    subtitle = "Higher values mean more grammatical redundancy",
+    caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
+This means the quarternote-eighth note combination is redundant, as it could have been
+one symbol, so G is higher. The more different combinations of symbols a participant uses,
+the lower the G score."
+) +
+theme(axis.text.x = element_blank())
+
+ggsave(here("plots", "g-bars.pdf"))
+```
+
+
 ## G difference
 
 ```{r g-diff-bycondition}
