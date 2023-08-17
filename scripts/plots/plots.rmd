@@ -333,6 +333,32 @@ ggsave(here("plots", "intervalratios-ridges.pdf"), width = 20, height = 20)
 ```
 
 
+```{r quantized-intervalratios}
+
+counts <- ddply(interval.ratios, .(condition, stim_tempo_intended, length, quantized_ratio_str), summarize, count = length(quantized_ratio_str))
+counts <- counts[counts$count > 100, ]
+
+counts <- counts[order(counts$condition, counts$count, decreasing = TRUE), ]
+counts$quantized_ratio_str <- factor(counts$quantized_ratio_str, levels = unique(counts$quantized_ratio_str))
+
+
+ggplot(counts, aes(x = quantized_ratio_str, y = count, fill = condition)) +
+geom_bar(stat = "identity", show.legend = FALSE) +
+facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = 'x') +
+scale_fill_discrete(labels = c("400 ms; 4 events", "400 ms; 5 events", "600 ms; 4 events", "600 ms; 5 events")) +
+theme_jelle() +
+labs(x = "Interval ratio (quantized)", y = "Count", title = "Encountered interval ratios by condition",
+subtitle = "Responses were first quantized to 1/16th notes.",
+caption = "Only interval ratios encountered by more than 100 participants are shown.")
+
+ggsave(here("plots", "quantized-intervalratios.pdf"))
+```
+
+```
+
+
+
+
 ## Local maxima
 
 ```{r ratios-localmaxima}

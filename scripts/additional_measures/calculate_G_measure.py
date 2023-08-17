@@ -40,9 +40,6 @@ warnings.filterwarnings("ignore")
 # Load data
 ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 
-# clean (this is to avoid impossible values in the data that lead to non-converging k-means)
-clean_df = ITIs[ITIs.resp_iti < 1200]
-
 # create df for k-means clusters
 df_clusters = pd.DataFrame()
 # create df for silhouette scores
@@ -51,13 +48,18 @@ df_silhouette = pd.DataFrame()
 # Loop over whether we're doing stimulus or response
 for stim_resp in ('resp_iti', 'stim_ioi'):
     # Loop over tempi
-    for tempo, tempo_df in clean_df.groupby('stim_tempo_intended'):
+    for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
         # Loop over two lengths
         for length, length_df in tempo_df.groupby('length'):
             # Loop over participants
             for pp_id, pp_df in length_df.groupby('pp_id'):
+                print(pp_id)
+                # Get the data
+                data = pp_df[stim_resp]
+                # Clean, remove outliers outside of 2.5 SDs from the mean
+                data = data[(data > np.mean(data) - 2.5 * np.std(data)) & (data < np.mean(data) + 2.5 * np.std(data))]
                 # Reshape horizontal data to vertical
-                data = pp_df[stim_resp].values.reshape(-1, 1)
+                data = data.values.reshape(-1, 1)
 
                 silhouette_dict = {}
                 k_means_dict = {}

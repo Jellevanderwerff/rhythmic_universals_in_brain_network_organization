@@ -5,6 +5,7 @@ import re
 from typing import Union
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 def get_binary_sequence(iois: npt.ArrayLike, grid_ioi: float):
 
@@ -98,8 +99,7 @@ def calculate_PS(sequence: Union[thebeat.core.Sequence, thebeat.music.Rhythm], g
 
     # Checks
     if sequence.duration % grid_ioi != 0:
-        raise ValueError('Sequence duration must be a multiple of the period IOI divided by n_period_subdivisions. Probably, you need to quantize the sequence \
-                         first, e.g. using Sequence.quantize().')
+        raise ValueError('Sequence duration must be a multiple of the grid_ioi.')
 
     if sequence.onsets[0] != 0:
         raise ValueError('Sequence must start at time 0.')
@@ -160,7 +160,7 @@ def calculate_PS(sequence: Union[thebeat.core.Sequence, thebeat.music.Rhythm], g
     ## Calculate D
     # Split up the binary sequence into parts of size final_u, starting at final_loc
     segments = [binary_sequence[i:i+final_u] for i in range(final_loc - 1, len(binary_sequence), final_u)]
-    # Discard segments that are shorter than final_u
+    # Discard segments that are shorter than final_u (see e.g. Povel & Essens, 1985, Fig. 6)
     segments = [segment for segment in segments if len(segment) == final_u]
     # calculate the sum of the c_i's
     ci_sum = 0
@@ -201,3 +201,38 @@ def calculate_PS(sequence: Union[thebeat.core.Sequence, thebeat.music.Rhythm], g
     }
 
 
+df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
+sound = thebeat.SoundStimulus.generate()
+
+iois = df[df.sequence_id == '20_2'].stim_ioi.values
+stim = thebeat.Sequence(iois=iois)
+
+# plot fft
+fig, ax = thebeat.stats.fft_plot(stim, unit_size=1000, x_max=10)
+
+# Get the data
+x_data, y_data = ax.lines[0].get_data()
+
+# Get the index of the highest value for y, and get its corresponding x value
+max_y_index = np.argmax(y_data)
+max_x = x_data[max_y_index]
+peak = 1000 / max_x
+rounded_sixteenth = round(peak/4)
+
+stim_q = stim.quantize_iois(to=rounded_sixteenth)
+print(stim_q)
+ss_q = thebeat.SoundSequence(sound, stim_q)
+ss_q.play()
+
+print(calculate_PS(stim_q, grid_ioi=rounded_sixteenth))
+
+
+
+
+
+#itis = df[df.sequence_id == '20_2'].resp_iti.values
+#resp = thebeat.Sequence(iois=itis)
+
+#stim_ss = thebeat.SoundSequence(sound, stim)
+#resp_ss = thebeat.SoundSequence(sound, resp)
+#stim_ss.play()
