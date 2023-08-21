@@ -20,12 +20,17 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
         for pp_id, pp_df in length_df.groupby('pp_id'):
 
             # Get interval ratios for pp
-            pp_interval_ratios = interval_ratios[interval_ratios.pp_id == pp_id]
+            pp_interval_ratios = interval_ratios[(interval_ratios.pp_id == pp_id) & (interval_ratios.stim_tempo_intended == tempo) & (interval_ratios.length == length)]
 
             # Count number of binary and ternary ratios
             quantized_binary_ratios_n = pp_interval_ratios[pp_interval_ratios.quantized_ratio_str.isin(['1:2', '2:1'])].shape[0]
             quantized_ternary_ratios_n = pp_interval_ratios[pp_interval_ratios.quantized_ratio_str.isin(['1:3', '3:1'])].shape[0]
-            quantized_binary_vs_ternary_prop = quantized_binary_ratios_n / quantized_ternary_ratios_n
+
+
+            # proportion of binary vs ternary ratios
+            quantized_binary_vs_ternary_prop = quantized_binary_ratios_n / (quantized_binary_ratios_n + quantized_ternary_ratios_n)
+            quantized_binary_vs_total_prop = quantized_binary_ratios_n / pp_interval_ratios.shape[0]
+            quantized_ternary_vs_total_prop = quantized_ternary_ratios_n / pp_interval_ratios.shape[0]
 
             # pp's dataframe:
             pp_output_df = pd.DataFrame({
@@ -35,24 +40,24 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'G_stim': pp_df.G_stim.values[0],
                 'G_resp': pp_df.G_resp.values[0],
                 'G_diff': pp_df.G_diff.values[0],
-                'rhythmic_contours_edit_distance_sum': pp_df.rhythmic_contours_edit_distance.sum(),
+                'rhythmic_contours_edit_distance_avg': pp_df.rhythmic_contours_edit_distance.mean(),
                 'silhouette': pp_df.silhouette.values[0],
                 'tempo_diff_avg': np.mean(pp_df.resp_iti - pp_df.stim_ioi),
                 'tempo_diff_sd': np.std(pp_df.resp_iti - pp_df.stim_ioi),
                 'tempo_diff_avg_abs': np.mean(np.abs(pp_df.resp_iti - pp_df.stim_ioi)),
                 'entropy_diff_avg': pp_df.entropy_diff.mean(),
+                'edit_distance_avg': pp_df.edit_distance.mean(),
                 'preference_binary_D': ratio_prefs_kstest[(ratio_prefs_kstest.pp_id == pp_id) & (ratio_prefs_kstest.stim_tempo_intended == tempo) & (ratio_prefs_kstest.length == length) & (ratio_prefs_kstest.hypo_distribution == 'binary')].ks_statistic.values[0],
                 'preference_ternary_D': ratio_prefs_kstest[(ratio_prefs_kstest.pp_id == pp_id) & (ratio_prefs_kstest.stim_tempo_intended == tempo) & (ratio_prefs_kstest.length == length) & (ratio_prefs_kstest.hypo_distribution == 'ternary')].ks_statistic.values[0],
                 'quantized_binary_ratios_n': quantized_binary_ratios_n,
                 'quantized_ternary_ratios_n': quantized_ternary_ratios_n,
-                'quantized_binary_vs_ternary_prop': quantized_binary_vs_ternary_prop
+                'quantized_binary_vs_ternary_prop': quantized_binary_vs_ternary_prop,
+                'quantized_binary_vs_total_prop': quantized_binary_vs_total_prop,
+                'quantized_ternary_vs_total_prop': quantized_ternary_vs_total_prop
 
             }, index=[0])
 
             pp_measures = pd.concat([pp_measures, pp_output_df], ignore_index=True)
-
-# change data types where relevant
-pp_measures.rhythmic_contours_edit_distance_sum = pp_measures.rhythmic_contours_edit_distance_sum.astype(int)
 
 # sort df
 pp_measures = pp_measures.sort_values(by=['pp_id', 'stim_tempo_intended', 'length']).reset_index(drop=True)

@@ -52,7 +52,7 @@ labels <- as_labeller(c(
 ```{r load-data}
 ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
 ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
-pp.measures <- read.csv(here("data", "experiment", "processed", "by_pp.csv"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
 interval.ratios <- read.csv(here("data", "experiment", "processed", "interval_ratios.csv"))
 interval.ratios.maxima <- read.csv(here("data", "experiment", "processed", "ratios_localmaxima.csv"))
 ```
