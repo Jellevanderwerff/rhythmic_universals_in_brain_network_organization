@@ -7,10 +7,15 @@ import pandas as pd
 import numpy as np
 import thebeat
 import os
+from itertools import permutations
 
 ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 ratio_prefs_kstest = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ratio_preferences_kstest.csv'))
 interval_ratios = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'interval_ratios.csv'))
+
+# get simple integer ratios (< 5)
+small_integer_ratios = list(permutations(range(1, 6), 2))
+small_integer_ratios = [f'{ratio[0]}:{ratio[1]}' for ratio in small_integer_ratios]
 
 # Create empty output df
 pp_measures = pd.DataFrame()
@@ -22,38 +27,19 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
             # Get interval ratios for pp
             pp_interval_ratios = interval_ratios[(interval_ratios.pp_id == pp_id) & (interval_ratios.stim_tempo_intended == tempo) & (interval_ratios.length == length)]
 
-            # Count number of binary and ternary ratios
-            quantized_binary_ratios_n = pp_interval_ratios[pp_interval_ratios.quantized_ratio_str.isin(['1:2', '2:1'])].shape[0]
-            quantized_ternary_ratios_n = pp_interval_ratios[pp_interval_ratios.quantized_ratio_str.isin(['1:3', '3:1'])].shape[0]
-
-
-            # proportion of binary vs ternary ratios
-            quantized_binary_vs_ternary_prop = quantized_binary_ratios_n / (quantized_binary_ratios_n + quantized_ternary_ratios_n)
-            quantized_binary_vs_total_prop = quantized_binary_ratios_n / pp_interval_ratios.shape[0]
-            quantized_ternary_vs_total_prop = quantized_ternary_ratios_n / pp_interval_ratios.shape[0]
+            # Count number of isochronous, binary, and ternary ratios
+            small_integers_n = pp_interval_ratios[pp_interval_ratios.quantized_ratio_str.isin(small_integer_ratios)].shape[0]
+            small_integers_prop = small_integers_n / pp_interval_ratios.shape[0]
 
             # pp's dataframe:
             pp_output_df = pd.DataFrame({
                 'pp_id': pp_id,
                 'stim_tempo_intended': tempo,
                 'length': length,
-                'G_stim': pp_df.G_stim.values[0],
                 'G_resp': pp_df.G_resp.values[0],
-                'G_diff': pp_df.G_diff.values[0],
-                'rhythmic_contours_edit_distance_avg': pp_df.rhythmic_contours_edit_distance.mean(),
-                'silhouette': pp_df.silhouette.values[0],
-                'tempo_diff_avg': np.mean(pp_df.resp_iti - pp_df.stim_ioi),
-                'tempo_diff_sd': np.std(pp_df.resp_iti - pp_df.stim_ioi),
-                'tempo_diff_avg_abs': np.mean(np.abs(pp_df.resp_iti - pp_df.stim_ioi)),
                 'entropy_diff_avg': pp_df.entropy_diff.mean(),
-                'edit_distance_avg': pp_df.edit_distance.mean(),
-                'preference_binary_D': ratio_prefs_kstest[(ratio_prefs_kstest.pp_id == pp_id) & (ratio_prefs_kstest.stim_tempo_intended == tempo) & (ratio_prefs_kstest.length == length) & (ratio_prefs_kstest.hypo_distribution == 'binary')].ks_statistic.values[0],
-                'preference_ternary_D': ratio_prefs_kstest[(ratio_prefs_kstest.pp_id == pp_id) & (ratio_prefs_kstest.stim_tempo_intended == tempo) & (ratio_prefs_kstest.length == length) & (ratio_prefs_kstest.hypo_distribution == 'ternary')].ks_statistic.values[0],
-                'quantized_binary_ratios_n': quantized_binary_ratios_n,
-                'quantized_ternary_ratios_n': quantized_ternary_ratios_n,
-                'quantized_binary_vs_ternary_prop': quantized_binary_vs_ternary_prop,
-                'quantized_binary_vs_total_prop': quantized_binary_vs_total_prop,
-                'quantized_ternary_vs_total_prop': quantized_ternary_vs_total_prop
+                'edit_distance_norm_avg': pp_df.edit_distance_normalized.mean(),
+                'small_integers_vs_total_prop': small_integers_prop
 
             }, index=[0])
 
