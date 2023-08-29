@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import warnings
+import Levenshtein
 
 
 warnings.filterwarnings("ignore")
@@ -28,18 +29,25 @@ for sequence_id, sequence_df in ITIs.groupby("sequence_id"):
     stim_seq = stim_seq.quantize_iois(to=sixteenth_duration_stim)
     resp_seq = resp_seq.quantize_iois(to=sixteenth_duration_resp)
 
-    # quantize resp_seq to stim_seq
-    relationship_between_stim_and_resp = sixteenth_duration_stim / sixteenth_duration_resp
-    resp_seq.iois *= relationship_between_stim_and_resp
-    stim_seq.iois = np.round(stim_seq.iois, 0)
-    resp_seq.iois = np.round(resp_seq.iois, 0)
+    # get binary sequences
+    stim_seq_binary = thebeat.helpers.sequence_to_binary(stim_seq, sixteenth_duration_stim).astype(int)
+    resp_seq_binary = thebeat.helpers.sequence_to_binary(resp_seq, sixteenth_duration_resp).astype(int)
 
-    # calculate edit distance
-    edit_distance = thebeat.stats.edit_distance_sequence(stim_seq, resp_seq, resolution=sixteenth_duration_stim)
+    # get actual edit distance
+    edit_distance = Levenshtein.distance(stim_seq_binary, resp_seq_binary)
+
+    # get theoretically worst edit distance
+    resp_seq_binary_inverse = 1 - resp_seq_binary
+    worst_edit_distance = Levenshtein.distance(stim_seq_binary, resp_seq_binary_inverse)
+
+    # normalize
+    edit_distance_normalized = edit_distance / worst_edit_distance
 
     # add to dataframe
     ITIs.loc[ITIs["sequence_id"] == sequence_id, "edit_distance"] = edit_distance
     ITIs_bytrial.loc[ITIs_bytrial["sequence_id"] == sequence_id, "edit_distance"] = edit_distance
+    ITIs.loc[ITIs["sequence_id"] == sequence_id, "edit_distance_normalized"] = edit_distance_normalized
+    ITIs_bytrial.loc[ITIs_bytrial["sequence_id"] == sequence_id, "edit_distance_normalized"] = edit_distance_normalized
 
 
 # change col data types
