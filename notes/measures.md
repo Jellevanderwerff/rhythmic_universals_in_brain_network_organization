@@ -32,9 +32,10 @@ Levenshtein distance is calculated between two strings as the number of insertio
 - We first quantized the rhythm (see under 'entropy') to sixteenth notes.
 - We then represented the rhythm as a string of zeroes and ones, with an underlying grid of sixteenth notes.
 - We calculated the Levenshtein distance between to strings.
+- We normalized the edit distance by dividing the encountered edit distance by the worst possible edit distance (based on the inverse of the stimulus).
 
 
-## Preference for binary or ternary interval ratios
+## Preference for small integer ratios
 Interval ratios represent the relationship between the durations of subsequent notes. If a rhythm consists of two quarternotes, the relationship of the first note to the combined duration of the two notes is 0.5. Note how for each rhythm of n _intervals_ we thus get _n_-1 interval ratios. The ratio is always represented as a number between 0 and 1. It is calculated as $ratio_k = \frac{interval_k}{interval_k + interval_{k+1}}$.
 
 Now, to investigate whether people more frequently produce two subsequent notes with a binary relationship (e.g. quarternote-halfnote) or with a ternary relationship (e.g. eighth note-dotted quarternote), using the interval ratios we counted the number of occurrences of binary and ternary relationships. However, a problem here arises, because produced rhythms are seldom (if ever) perfectly produced, and say we want to count the number of occurrences of interval ratios 0.25 and 0.75 (i.e. ternary relationships), we would have to specify a bandwith around those numbers, and it is difficult to say what that bandwith should be (usually, people just assume some numbers). So, in order to have a measure that is the most objective, and requires the fewest assumptions, we first quantized the rhythms to sixteenth notes using the procedure described under 'entropy', and only then calculated the interval ratios.
@@ -42,10 +43,7 @@ Now, to investigate whether people more frequently produce two subsequent notes 
 ### How was it calculated?
 - We first quantized the rhythm (see under 'entropy') to sixteenth notes.
 - We then calculated the interval ratios between dyads of intervals using the formula described above.
-- We then calculated the proportion between binary ratios and the total number of ratios, and the proportion of ternary ratios and the total number of ratios.
+- We then calculated the proportion of isochronous, binary, and ternary ratios out of the the total number of ratios.
 
 ### References
 Roeske et al., 2017
-
-
-

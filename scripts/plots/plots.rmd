@@ -569,8 +569,8 @@ ggsave(here("plots", "one-big-plot-2.png"), width = 10, height = 10, scale = 1.5
 labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "edit_distance_norm_avg" = "Edit distance",
-  "entropy_resp_avg" = "Entropy (response)",
   "entropy_diff_avg" = "Entropy difference",
+  "rhythmic_contours_edit_distance_quantized_avg" = "Contours edit distance (qntzd)",
   "small_integers_vs_total_prop" = "Small integer ratios proportion"
 ))
 
@@ -579,12 +579,12 @@ levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "60
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
 ggpairs(pp.measures,
-  columns = c("G_resp", "edit_distance_norm_avg", "entropy_diff_avg", "entropy_resp_avg", "small_integers_vs_total_prop"),
+  columns = c("G_resp", "edit_distance_norm_avg", "entropy_diff_avg", "rhythmic_contours_edit_distance_quantized_avg", "small_integers_vs_total_prop"),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
 
 ggsave(here("plots", "correlations", "correlations.pdf"))
-ggsave(here("plots", "correlations", "correlations.png"))
+ggsave(here("plots", "correlations", "correlations.png"), bg = "white")
 ```
 
 
