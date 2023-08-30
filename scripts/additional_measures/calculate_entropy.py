@@ -20,9 +20,9 @@ for sequence, sequence_df in ITIs.groupby('sequence_id'):
     ITIs.loc[ITIs['sequence_id'] == sequence, 'stim_entropy'] = stim_entropy
     ITIs.loc[ITIs['sequence_id'] == sequence, 'resp_entropy'] = resp_entropy
     ITIs.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = resp_entropy - stim_entropy
-    ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'stim_entropy'] = stim_entropy
-    ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'resp_entropy'] = resp_entropy
-    ITIs_bytrial.loc[ITIs['sequence_id'] == sequence, 'entropy_diff'] = resp_entropy - stim_entropy
+    ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'stim_entropy'] = stim_entropy
+    ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'resp_entropy'] = resp_entropy
+    ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'entropy_diff'] = resp_entropy - stim_entropy
 
 # Save the data
 ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)

@@ -21,7 +21,7 @@ if (!require("pacman")) install.packages("pacman")
 # load packages
 p_load(
   "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
-  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp"
+  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally"
 )
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
@@ -117,20 +117,20 @@ ggsave(here("plots", "g-score.pdf"))
 
 ## G bars
 ```{r g-bars}
-
 ggplot(pp.measures, aes(x = pp_id, y = G_resp, fill = pp_id, colour = pp_id)) +
-geom_bar(stat = "identity", position = position_dodge(width = 0.5), show.legend = FALSE) +
-facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, ) +
-theme_jelle() +
-labs(x = "Participant", y = "G measure (response)",
+  geom_bar(stat = "identity", position = position_dodge(width = 0.5), show.legend = FALSE) +
+  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, ) +
+  theme_jelle() +
+  labs(
+    x = "Participant", y = "G measure (response)",
     title = "Grammatical redundancy by condition",
     subtitle = "Higher values mean more grammatical redundancy",
     caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
 This means the quarternote-eighth note combination is redundant, as it could have been
 one symbol, so G is higher. The more different combinations of symbols a participant uses,
 the lower the G score."
-) +
-theme(axis.text.x = element_blank())
+  ) +
+  theme(axis.text.x = element_blank())
 
 ggsave(here("plots", "g-bars.pdf"))
 ```
@@ -152,7 +152,7 @@ ggplot(pp.measures, aes(x = condition, y = G_diff, fill = condition, colour = co
   theme_jelle() +
   labs(
     x = "Condition",
-    y = expression(italic(G)~"measure difference (response - stimulus)"),
+    y = expression(italic(G) ~ "measure difference (response - stimulus)"),
     title = "Difference in grammatical redundancy by condition",
     subtitle = "Higher values mean more grammatical redundancy",
     caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
@@ -171,23 +171,21 @@ ggsave(here("plots", "g-score-diff.pdf"))
 ## G difference
 
 ```{r g-diff}
-
 # melt data
 pp.measures.melt <- melt(pp.measures, id.vars = c("stim_tempo_intended", "length"), measure.vars = c("G_stim", "G_resp"))
 levels(pp.measures.melt$variable) <- c("Stimulus", "Response")
 
 
 ggplot(pp.measures.melt, aes(x = variable, y = value, colour = variable, group = variable)) +
-geom_point(alpha = 0.2, show.legend = FALSE) +
-stat_summary(geom = "pointrange", size = 1, linewidth = 1, show.legend = FALSE) +
-facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
-theme_jelle() +
-labs(
-  y = expression(italic(G) ~ measure),
-  title = "Grammatical redundancy by condition and stim/resp",
-  subtitle = "Higher values mean more grammatical redundancy"
-)
-
+  geom_point(alpha = 0.2, show.legend = FALSE) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1, show.legend = FALSE) +
+  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
+  theme_jelle() +
+  labs(
+    y = expression(italic(G) ~ measure),
+    title = "Grammatical redundancy by condition and stim/resp",
+    subtitle = "Higher values mean more grammatical redundancy"
+  )
 ```
 
 ## Tempo difference
@@ -221,25 +219,6 @@ ggsave(here("plots", "tempo-diff.pdf"))
 ```
 
 
-## Rhythmic contours edit distance
-
-```{r rhythmic-contours}
-ggplot(ITIs.bytrial, aes(x = rhythmic_contours_edit_distance, fill = condition)) +
-  geom_bar(stat = "count", show.legend = FALSE) +
-  facet_rep_grid(
-    rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels,
-    repeat.tick.labels = "x"
-  ) +
-  theme_jelle() +
-  labs(
-    x = "Number of edits", y = "Count", title = "Rhythmic contours edit distance by condition",
-    caption = "The edit distance here is calculated by comparing two strings (one for the stimulus,
-one for the response) of e.g. As and Bs, where the symbols indicate
-whether an interval was longer or shorter than the previous one.",
-    colour = "Participant"
-  )
-```
-
 ## Entropy
 
 ```{r entropy}
@@ -259,33 +238,73 @@ ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
 ggsave(here("plots", "entropy.pdf"))
 ```
 
-## Preference for binary or ternary ratios
+## Preference for small integer ratios
 
-```{r binary-ternary-dataprep}
-binary.ternary <- reshape2::melt(pp.measures,
-  id.vars = c("pp_id", "stim_tempo_intended", "length"),
-  measure.vars = c("preference_binary_D", "preference_ternary_D")
-)
+```{r simple-integers}
+ggplot(pp.measures, aes(x = condition, y = small_integers_vs_total_prop, colour = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.3) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Proportion of simple integer ratios",
+    title = "Proportion of simple integer ratios by condition",
+    subtitle = "Each point represents one participant",
+    caption = "Simple integer ratios were all combinations of the numbers 1 to 5. For example, 1:1, 3:5, 5:3, 2:1, etc."
+  ) +
+  theme_jelle()
 
-colnames(binary.ternary) <- c("pp_id", "stim_tempo_intended", "length", "ratio_type", "KS_D")
-binary.ternary$ratio_type <- as.character(binary.ternary$ratio_type)
-binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_binary_D"] <- "Binary"
-binary.ternary$ratio_type[binary.ternary$ratio_type == "preference_ternary_D"] <- "Ternary"
-binary.ternary$ratio_type <- as.factor(binary.ternary$ratio_type)
+ggsave(here("plots", "simple_integers.pdf"))
+ggsave(here("plots", "simple_integers.png"), dpi = 300)
 ```
 
-```{r binary-ternary}
-ggplot(binary.ternary, aes(x = ratio_type, y = KS_D, fill = ratio_type)) +
-  geom_violin(alpha = 0.5, show.legend = FALSE) +
-  geom_boxplot(width = 0.05, show.legend = FALSE, alpha = 0.2) +
-  geom_point(size = 1, show.legend = FALSE, position = position_jitter(width = 0.2), color = "grey", alpha = 0.8) +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
-  theme_jelle() +
+
+## Edit distance
+
+### Across participants
+
+```{r edit-distance}
+ggplot(ITIs.bytrial, aes(x = edit_distance_normalized, colour = condition, fill = condition, group = condition)) +
+  geom_histogram(show.legend = FALSE, alpha = 0.8) +
   labs(
-    x = "Ratio type", y = expression("Kolmigorov-Smirnov" ~ italic(D)), title = "Preference for binary vs. ternary ratios",
-    subtitle = "Higher values mean more preference", colour = "Participant"
-  )
-ggsave(here("plots", "binary-ternary.pdf"))
+    x = "Condition", y = "Count",
+    title = "Normalized edit distance by condition across participants",
+    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another."
+  ) +
+  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
+  theme_jelle()
+
+ggsave(here("plots", "edit_distance.pdf"))
+ggsave(here("plots", "edit_distance.png"), dpi = 300)
+```
+
+### By participant
+
+```{r edit-distance-bypp}
+ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  labs(
+    x = "Condition", y = "Edit distance (normalized)",
+    title = "Normalized edit distance by participant and condition",
+    subtitle = "Each point represents one participant",
+    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another.
+    Normalization was performed by dividing by the maximum possible edit distance."
+  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme_jelle()
+
+ggsave(here("plots", "edit_distance_bypp.pdf"))
+ggsave(here("plots", "edit_distance_bypp.png"), dpi = 300)
 ```
 
 # Distributions
@@ -334,7 +353,6 @@ ggsave(here("plots", "intervalratios-ridges.pdf"), width = 20, height = 20)
 
 
 ```{r quantized-intervalratios}
-
 counts <- ddply(interval.ratios, .(condition, stim_tempo_intended, length, quantized_ratio_str), summarize, count = length(quantized_ratio_str))
 counts <- counts[counts$count > 100, ]
 
@@ -343,18 +361,20 @@ counts$quantized_ratio_str <- factor(counts$quantized_ratio_str, levels = unique
 
 
 ggplot(counts, aes(x = quantized_ratio_str, y = count, fill = condition)) +
-geom_bar(stat = "identity", show.legend = FALSE) +
-facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = 'x') +
-scale_fill_discrete(labels = c("400 ms; 4 events", "400 ms; 5 events", "600 ms; 4 events", "600 ms; 5 events")) +
-theme_jelle() +
-labs(x = "Interval ratio (quantized)", y = "Count", title = "Encountered interval ratios by condition",
-subtitle = "Responses were first quantized to 1/16th notes.",
-caption = "Only interval ratios encountered by more than 100 participants are shown.")
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
+  scale_fill_discrete(labels = c("400 ms; 4 events", "400 ms; 5 events", "600 ms; 4 events", "600 ms; 5 events")) +
+  theme_jelle() +
+  labs(
+    x = "Interval ratio (quantized)", y = "Count", title = "Encountered interval ratios by condition",
+    subtitle = "Responses were first quantized to 1/16th notes.",
+    caption = "Only interval ratios encountered by more than 100 participants are shown."
+  )
 
 ggsave(here("plots", "quantized-intervalratios.pdf"))
 ```
 
-```
+
 
 
 
@@ -439,3 +459,342 @@ The number of maxima is given at the end of the participant's row."
 
 ggsave(here("plots", "ratios-localmaxima-bypp.pdf"), height = 15, width = 10)
 ```
+
+
+
+```{r one-big-plot}
+edit_distance <- ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  labs(
+    y = "Edit distance (normalized)",
+  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme_jelle() +
+  theme(axis.title.x = element_blank())
+
+G_resp <- ggplot(pp.measures, aes(x = condition, y = G_resp, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  labs(
+    y = "G (response)"
+  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme_jelle() +
+  theme(axis.title.x = element_blank())
+
+
+entropy_diff <- ggplot(pp.measures, aes(x = condition, y = entropy_diff_avg, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  labs(
+    y = "Entropy difference"
+  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme(axis.title.x = element_blank()) +
+  theme_jelle()
+
+integer_ratios <- ggplot(pp.measures, aes(x = condition, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  labs(
+    y = "Small integer ratios proportion"
+  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme(axis.title.x = element_blank()) +
+  theme_jelle()
+
+# combined cowplot
+plot_row <- cowplot::plot_grid(
+  edit_distance, G_resp, entropy_diff, integer_ratios,
+  ncol = 2,
+  nrow = 2
+  # axis = "tblr"
+  # rel_widths = c(1, 1),
+  # rel_heights = c(1, 1)
+)
+
+ggsave(here("plots", "one-big-plot.pdf"), width = 10, height = 10, scale = 1.5)
+ggsave(here("plots", "one-big-plot.png"), width = 10, height = 10, scale = 1.5)
+```
+
+```{r one-big-plot-2}
+# Melt dataframe
+pp.measures.melt <- melt(pp.measures, id.vars = "condition", measure.vars = c(
+  "G_resp", "edit_distance_norm_avg", "entropy_diff_avg",
+  "small_integers_vs_total_prop"
+))
+levels(pp.measures.melt$variable) <- c("G (response)", "Edit distance", "Entropy difference", "Small integer ratios proportion")
+levels(pp.measures.melt$condition) <- c("400 ms\n4 events", "400 ms\n5 events", "600 ms\n4 events", "600 ms\n5 events")
+colnames(pp.measures.melt) <- c("Condition", "Measure", "Value")
+
+# Plot
+ggplot(pp.measures.melt, aes(x = Condition, y = Value, colour = Condition, fill = Condition, group = Condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  geom_violin(show.legend = FALSE, alpha = 0.5) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  facet_rep_wrap(~Measure, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
+  labs(title = "Participant measures by condition", subtitle = "Each point represents one participant") +
+  theme(axis.title.y = element_blank(), plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
+  theme_jelle()
+
+ggsave(here("plots", "one-big-plot-2.pdf"), width = 10, height = 10, scale = 1.5)
+ggsave(here("plots", "one-big-plot-2.png"), width = 10, height = 10, scale = 1.5)
+```
+
+
+# Correlations
+
+```{r correlations}
+labels <- as_labeller(c(
+  "G_resp" = "G (response)",
+  "edit_distance_norm_avg" = "Edit distance",
+  "entropy_resp_avg" = "Entropy (response)",
+  "entropy_diff_avg" = "Entropy difference",
+  "small_integers_vs_total_prop" = "Small integer ratios proportion"
+))
+
+levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+
+# Scatterplots with combinations between all measures
+ggplot2::theme_set(theme_minimal())
+ggpairs(pp.measures,
+  columns = c("G_resp", "edit_distance_norm_avg", "entropy_diff_avg", "entropy_resp_avg", "small_integers_vs_total_prop"),
+  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
+)
+
+ggsave(here("plots", "correlations", "correlations.pdf"))
+ggsave(here("plots", "correlations", "correlations.png"))
+```
+
+
+
+small integer ratios and entropy difference:
+
+```{r integerratios-vs-entropydiff}
+labels <- as_labeller(c(
+  "400_4" = "400 ms\n4 events",
+  "400_5" = "400 ms\n5 events",
+  "600_4" = "600 ms\n4 events",
+  "600_5" = "600 ms\n5 events"
+))
+
+ggplot(pp.measures, aes(x = entropy_diff_avg, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  geom_smooth(show.legend = FALSE, method = "lm") +
+  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
+  labs(x = "Entropy difference", y = "Small integer ratios proportion") +
+  theme_jelle()
+
+ggsave(here("plots", "correlations", "integerratios-vs-entropydiff.pdf"))
+ggsave(here("plots", "correlations", "integerratios-vs-entropydiff.png"))
+```
+
+```{r g-to-integerratios}
+labels <- as_labeller(c(
+  "400_4" = "400 ms\n4 events",
+  "400_5" = "400 ms\n5 events",
+  "600_4" = "600 ms\n4 events",
+  "600_5" = "600 ms\n5 events"
+))
+
+ggplot(pp.measures, aes(x = G_resp, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  geom_smooth(show.legend = FALSE, method = "lm") +
+  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free", repeat.tick.labels = "x") +
+  labs(x = "G", y = "Small integer ratios proportion") +
+  theme_jelle()
+
+ggsave(here("plots", "correlations", "G-vs-integerratios.pdf"))
+ggsave(here("plots", "correlations", "G-vs-integerratios.png"))
+```
+
+
+```{r entropy-to-editdistance}
+labels <- as_labeller(c(
+  "400_4" = "400 ms\n4 events",
+  "400_5" = "400 ms\n5 events",
+  "600_4" = "600 ms\n4 events",
+  "600_5" = "600 ms\n5 events"
+))
+
+ggplot(pp.measures, aes(x = abs(entropy_diff_avg), y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  geom_smooth(show.legend = FALSE, method = "lm") +
+  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
+  labs(x = "Absolute entropy difference", y = "Edit distance") +
+  theme_jelle()
+
+ggsave(here("plots", "correlations", "entropy-vs-editdistance-abs.pdf"))
+ggsave(here("plots", "correlations", "entropy-vs-editdistance-abs.png"))
+```
+
+```{r entropy-to-editdistance}
+labels <- as_labeller(c(
+  "400_4" = "400 ms\n4 events",
+  "400_5" = "400 ms\n5 events",
+  "600_4" = "600 ms\n4 events",
+  "600_5" = "600 ms\n5 events"
+))
+
+ggplot(pp.measures, aes(x = entropy_resp_avg, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.8) +
+  facet_rep_wrap(~condition, ncol = 2, nrow = 2, repeat.tick.labels = "x") +
+  labs(x = "Entropy (response)", y = "Edit distance") +
+  theme_jelle()
+
+ggsave(here("plots", "correlations", "response_entropy_vs_editdistance.pdf"))
+ggsave(here("plots", "correlations", "response_entropy_vs_editdistance.png"))
+```
+
+
+# 2D plots
+
+```{r editdistance-vs-smallintegers-2d}
+ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = small_integers_vs_total_prop)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Edit distance (normalized)",
+    y = "Small integer ratios proportion of total",
+    title = "Edit distance vs proportion of small integer ratios",
+    subtitle = "Higher values for edit distance mean more difference between stimulus and response
+Higher values for small integer ratios mean more small integer ratios in the response",
+    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another.
+Normalization was performed by dividing by the maximum possible edit distance."
+  ) +
+  theme(plot.caption = element_text(hjust = 0))
+
+
+ggsave(here("plots", "correlations", "editdistance-vs-smallintegers-2d.pdf"))
+ggsave(here("plots", "correlations", "editdistance-vs-smallintegers-2d.png"))
+```
+
+
+```{r editdistance-vs-G-2d}
+ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = G_resp)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Edit distance", y = "G", title = "Edit distance vs grammatical redundancy",
+    subtitle = "Higher values for edit distance mean more difference between stimulus and response
+Higher values for G mean more grammatical structure in the response"
+  )
+
+ggsave(here("plots", "correlations", "editdistance-vs-G-2d.pdf"))
+ggsave(here("plots", "correlations", "editdistance-vs-G-2d.png"))
+```
+
+```{r editdistance-vs-entropydiff-2d}
+
+ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = entropy_diff_avg)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Edit distance", y = "Entropy difference", title = "Edit distance vs entropy difference",
+    subtitle = "Higher values for edit distance mean more difference between stimulus and response
+Negative values for entropy difference mean more decrease in entropy in the response")
+
+ggsave(here("plots", "correlations", "editdistance-vs-entropydiff-2d.pdf"))
+ggsave(here("plots", "correlations", "editdistance-vs-entropydiff-2d.png"))
+```
+
+
+
+
+```{r entropydiff-vs-G-2d}
+
+ggplot(pp.measures, aes(x = entropy_diff_avg, y = G_resp)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Entropy difference", y = "G", title = "Entropy difference vs grammatical redundancy",
+    subtitle = "Negative values for entropy difference mean more decrease in entropy in the response
+Higher values for G mean more grammatical redundancy in the response"
+  )
+
+ggsave(here("plots", "correlations", "entropydiff-vs-G-2d.pdf"))
+ggsave(here("plots", "correlations", "entropydiff-vs-G-2d.png"))
+
+```
+
+```{r entropydiff-vs-smallintegers-2d}
+
+ggplot(pp.measures, aes(x = entropy_diff_avg, y = small_integers_vs_total_prop)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Entropy difference", y = "Small integer ratios proportion of total",
+    title = "Entropy difference vs proportion of small integer ratios",
+    subtitle = "Negative values for entropy difference mean more decrease in entropy in the response
+Higher values for small integer ratios mean more small integer ratios in the response"
+  )
+
+ggsave(here("plots", "correlations", "entropydiff-vs-smallintegers-2d.pdf"))
+ggsave(here("plots", "correlations", "entropydiff-vs-smallintegers-2d.png"))
+
+```
+
+```
+
+
+```{r G-vs-smallintegers-2d}
+
+ggplot(pp.measures, aes(x = G_resp, y = small_integers_vs_total_prop)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "G", y = "Small integer ratios proportion of total",
+    title = "Grammatical redundancy vs proportion of small integer ratios",
+    subtitle = "Higher values for G mean more grammatical redundancy in the response
+Higher values for small integer ratios mean more small integer ratios in the response"
+  )
+
+ggsave(here("plots", "correlations", "G-vs-smallintegers-2d.pdf"))
+ggsave(here("plots", "correlations", "G-vs-smallintegers-2d.png"))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+Just as an illustration, let's see what two variables look like in such a plot that share a linear relationship:
+
+```{r linear-relationship}
+
+# Plot entropy difference against entropy response
+
+ggplot(pp.measures, aes(x = entropy_resp_avg, y = entropy_diff_avg)) +
+  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
+  theme_jelle()
+```
+
+

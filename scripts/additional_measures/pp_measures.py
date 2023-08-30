@@ -14,8 +14,9 @@ ratio_prefs_kstest = pd.read_csv(os.path.join('data', 'experiment', 'processed',
 interval_ratios = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'interval_ratios.csv'))
 
 # get simple integer ratios (< 5)
-small_integer_ratios = list(permutations(range(1, 6), 2))
-small_integer_ratios = [f'{ratio[0]}:{ratio[1]}' for ratio in small_integer_ratios]
+#small_integer_ratios = list(permutations(range(1, 6), 2))
+#small_integer_ratios = [f'{ratio[0]}:{ratio[1]}' for ratio in small_integer_ratios]
+small_integer_ratios = ['1:1', '1:2', '2:1', '1:3', '3:1']
 
 # Create empty output df
 pp_measures = pd.DataFrame()
@@ -38,6 +39,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'length': length,
                 'G_resp': pp_df.G_resp.values[0],
                 'entropy_diff_avg': pp_df.entropy_diff.mean(),
+                'entropy_resp_avg': pp_df.resp_entropy.mean(),
                 'edit_distance_norm_avg': pp_df.edit_distance_normalized.mean(),
                 'small_integers_vs_total_prop': small_integers_prop
 

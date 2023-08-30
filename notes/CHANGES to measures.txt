@@ -1,13 +1,7 @@
-Edit distance
-
-- Try to normalize the edit distance, so that it's a relationship between the response of the participant, and the worst response that they could give (e.g. the inverse of the stimulus)
-
-- are these kinds of sum scores OK to use in a linear model?
-
-- do the absolute (time) edit distance, also calculate error
+to-do
 
 
+* Update measures descriptions in pdf
+* add G (only response instead of difference) to correlogram
+* Find a way of plotting densities in a correlogram
 
-
-
-binary/ternary is going to be isochrony + binary + ternary divided by all the interval ratios (we simply want to know how much structure people introduce)
