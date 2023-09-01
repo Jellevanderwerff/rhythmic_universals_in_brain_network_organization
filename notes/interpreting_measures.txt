@@ -1,0 +1,15 @@
+0 entropy & 0 edit distance = perfectly copied, but tempo may be slower/faster
+
+negative entropy & therefore always some edit distance = regularization
+
+positive entropy & therefore always some edit distance = disregarding isochronous stimuli, and making them unnecessary complex (likely, G will be high)
+
+high G will always have some/high edit distance, but entropy can be anything (because it depends on the stimulus whether complexity increased or decreased). these people completely disregard the stimulus and do what they always do.
+
+0 edit distance > 0 entropy difference
+
+high edit distance > high absolute entropy difference (can be in either direction)
+
+
+
+MAKE THIS INTO TABLE

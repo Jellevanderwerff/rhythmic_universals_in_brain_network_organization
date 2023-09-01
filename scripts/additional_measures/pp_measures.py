@@ -10,6 +10,8 @@ import os
 from itertools import permutations
 
 ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
+ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
+ITIs_quantized = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_quantized.csv'))
 ratio_prefs_kstest = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ratio_preferences_kstest.csv'))
 interval_ratios = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'interval_ratios.csv'))
 
@@ -47,9 +49,22 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
 
             }, index=[0])
 
+            # Add integer pref to pp_measures df
             pp_measures = pd.concat([pp_measures, pp_output_df], ignore_index=True)
+
+            # Add integer pref to ITIs df
+            ITIs.loc[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length), 'small_integers_vs_total_prop'] = small_integers_prop
+
+            # Add integer pref to ITIs_bytrial df
+            ITIs_bytrial.loc[(ITIs_bytrial.pp_id == pp_id) & (ITIs_bytrial.stim_tempo_intended == tempo) & (ITIs_bytrial.length == length), 'small_integers_vs_total_prop'] = small_integers_prop
+
+            # Add integer pref to ITIs_quantized df
+            ITIs_quantized.loc[(ITIs_quantized.pp_id == pp_id) & (ITIs_quantized.stim_tempo_intended == tempo) & (ITIs_quantized.length == length), 'small_integers_vs_total_prop'] = small_integers_prop
 
 # sort df
 pp_measures = pp_measures.sort_values(by=['pp_id', 'stim_tempo_intended', 'length']).reset_index(drop=True)
 
 pp_measures.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures.csv'), index=False)
+ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
+ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
+ITIs_quantized.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_quantized.csv'), index=False)
