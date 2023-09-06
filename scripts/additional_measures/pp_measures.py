@@ -43,6 +43,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'entropy_diff_avg': pp_df.entropy_diff.mean(),
                 'entropy_resp_avg': pp_df.resp_entropy.mean(),
                 'edit_distance_norm_avg': pp_df.edit_distance_normalized.mean(),
+                'stim_resp_error_abs_sum': pp_df.stim_resp_error_abs_sum.mean(),
                 'rhythmic_contours_edit_distance_quantized_avg': pp_df.rhythmic_contours_edit_distance.mean(),
                 'rhythmic_contours_entropy_diff_quantized': pp_df.rhythmic_contours_entropy_diff_quantized.mean(),
                 'small_integers_vs_total_prop': small_integers_prop

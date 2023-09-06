@@ -1,0 +1,26 @@
+G-measure
+- First tempo normalization
+	 - Also calculate normalization factor
+- Then K-means clustering
+
+Entropy
+- First tempo normalization
+	- Then check: how to quantize that
+
+Edit distance (but not Levenshtein)
+- First tempo normalization (to 1, rather than to e.g. 600 ms)
+- Sum of absolute differences betw. stim and resp
+
+Small integer ratio preferences
+- Don't need tempo normalization
+- Do vicinities with next integer ratio as boundaries (first author is German, see Jacoby, Cur Biol, 2016/7/8/9?), then calculate % ratio in model / % ratio in copy
+
+
+
+
+For methods section:
+
+Why not quantize always?
+- We had issues with imposing the structure of a metrical grid
+- We _are_ interested in the 'noise'
+- We don't know what value to choose for the grid (1/16th, 1/8th, 1/17th? )
