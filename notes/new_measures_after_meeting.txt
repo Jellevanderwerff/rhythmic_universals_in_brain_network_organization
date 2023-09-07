@@ -1,13 +1,18 @@
 G-measure
 - First tempo normalization
-	 - Also calculate normalization factor
+	- Doesn't make a difference (like i said...)
 - Then K-means clustering
 
 Entropy
 - First tempo normalization
 	- Then check: how to quantize that
 
-Edit distance (but not Levenshtein)
+Entropy (K-means)
+- First do K-means clustering within pp within condition
+- calculate entropy for each individ. sequence
+
+
+Edit distance (but not Levenshtein) > normalized absolute asynchronies
 - First tempo normalization (to 1, rather than to e.g. 600 ms)
 - Sum of absolute differences betw. stim and resp
 

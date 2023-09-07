@@ -799,3 +799,148 @@ ggplot(pp.measures, aes(x = entropy_resp_avg, y = entropy_diff_avg)) +
 ```
 
 
+
+# New measures (after 6 September 2023)
+## Simple integer ratios
+Here we used the method from Roeske et al. (2019, Cur Biol) to quantify the number of
+simple integer ratios that were inserted (isochronous, binary, ternary)
+
+```{r simple-integers-preference-inserted}
+
+ggplot(pp.measures, aes(x = condition, y = stim_resp_error_temponorm_abs_avg, colour = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.3) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Average absolute asynchrony (normalized)",
+    title = "Normalized absolute asynchronies by condition",
+    subtitle = "Each point represents one participant",
+    caption = "Responses were first tempo normalized to the stimulus.
+Then both were normalized such that 1 represents the whole stimulus or response sequence.
+Then, the absolute asynchronies were calculated between stimulus response, and averaged."
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "absolute_asynchrony.pdf"))
+ggsave(here("plots", "absolute_asynchrony.png"), dpi = 300)
+
+```
+
+## Sum of absolute asynchronies
+For this measure, the response sequence was first tempo normalized to the stimulus, and then to 1.
+Then, the absolute asynchronies were calculated, and summed.
+
+```{r sum-of-absolute-asynchronies}
+
+ggplot(pp.measures, aes(x = condition, y = small_integers_increase_sum, colour = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.3) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Sum of inserted simple integer ratios",
+    title = "Increase in simple integer ratios by condition",
+    subtitle = "Each point represents one participant",
+    caption = "Simple integer ratios were isochronous, binary, and ternary interval ratios"
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "small_integers_increase.pdf"))
+ggsave(here("plots", "small_integers_increase.png"), dpi = 300)
+
+```
+
+## Tempo normalized G
+
+```{r new-G}
+
+ggplot(pp.measures, aes(x = condition, y = stim_resp_error_temponorm_abs_avg, colour = condition, group = condition)) +
+  geom_point(show.legend = FALSE, alpha = 0.3) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Average absolute asynchrony (normalized)",
+    title = "Normalized absolute asynchronies by condition",
+    subtitle = "Each point represents one participant",
+    caption = "Responses were first tempo normalized to the stimulus.
+Then both were normalized such that 1 represents the whole stimulus or response sequence.
+Then, the absolute asynchronies were calculated between stimulus response, and averaged."
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "absolute_asynchrony.pdf"))
+ggsave(here("plots", "absolute_asynchrony.png"), dpi = 300)
+
+```
+
+## Sum of absolute asynchronies
+For this measure, the response sequence was first tempo normalized to the stimulus, and then to 1.
+Then, the absolute asynchronies were calculated, and summed.
+
+```{r sum-of-absolute-asynchronies}
+
+ggplot(pp.measures, aes(x = condition, fill = condition, y = G_resp_temponorm, colour = condition, group = condition)) +
+  geom_point(show.legend = FALSE) +
+  geom_violin(show.legend = FALSE, alpha = 0.75) +
+  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = expression(G~(response)),
+    title = "Grammatical redundancy by condition",
+    subtitle = "Each point represents one participant",
+    caption = "Response sequences were first tempo normalized to the stimulus."
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "G_tempo_normalized.pdf"))
+ggsave(here("plots", "G_tempo_normalized.png"), dpi = 300)
+
+```
+
+
+
+## New correlations
+
+```{r new-correlations}
+
+labels <- as_labeller(c(
+  "G_resp" = "G (response)",
+  "stim_resp_error_temponorm_abs_avg" = "(Tempo) normalized\nabsolute asynchronies",
+  "edit_distance_norm_avg" = "Edit distance\n(quantized)",
+  "entropy_diff_avg" = "Entropy difference",
+  "small_integers_increase_sum" = "Inserted simple integer ratios",
+  "small_integers_vs_total_prop_q" = "Proportion of\nsimple integer ratios"
+))
+
+levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+
+# Scatterplots with combinations between all measures
+ggplot2::theme_set(theme_minimal())
+ggpairs(pp.measures,
+  columns = c("G_resp", "stim_resp_error_temponorm_abs_avg", "entropy_diff_avg", "small_integers_increase_sum", "small_integers_vs_total_prop_q"),
+  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
+)
+
+ggsave(here("plots", "correlations", "correlations_new.pdf"))
+ggsave(here("plots", "correlations", "correlations_new.png"), bg = "white", width = 12, height = 9)
+
+```

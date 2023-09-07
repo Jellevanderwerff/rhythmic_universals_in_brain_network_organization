@@ -1,0 +1,25 @@
+- Checkout whether we can extract some syncopation measure
+    Maria Vitek
+
+x Tempo normalized absolute asynchrony (check, happy)
+
+- Interval ratios (check, happy)
+    - But check aggregate measure
+
+x Entropy
+    - Tempo normalize
+    - Quantization (Fourier transforms)
+
+x G (check, happy)
+
+
+
+
+Comparisons (correlations):
+- Tempo normalized entropy vs. old entropy
+- Aggregate measures of integer ratios
+
+
+
+Plots:
+- Phase space plots per participant across trials (maybe also across conditions)

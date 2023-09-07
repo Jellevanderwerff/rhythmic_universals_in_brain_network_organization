@@ -6,6 +6,7 @@ import os
 
 # Load the data
 df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
+df_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
 
 for sequence_id in df.sequence_id.unique():
     # Get stimulus IOIs and response ITIs
@@ -26,6 +27,8 @@ for sequence_id in df.sequence_id.unique():
 
     # Save the ratio as well
     df.loc[df.sequence_id == sequence_id, 'tempo_ratio_resp_to_stim'] = tempo_ratio_resp_to_stim
+    df_bytrial.loc[df.sequence_id == sequence_id, 'tempo_ratio_resp_to_stim'] = tempo_ratio_resp_to_stim
 
 # Save the data
 df.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
+df_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)

@@ -15,16 +15,16 @@ for pp_id, pp_df in ITIs.groupby('pp_id'):
     for tempo, tempo_df in pp_df.groupby('stim_tempo_intended'):
         for length, length_df in tempo_df.groupby('length'):
             for sequence_id, sequence_df in length_df.groupby('sequence_id'):
-                for stim_resp in ('stim_ioi', 'resp_iti'):
+                for stim_resp in ('stim_ioi', 'resp_iti_norm'):
+                    # Make thebeat sequence
                     seq = thebeat.Sequence(sequence_df[stim_resp].values)
-                    interval_ratios = seq.interval_ratios_from_dyads
 
-                    # quantized interval ratios
                     # plot fft
                     fig, ax = thebeat.stats.fft_plot(seq, unit_size=1000, x_max=10, suppress_display=True)
 
                     # Get the data
                     x_data, y_data = ax.lines[0].get_data()
+                    x_data, y_data = x_data[1:], y_data[1:]
 
                     # Close the figure
                     plt.close('all')
@@ -44,7 +44,6 @@ for pp_id, pp_df in ITIs.groupby('pp_id'):
 
                     sixteenth_duration = round(peak / possibilities[note_values.index(peak_closest_to)])
                     seq_q = seq.quantize_iois(to=sixteenth_duration)
-                    quantized_ratios = seq_q.interval_ratios_from_dyads
 
                     if stim_resp == 'stim_ioi':
                         fourier_16th_duration_stim = sixteenth_duration

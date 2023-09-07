@@ -42,11 +42,15 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'G_resp': pp_df.G_resp.values[0],
                 'entropy_diff_avg': pp_df.entropy_diff.mean(),
                 'entropy_resp_avg': pp_df.resp_entropy.mean(),
+                'entropy_diff_kmeans': np.mean(pp_df.entropy_resp - pp_df.entropy_stim),
                 'edit_distance_norm_avg': pp_df.edit_distance_normalized.mean(),
-                'stim_resp_error_abs_sum': pp_df.stim_resp_error_abs_sum.mean(),
-                'rhythmic_contours_edit_distance_quantized_avg': pp_df.rhythmic_contours_edit_distance.mean(),
-                'rhythmic_contours_entropy_diff_quantized': pp_df.rhythmic_contours_entropy_diff_quantized.mean(),
-                'small_integers_vs_total_prop': small_integers_prop
+                'stim_resp_error_temponorm_abs_avg': pp_df.stim_resp_error_abs_sum.mean(),
+                'tempo_ratio_resp_to_stim_avg': pp_df.tempo_ratio_resp_to_stim.mean(),
+                'rhythmic_contours_edit_distance_q_avg': pp_df.rhythmic_contours_edit_distance.mean(),
+                'rhythmic_contours_entropy_diff_q': pp_df.rhythmic_contours_entropy_diff_quantized.mean(),
+                'small_integers_vs_total_prop_q': small_integers_prop,
+                'small_integers_increase_sum': pp_df.simple_ratio_increase.sum(),
+
 
             }, index=[0])
 
