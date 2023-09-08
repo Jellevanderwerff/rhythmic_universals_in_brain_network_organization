@@ -12,7 +12,7 @@ import scipy.io
 
 ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
-pp_id_behav_scan_mapping = pd.read_csv(os.path.join('data', 'experiment', 'raw', 'data_participants_info', 'pp_id_behav_scan_mapping.csv'))
+pp_id_behav_scan_mapping = pd.read_csv(os.path.join('data', 'experiment', 'raw', 'pp_id_behav_scan_mapping.csv'))
 
 small_integer_ratios = ['1:1', '1:2', '2:1', '1:3', '3:1']
 

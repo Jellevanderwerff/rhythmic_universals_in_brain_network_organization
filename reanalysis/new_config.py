@@ -30,7 +30,7 @@ npor_new_config = ConfigUpdater({
     'CLICK_FREQUENCY': 1000,
     'CLICK_ATTACK': 5,
     # Onset extraction step
-    'TAPPING_RANGE': [400, 900],
+    'TAPPING_RANGE': [80, 1000],
     'EXTRACT_THRESH': [0.19, 0.225],
     'EXTRACT_FIRST_WINDOW': [18, 18],
     'EXTRACT_SECOND_WINDOW': [26, 120],

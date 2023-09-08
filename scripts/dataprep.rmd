@@ -216,16 +216,3 @@ write.csv(tapping.removed, here("data", "experiment", "processed", "removed.csv"
 Here we calculate additional measures using the scripts in the 'scripts/additional_measures' folder.
 If not using Linux/Mac OS, you can run the scripts in that folder separately rather than using
 the code below.
-
-```{bash}
-
-python3 ./scripts/additional_measures/calculate_editdistance.py
-python3 ./scripts/additional_measures/calculate_entropy.py
-python3 ./scripts/additional_measures/calculate_G_measure.py
-python3 ./scripts/additional_measures/calculate_intervalratios.py
-python3 ./scripts/additional_measures/calculate_rhythmic_contours.py
-python3 ./scripts/additional_measures/ratio_preferences.py
-python3 ./scripts/additional_measures/pp_measures.py
-
-
-```
