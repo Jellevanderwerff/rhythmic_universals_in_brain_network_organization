@@ -837,7 +837,7 @@ Then, the absolute asynchronies were calculated, and summed.
 
 ```{r sum-of-absolute-asynchronies}
 
-ggplot(pp.measures, aes(x = condition, y = small_integers_increase_sum, colour = condition, group = condition)) +
+ggplot(pp.measures, aes(x = condition, y = small_integers_introduced_sum, colour = condition, group = condition)) +
   geom_point(show.legend = FALSE, alpha = 0.3) +
   stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
   scale_x_discrete(labels = c(
@@ -854,8 +854,8 @@ ggplot(pp.measures, aes(x = condition, y = small_integers_increase_sum, colour =
   ) +
   theme_jelle()
 
-ggsave(here("plots", "small_integers_increase.pdf"))
-ggsave(here("plots", "small_integers_increase.png"), dpi = 300)
+ggsave(here("plots", "small_integers_introduced.pdf"))
+ggsave(here("plots", "small_integers_introduced.png"), dpi = 300)
 
 ```
 
@@ -927,7 +927,7 @@ labels <- as_labeller(c(
   "stim_resp_error_temponorm_abs_avg" = "(Tempo) normalized\nabsolute asynchronies",
   "edit_distance_norm_avg" = "Edit distance\n(quantized)",
   "entropy_diff_avg" = "Entropy difference",
-  "small_integers_increase_sum" = "Inserted simple integer ratios",
+  "small_integers_introduced_sum" = "Inserted simple integer ratios",
   "small_integers_vs_total_prop_q" = "Proportion of\nsimple integer ratios"
 ))
 
@@ -936,7 +936,7 @@ levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "60
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
 ggpairs(pp.measures,
-  columns = c("G_resp", "stim_resp_error_temponorm_abs_avg", "entropy_diff_avg", "small_integers_increase_sum", "small_integers_vs_total_prop_q"),
+  columns = c("G_resp", "stim_resp_error_temponorm_abs_avg", "entropy_diff_avg", "small_integers_introduced_sum", "small_integers_vs_total_prop_q"),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
 

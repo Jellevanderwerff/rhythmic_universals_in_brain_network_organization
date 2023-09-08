@@ -17,9 +17,9 @@ for sequence, sequence_df in ITIs.groupby('sequence_id'):
     resp = resp.quantize_iois(resp_fourier_tempo)
     stim_entropy = thebeat.stats.get_rhythmic_entropy(stim, resolution=stim_fourier_tempo)
     resp_entropy = thebeat.stats.get_rhythmic_entropy(resp, resolution=resp_fourier_tempo)
-    ITIs.loc[ITIs['sequence_id'] == sequence, 'stim_entropy_norm'] = stim_entropy
-    ITIs.loc[ITIs['sequence_id'] == sequence, 'resp_entropy_norm'] = resp_entropy
-    ITIs.loc[ITIs['sequence_id'] == sequence, 'entropy_diff_norm'] = resp_entropy - stim_entropy
+    ITIs.loc[ITIs['sequence_id'] == sequence, 'stim_entropy_norm_q'] = stim_entropy
+    ITIs.loc[ITIs['sequence_id'] == sequence, 'resp_entropy_norm_q'] = resp_entropy
+    ITIs.loc[ITIs['sequence_id'] == sequence, 'entropy_diff_norm_q'] = resp_entropy - stim_entropy
     ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'stim_entropy_norm_q'] = stim_entropy
     ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'resp_entropy_norm_q'] = resp_entropy
     ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'entropy_diff_norm_q'] = resp_entropy - stim_entropy

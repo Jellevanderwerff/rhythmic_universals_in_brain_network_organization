@@ -1,5 +1,4 @@
-- Checkout whether we can extract some syncopation measure
-    Maria Vitek
+
 
 x Tempo normalized absolute asynchrony (check, happy)
 
@@ -13,13 +12,35 @@ x Entropy
 x G (check, happy)
 
 
-
-
 Comparisons (correlations):
 - Tempo normalized entropy vs. old entropy
 - Aggregate measures of integer ratios
+    - We _need_ averages, because 
 
 
+MEASURES overview
+Old measures:
+entropy_diff = 
+small_integers_vs_total_prop = 
+edit_distance = 
 
-Plots:
+New measures:
+tempo_ratio_resp_to_stim = 
+entropy_diff_norm_q = 
+asynchrony_norm_abs = 
+simple_ratio_introduced = 
+isochrony_introduced = 
+
+
+Things for later:
 - Phase space plots per participant across trials (maybe also across conditions)
+- Checkout whether we can extract some syncopation measure (for later)
+    Maria Vitek
+
+
+
+
+The steps are:
+- Do tempo normalization
+- Do Fourier transform
+- Do quantization

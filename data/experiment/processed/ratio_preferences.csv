@@ -1,4 +1,4 @@
-pp_id,sequence_id,isochrony_freq_stim,isochrony_freq_resp,binary_freq_stim,binary_freq_resp,ternary_freq_stim,ternary_freq_resp,isochrony_increase,binary_increase,ternary_increase,simple_increase
+pp_id,sequence_id,isochrony_freq_stim,isochrony_freq_resp,binary_freq_stim,binary_freq_resp,ternary_freq_stim,ternary_freq_resp,isochrony_introduced,binary_introduced,ternary_introduced,simple_ratio_introduced
 20,20_2,2,1,0,0,0,0,-1,0,0,-1
 20,20_3,0,0,1,1,1,1,0,0,0,0
 20,20_4,2,2,0,0,0,0,0,0,0,0
