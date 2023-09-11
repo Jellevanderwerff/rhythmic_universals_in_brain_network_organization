@@ -21,7 +21,7 @@ pp_measures = pd.DataFrame()
 
 for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
     for length, length_df in tempo_df.groupby('length'):
-        for pp_id, pp_df in length_df.groupby('pp_id'):
+        for pp_id, pp_df in length_df.groupby('pp_id_behav'):
 
             # pp's dataframe:
             pp_output_df = pd.DataFrame({

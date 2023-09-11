@@ -21,7 +21,8 @@ if (!require("pacman")) install.packages("pacman")
 # load packages
 p_load(
   "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
-  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally"
+  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally", "kableExtra",
+  "cowplot"
 )
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
@@ -53,38 +54,80 @@ labels <- as_labeller(c(
 ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
 ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
 pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
-interval.ratios <- read.csv(here("data", "experiment", "processed", "interval_ratios.csv"))
-interval.ratios.maxima <- read.csv(here("data", "experiment", "processed", "ratios_localmaxima.csv"))
+interval.ratios <- read.csv(here("data", "experiment", "processed", "ratios_introduced.csv"))
 ```
 
 ```{r datatypes}
-pp.measures$pp_id <- as.factor(pp.measures$pp_id)
+pp.measures$pp_id_behav <- as.factor(pp.measures$pp_id_behav)
 pp.measures$stim_tempo_intended <- as.factor(pp.measures$stim_tempo_intended)
 pp.measures$length <- as.factor(pp.measures$length)
 
 pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = "_"))
 
 
-ITIs$pp_id <- as.factor(ITIs$pp_id)
+ITIs$pp_id_behav <- as.factor(ITIs$pp_id_behav)
 ITIs$condition <- as.factor(paste(ITIs$stim_tempo_intended, ITIs$length, sep = "_"))
 
 ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = "_"))
-ITIs.bytrial$pp_id <- as.factor(ITIs.bytrial$pp_id)
-
-
-interval.ratios$pp_id <- as.factor(interval.ratios$pp_id)
-interval.ratios$condition <- as.factor(paste(interval.ratios$stim_tempo_intended, interval.ratios$length, sep = "_"))
-
-interval.ratios.maxima$pp_id <- as.factor(interval.ratios.maxima$pp_id)
-interval.ratios.maxima$stim_tempo_intended <- as.factor(interval.ratios.maxima$stim_tempo_intended)
-interval.ratios.maxima$length <- as.factor(interval.ratios.maxima$length)
-interval.ratios.maxima$condition <- as.factor(paste(interval.ratios.maxima$stim_tempo_intended, interval.ratios.maxima$length, sep = "_"))
+ITIs.bytrial$pp_id_behav <- as.factor(ITIs.bytrial$pp_id_behav)
 ```
 
 
-# Participant measures
+# Descriptives table
 
-##  G score
+
+```{r table}
+descriptives.table <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
+  n_taps = length(resp_iti),
+  n_trials = length(unique(sequence_id)),
+  mean_ioi = mean(stim_ioi),
+  median_ioi = median(stim_ioi),
+  sd_ioi = sd(stim_ioi),
+  mean_iti = mean(resp_iti),
+  median_iti = median(resp_iti),
+  sd_iti = sd(resp_iti),
+)
+
+descriptives.table2 <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
+  G_resp = mean(G_resp),
+  entropy_diff_norm_q_avg = mean(entropy_diff_norm_q),
+  asynchrony_norm_abs_avg = mean(asynchrony_norm_abs),
+  simple_ratio_introduced_avg = mean(simple_ratio_introduced))
+
+
+# kable
+kable(descriptives.table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+kable(descriptives.table2) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+# Measures for final analysis
+
+## Tempo deviation
+
+```{r tempo-diff}
+ggplot(pp.measures, aes(x = condition, y = tempo_deviation_abs_avg, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Condition",
+    y = "Tempo deviation",
+    title = "Absolute tempo deviation",
+    subtitle = "Calculated as the absolute ratio between the response and stimulus tempo"
+  ) +
+  theme(plot.caption = element_text(hjust = 0))
+
+ggsave(here("plots", "tempo_deviation.pdf"))
+```
+
+## G measure
 
 ```{r g-score}
 ggplot(pp.measures, aes(x = condition, y = G_resp, fill = condition, colour = condition)) +
@@ -113,117 +156,14 @@ the lower the G score."
 
 
 ggsave(here("plots", "g-score.pdf"))
-ggsave(here("plots", "g-score.png"), dpi=300)
-```
-
-## G bars
-```{r g-bars}
-ggplot(pp.measures, aes(x = pp_id, y = G_resp, fill = pp_id, colour = pp_id)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.5), show.legend = FALSE) +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, ) +
-  theme_jelle() +
-  labs(
-    x = "Participant", y = "G measure (response)",
-    title = "Grammatical redundancy by condition",
-    subtitle = "Higher values mean more grammatical redundancy",
-    caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
-This means the quarternote-eighth note combination is redundant, as it could have been
-one symbol, so G is higher. The more different combinations of symbols a participant uses,
-the lower the G score."
-  ) +
-  theme(axis.text.x = element_blank())
-
-ggsave(here("plots", "g-bars.pdf"))
-```
-
-
-## G difference
-
-```{r g-diff-bycondition}
-ggplot(pp.measures, aes(x = condition, y = G_diff, fill = condition, colour = condition)) +
-  geom_violin(alpha = 0.7, show.legend = FALSE) +
-  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Condition",
-    y = expression(italic(G) ~ "measure difference (response - stimulus)"),
-    title = "Difference in grammatical redundancy by condition",
-    subtitle = "Higher values mean more grammatical redundancy",
-    caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
-This means the quarternote-eighth note combination is redundant, as it could have been
-one symbol, so G is higher. The more different combinations of symbols a participant uses,
-the lower the G score."
-  ) +
-  theme(plot.caption = element_text(hjust = 0))
-
-
-
-ggsave(here("plots", "g-score-diff.pdf"))
-```
-
-
-## G difference
-
-```{r g-diff}
-# melt data
-pp.measures.melt <- melt(pp.measures, id.vars = c("stim_tempo_intended", "length"), measure.vars = c("G_stim", "G_resp"))
-levels(pp.measures.melt$variable) <- c("Stimulus", "Response")
-
-
-ggplot(pp.measures.melt, aes(x = variable, y = value, colour = variable, group = variable)) +
-  geom_point(alpha = 0.2, show.legend = FALSE) +
-  stat_summary(geom = "pointrange", size = 1, linewidth = 1, show.legend = FALSE) +
-  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
-  theme_jelle() +
-  labs(
-    y = expression(italic(G) ~ measure),
-    title = "Grammatical redundancy by condition and stim/resp",
-    subtitle = "Higher values mean more grammatical redundancy"
-  )
-```
-
-## Tempo difference
-
-```{r tempo-diff}
-pp.measures.std <- ddply(pp.measures, .(pp_id, stim_tempo_intended, length), summarize,
-  y = tempo_diff_avg,
-  ymin = tempo_diff_avg - tempo_diff_sd,
-  ymax = tempo_diff_avg + tempo_diff_sd
-)
-
-
-ggplot(pp.measures.std, aes(x = 1, y = y, colour = factor(pp_id), label = pp_id)) +
-  geom_pointrange(aes(ymin = ymin, ymax = ymax), position = position_dodge(width = 0.1)) +
-  theme_jelle() +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
-  theme(
-    axis.title.x = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank()
-  ) +
-  labs(
-    y = "Tempo difference [ms]", title = "Tempo difference by participant and condition",
-    subtitle = "Negative values mean participants tapped faster than the stimulus", colour = "Participant",
-    caption = "Error bars indicate ± SD.\nNote that the values presented here are averages of
-    positive and negative numbers, which complicates interpretation in terms of precision."
-  ) +
-  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 12))
-
-ggsave(here("plots", "tempo-diff.pdf"))
+ggsave(here("plots", "g-score.png"), dpi = 300)
 ```
 
 
 ## Entropy
 
 ```{r entropy}
-ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
+ggplot(ITIs.bytrial, aes(y = entropy_diff_norm_q, x = 1, colour = pp_id_behav)) +
   stat_summary(geom = "pointrange", position = position_dodge(width = 0.1)) +
   facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
   theme_jelle() +
@@ -237,25 +177,35 @@ ggplot(ITIs.bytrial, aes(y = entropy_diff, x = 1, colour = pp_id)) +
     subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
   )
 ggsave(here("plots", "entropy.pdf"))
-ggsave(here("plots", "entropy.png"), dpi=300)
+ggsave(here("plots", "entropy.png"), dpi = 300)
 ```
 
-## Preference for small integer ratios
+## Number of small integer ratios introduced
 
 ```{r simple-integers}
-ggplot(pp.measures, aes(x = condition, y = small_integers_vs_total_prop, colour = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.3) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
+ggplot(pp.measures, aes(
+  x = condition,
+  y = simple_ratio_introduced_avg,
+  colour = condition, fill = condition
+ )) +
+   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
   scale_x_discrete(labels = c(
     "400_4" = "400 ms\n4 events",
     "400_5" = "400 ms\n5 events",
     "600_4" = "600 ms\n4 events",
     "600_5" = "600 ms\n5 events"
   )) +
+theme(
+  axis.title.x = element_blank(),
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+) +
   labs(
-    x = "Condition", y = "Proportion of small integer ratios",
-    title = "Proportion of small integer ratios by condition",
-    subtitle = "Each point represents one participant",
+    x = "Condition", y = "Number of small integer ratios introduced",
+    title = "Mean number of small integer ratios introduced in trial",
+    subtitle = "Negative values mean a reduction of small integer ratios from stimulus to response",
     caption = "Simple integer ratios were isochronous, binary, and ternary interval ratios"
   ) +
   theme_jelle()
@@ -265,51 +215,57 @@ ggsave(here("plots", "small_integers.png"), dpi = 300)
 ```
 
 
-## Edit distance
+## Asynchrony
+```{r asynchrony}
 
-### Across participants
-
-```{r edit-distance}
-ggplot(ITIs.bytrial, aes(x = edit_distance_normalized, colour = condition, fill = condition, group = condition)) +
-  geom_histogram(show.legend = FALSE, alpha = 0.8) +
-  labs(
-    x = "Edit distance", y = "Count",
-    title = "Normalized edit distance by condition across participants",
-    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another."
-  ) +
+ggplot(ITIs.bytrial, aes(y = asynchrony_norm_abs_trialsum, x = 1, colour = pp_id_behav)) +
+  stat_summary(geom = "pointrange", position = position_dodge(width = 0.1), show.legend = FALSE) +
   facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
-  theme_jelle()
-
-ggsave(here("plots", "edit_distance.pdf"))
-ggsave(here("plots", "edit_distance.png"), dpi = 300)
-```
-
-### By participant
-
-```{r edit-distance-bypp}
-ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  labs(
-    x = "Condition", y = "Edit distance (normalized)",
-    title = "Normalized edit distance by participant and condition",
-    subtitle = "Each point represents one participant",
-    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another.
-    Normalization was performed by dividing by the maximum possible edit distance."
+  theme_jelle() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
   ) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  theme_jelle()
+  labs(
+    y = "Sum of absolute asynchronies in trial (normalized)", title = "Asynchrony within trial by participant and condition",
+    subtitle = "Sequences were normalized such that 1 represents the total duration of the sequence")
 
-ggsave(here("plots", "edit_distance_bypp.pdf"))
-ggsave(here("plots", "edit_distance_bypp.png"), dpi = 300)
+ggsave(here("plots", "asynchrony.pdf"))
+ggsave(here("plots", "asynchrony.png"), dpi=300)
+
 ```
 
-# Distributions
+
+# Correlations
+
+
+## All
+
+```{r correlations}
+labels <- as_labeller(c(
+  "G_resp" = "G (response)",
+  "entropy_diff_norm_q_avg" = "Entropy difference",
+  "asynchrony_norm_abs_avg" = "Asynchrony",
+  "simple_ratio_introduced_avg" = "Introduced simple integer ratios",
+  "tempo_deviation_abs_avg" = "Tempo deviation"
+))
+
+levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+
+# Scatterplots with combinations between all measures
+ggplot2::theme_set(theme_minimal())
+ggpairs(pp.measures,
+  columns = c("G_resp", "entropy_diff_norm_q_avg", "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"),
+  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
+)
+
+ggsave(here("plots", "correlations", "correlations.pdf"))
+ggsave(here("plots", "correlations", "correlations.png"))
+```
+
+
+# Other plots
 
 ## ITI ridges
 
@@ -327,620 +283,4 @@ ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id, colour = pp_id)) +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 400, ], aes(xintercept = 400), linetype = "dashed", color = "grey") +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 600, ], aes(xintercept = 600), linetype = "dashed", color = "grey")
 ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
-```
-
-## Interval ratios
-
-Here with the conditions plotted as facets:
-
-```{r intervalratios-ridges, fig.width = 20, fig.height = 20}
-ggplot(interval.ratios, aes(x = interval_ratio, y = factor(pp_id), fill = factor(pp_id))) +
-  geom_density_ridges(scale = 4, alpha = 0.9, show.legend = FALSE, color = "white", from = 0.15, to = 0.85) +
-  facet_rep_grid(
-    rows = vars(length), cols = vars(stim_tempo_intended), repeat.tick.labels = "x",
-    labeller = labels
-  ) +
-  theme_jelle() +
-  coord_cartesian(xlim = c(0.15, 0.88)) +
-  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
-  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
-  labs(
-    x = "Interval ratio", y = "Participant",
-    title = "Interval ratios by participant and condition",
-    subtitle = TeX("Interval ratios calculated as $ITI_k = \\frac{ITI_k}{ITI_k + ITI_{k+1}}$"), fill = "Participant"
-  )
-
-ggsave(here("plots", "intervalratios-ridges.pdf"), width = 20, height = 20)
-```
-
-
-```{r quantized-intervalratios}
-counts <- ddply(interval.ratios, .(condition, stim_tempo_intended, length, quantized_ratio_str), summarize, count = length(quantized_ratio_str))
-counts <- counts[counts$count > 100, ]
-
-counts <- counts[order(counts$condition, counts$count, decreasing = TRUE), ]
-counts$quantized_ratio_str <- factor(counts$quantized_ratio_str, levels = unique(counts$quantized_ratio_str))
-
-
-ggplot(counts, aes(x = quantized_ratio_str, y = count, fill = condition)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
-  scale_fill_discrete(labels = c("400 ms; 4 events", "400 ms; 5 events", "600 ms; 4 events", "600 ms; 5 events")) +
-  theme_jelle() +
-  labs(
-    x = "Interval ratio (quantized)", y = "Count", title = "Encountered interval ratios by condition",
-    subtitle = "Responses were first quantized to 1/16th notes.",
-    caption = "Only interval ratios encountered by more than 100 participants are shown."
-  )
-
-ggsave(here("plots", "quantized-intervalratios.pdf"))
-```
-
-
-
-
-
-
-## Local maxima
-
-```{r ratios-localmaxima}
-interval.ratios.summary <- ddply(interval.ratios.maxima, .(condition, stim_tempo_intended, length, n_maxima, maximum_i), summarize,
-  maximum = mean(maximum_location),
-  maximum_min_sd = mean(maximum_location) - sd(maximum_location),
-  maximum_plus_sd = mean(maximum_location) + sd(maximum_location),
-  n_observations = length(maximum_location)
-)
-interval.ratios.summary.n_observations <- ddply(interval.ratios.maxima, .(condition, stim_tempo_intended, length, n_maxima), dplyr::summarize,
-  n = paste0(length(n_maxima), " pp's")
-)
-
-
-ggplot(interval.ratios.summary, aes(x = maximum, y = factor(n_maxima), xmin = maximum_min_sd, xmax = maximum_plus_sd, colour = condition)) +
-  coord_cartesian(xlim = c(0, 1)) +
-  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
-  scale_x_continuous(labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""), breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)) +
-  geom_pointrange(show.legend = FALSE, size = 0.5, linewidth = 1) +
-  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
-  theme_jelle() +
-  labs(
-    x = "Location of local maximum (in integer ratios)",
-    y = "Number of local maxima in participant's data",
-    title = "Local maxima in interval ratio distributions",
-    subtitle = "For a unimodal distribution, the number of local maxima is 1.\nFor a bimodal distribution, 2, etc.",
-    caption = "Values averaged over participants"
-  ) +
-  geom_text(
-    inherit.aes = FALSE, aes(x = 1, y = n_maxima, label = n),
-    data = interval.ratios.summary.n_observations,
-    nudge_y = 0.1,
-    hjust = 1,
-    size = 3,
-    show.legend = FALSE,
-    colour = "#cbcbcb"
-  )
-
-ggsave(here("plots", "ratios-localmaxima-summary.pdf"))
-```
-
-
-By pp:
-
-
-```{r ratios-localmaxima-bypp, fig.height = 15}
-# Get the number of local maxima for each participant in a dataframe with the pp_id
-# and the number of local maxima
-n_maxima <- ddply(interval.ratios.maxima, .(pp_id, condition, stim_tempo_intended, length), summarize, n_maxima = n_maxima[1])
-
-ggplot(interval.ratios.maxima, aes(
-  x = maximum_location, y = factor(pp_id), colour = condition
-)) +
-  geom_point(size = 2, show.legend = FALSE) +
-  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
-  scale_x_continuous(
-    labels = c("", "1:3", "1:2", "1:1", "2:1", "3:1", ""),
-    breaks = c(0, 0.25, 0.33, 0.5, 0.66, 0.75, 1)
-  ) +
-  theme_jelle() +
-  geom_vline(xintercept = c(0.25, 0.33, 0.5, 0.66, 0.75), linetype = "dashed", color = "grey") +
-  labs(
-    x = "Location of local maximum", y = "Participant", title = "Local maxima in interval ratio distributions",
-    subtitle = "Local maxima indicate the highest points in a participant's interval ratios distribution",
-    caption = "Note that there may be different numbers of maxima for each participant/condition.
-The number of maxima is given at the end of the participant's row."
-  ) +
-  geom_text(
-    inherit.aes = FALSE,
-    aes(x = 1, y = pp_id, label = n_maxima),
-    data = n_maxima,
-    size = 4,
-    hjust = 0,
-    vjust = 0.5,
-    show.legend = FALSE
-  ) +
-  scale_colour_scico_d(palette = "roma", begin = 0)
-
-ggsave(here("plots", "ratios-localmaxima-bypp.pdf"), height = 15, width = 10)
-```
-
-
-
-```{r one-big-plot}
-edit_distance <- ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  labs(
-    y = "Edit distance (normalized)",
-  ) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  theme_jelle() +
-  theme(axis.title.x = element_blank())
-
-G_resp <- ggplot(pp.measures, aes(x = condition, y = G_resp, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  labs(
-    y = "G (response)"
-  ) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  theme_jelle() +
-  theme(axis.title.x = element_blank())
-
-
-entropy_diff <- ggplot(pp.measures, aes(x = condition, y = entropy_diff_avg, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  labs(
-    y = "Entropy difference"
-  ) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  theme(axis.title.x = element_blank()) +
-  theme_jelle()
-
-integer_ratios <- ggplot(pp.measures, aes(x = condition, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  labs(
-    y = "Small integer ratios proportion"
-  ) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  theme(axis.title.x = element_blank()) +
-  theme_jelle()
-
-# combined cowplot
-plot_row <- cowplot::plot_grid(
-  edit_distance, G_resp, entropy_diff, integer_ratios,
-  ncol = 2,
-  nrow = 2
-  # axis = "tblr"
-  # rel_widths = c(1, 1),
-  # rel_heights = c(1, 1)
-)
-
-ggsave(here("plots", "one-big-plot.pdf"), width = 10, height = 10, scale = 1.5)
-ggsave(here("plots", "one-big-plot.png"), width = 10, height = 10, scale = 1.5)
-```
-
-```{r one-big-plot-2}
-# Melt dataframe
-pp.measures.melt <- melt(pp.measures, id.vars = "condition", measure.vars = c(
-  "G_resp", "edit_distance_norm_avg", "entropy_diff_avg",
-  "small_integers_vs_total_prop"
-))
-levels(pp.measures.melt$variable) <- c("G (response)", "Edit distance", "Entropy difference", "Small integer ratios proportion")
-levels(pp.measures.melt$condition) <- c("400 ms\n4 events", "400 ms\n5 events", "600 ms\n4 events", "600 ms\n5 events")
-colnames(pp.measures.melt) <- c("Condition", "Measure", "Value")
-
-# Plot
-ggplot(pp.measures.melt, aes(x = Condition, y = Value, colour = Condition, fill = Condition, group = Condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  geom_violin(show.legend = FALSE, alpha = 0.5) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  facet_rep_wrap(~Measure, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
-  labs(title = "Participant measures by condition", subtitle = "Each point represents one participant") +
-  theme(axis.title.y = element_blank(), plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) +
-  theme_jelle()
-
-ggsave(here("plots", "one-big-plot-2.pdf"), width = 10, height = 10, scale = 1.5)
-ggsave(here("plots", "one-big-plot-2.png"), width = 10, height = 10, scale = 1.5)
-```
-
-
-# Correlations
-
-```{r correlations}
-labels <- as_labeller(c(
-  "G_resp" = "G (response)",
-  "edit_distance_norm_avg" = "Edit distance",
-  "entropy_diff_avg" = "Entropy difference",
-  "small_integers_vs_total_prop" = "Small integer ratios proportion"
-))
-
-levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
-
-# Scatterplots with combinations between all measures
-ggplot2::theme_set(theme_minimal())
-ggpairs(pp.measures,
-  columns = c("G_resp", "edit_distance_norm_avg", "entropy_diff_avg", "small_integers_vs_total_prop"),
-  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
-)
-
-ggsave(here("plots", "correlations", "correlations.pdf"))
-ggsave(here("plots", "correlations", "correlations.png"), bg = "white", width = 12, height = 9)
-```
-
-
-
-small integer ratios and entropy difference:
-
-```{r integerratios-vs-entropydiff}
-labels <- as_labeller(c(
-  "400_4" = "400 ms\n4 events",
-  "400_5" = "400 ms\n5 events",
-  "600_4" = "600 ms\n4 events",
-  "600_5" = "600 ms\n5 events"
-))
-
-ggplot(pp.measures, aes(x = entropy_diff_avg, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  geom_smooth(show.legend = FALSE, method = "lm") +
-  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
-  labs(x = "Entropy difference", y = "Small integer ratios proportion") +
-  theme_jelle()
-
-ggsave(here("plots", "correlations", "integerratios-vs-entropydiff.pdf"))
-ggsave(here("plots", "correlations", "integerratios-vs-entropydiff.png"))
-```
-
-```{r g-to-integerratios}
-labels <- as_labeller(c(
-  "400_4" = "400 ms\n4 events",
-  "400_5" = "400 ms\n5 events",
-  "600_4" = "600 ms\n4 events",
-  "600_5" = "600 ms\n5 events"
-))
-
-ggplot(pp.measures, aes(x = G_resp, y = small_integers_vs_total_prop, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  geom_smooth(show.legend = FALSE, method = "lm") +
-  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free", repeat.tick.labels = "x") +
-  labs(x = "G", y = "Small integer ratios proportion") +
-  theme_jelle()
-
-ggsave(here("plots", "correlations", "G-vs-integerratios.pdf"))
-ggsave(here("plots", "correlations", "G-vs-integerratios.png"))
-```
-
-
-```{r entropy-to-editdistance}
-labels <- as_labeller(c(
-  "400_4" = "400 ms\n4 events",
-  "400_5" = "400 ms\n5 events",
-  "600_4" = "600 ms\n4 events",
-  "600_5" = "600 ms\n5 events"
-))
-
-ggplot(pp.measures, aes(x = abs(entropy_diff_avg), y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  geom_smooth(show.legend = FALSE, method = "lm") +
-  facet_rep_wrap(~condition, ncol = 2, nrow = 2, scales = "free_y", repeat.tick.labels = "x") +
-  labs(x = "Absolute entropy difference", y = "Edit distance") +
-  theme_jelle()
-
-ggsave(here("plots", "correlations", "entropy-vs-editdistance-abs.pdf"))
-ggsave(here("plots", "correlations", "entropy-vs-editdistance-abs.png"))
-```
-
-```{r entropy-to-editdistance}
-labels <- as_labeller(c(
-  "400_4" = "400 ms\n4 events",
-  "400_5" = "400 ms\n5 events",
-  "600_4" = "600 ms\n4 events",
-  "600_5" = "600 ms\n5 events"
-))
-
-ggplot(pp.measures, aes(x = entropy_resp_avg, y = edit_distance_norm_avg, colour = condition, fill = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.8) +
-  facet_rep_wrap(~condition, ncol = 2, nrow = 2, repeat.tick.labels = "x") +
-  labs(x = "Entropy (response)", y = "Edit distance") +
-  theme_jelle()
-
-ggsave(here("plots", "correlations", "response_entropy_vs_editdistance.pdf"))
-ggsave(here("plots", "correlations", "response_entropy_vs_editdistance.png"))
-```
-
-
-# 2D plots
-
-```{r editdistance-vs-smallintegers-2d}
-ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = small_integers_vs_total_prop)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Edit distance (normalized)",
-    y = "Small integer ratios proportion of total",
-    title = "Edit distance vs proportion of small integer ratios",
-    subtitle = "Higher values for edit distance mean more difference between stimulus and response
-Higher values for small integer ratios mean more small integer ratios in the response",
-    caption = "Edit distance is the number of insertions, deletions, and substitutions needed to transform one sequence into another.
-Normalization was performed by dividing by the maximum possible edit distance."
-  ) +
-  theme(plot.caption = element_text(hjust = 0))
-
-
-ggsave(here("plots", "correlations", "editdistance-vs-smallintegers-2d.pdf"))
-ggsave(here("plots", "correlations", "editdistance-vs-smallintegers-2d.png"))
-```
-
-
-```{r editdistance-vs-G-2d}
-ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = G_resp)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Edit distance", y = "G", title = "Edit distance vs grammatical redundancy",
-    subtitle = "Higher values for edit distance mean more difference between stimulus and response
-Higher values for G mean more grammatical structure in the response"
-  )
-
-ggsave(here("plots", "correlations", "editdistance-vs-G-2d.pdf"))
-ggsave(here("plots", "correlations", "editdistance-vs-G-2d.png"))
-```
-
-```{r editdistance-vs-entropydiff-2d}
-
-ggplot(pp.measures, aes(x = edit_distance_norm_avg, y = entropy_diff_avg)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Edit distance", y = "Entropy difference", title = "Edit distance vs entropy difference",
-    subtitle = "Higher values for edit distance mean more difference between stimulus and response
-Negative values for entropy difference mean more decrease in entropy in the response")
-
-ggsave(here("plots", "correlations", "editdistance-vs-entropydiff-2d.pdf"))
-ggsave(here("plots", "correlations", "editdistance-vs-entropydiff-2d.png"))
-```
-
-
-
-
-```{r entropydiff-vs-G-2d}
-
-ggplot(pp.measures, aes(x = entropy_diff_avg, y = G_resp)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Entropy difference", y = "G", title = "Entropy difference vs grammatical redundancy",
-    subtitle = "Negative values for entropy difference mean more decrease in entropy in the response
-Higher values for G mean more grammatical redundancy in the response"
-  )
-
-ggsave(here("plots", "correlations", "entropydiff-vs-G-2d.pdf"))
-ggsave(here("plots", "correlations", "entropydiff-vs-G-2d.png"))
-
-```
-
-```{r entropydiff-vs-smallintegers-2d}
-
-ggplot(pp.measures, aes(x = entropy_diff_avg, y = small_integers_vs_total_prop)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "Entropy difference", y = "Small integer ratios proportion of total",
-    title = "Entropy difference vs proportion of small integer ratios",
-    subtitle = "Negative values for entropy difference mean more decrease in entropy in the response
-Higher values for small integer ratios mean more small integer ratios in the response"
-  )
-
-ggsave(here("plots", "correlations", "entropydiff-vs-smallintegers-2d.pdf"))
-ggsave(here("plots", "correlations", "entropydiff-vs-smallintegers-2d.png"))
-
-```
-
-```
-
-
-```{r G-vs-smallintegers-2d}
-
-ggplot(pp.measures, aes(x = G_resp, y = small_integers_vs_total_prop)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle() +
-  labs(
-    x = "G", y = "Small integer ratios proportion of total",
-    title = "Grammatical redundancy vs proportion of small integer ratios",
-    subtitle = "Higher values for G mean more grammatical redundancy in the response
-Higher values for small integer ratios mean more small integer ratios in the response"
-  )
-
-ggsave(here("plots", "correlations", "G-vs-smallintegers-2d.pdf"))
-ggsave(here("plots", "correlations", "G-vs-smallintegers-2d.png"))
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-Just as an illustration, let's see what two variables look like in such a plot that share a linear relationship:
-
-```{r linear-relationship}
-
-# Plot entropy difference against entropy response
-
-ggplot(pp.measures, aes(x = entropy_resp_avg, y = entropy_diff_avg)) +
-  geom_density_2d_filled(alpha = 0.8, show.legend = FALSE) +
-  theme_jelle()
-```
-
-
-
-# New measures (after 6 September 2023)
-## Simple integer ratios
-Here we used the method from Roeske et al. (2019, Cur Biol) to quantify the number of
-simple integer ratios that were inserted (isochronous, binary, ternary)
-
-```{r simple-integers-preference-inserted}
-
-ggplot(pp.measures, aes(x = condition, y = stim_resp_error_temponorm_abs_avg, colour = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.3) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  labs(
-    x = "Condition", y = "Average absolute asynchrony (normalized)",
-    title = "Normalized absolute asynchronies by condition",
-    subtitle = "Each point represents one participant",
-    caption = "Responses were first tempo normalized to the stimulus.
-Then both were normalized such that 1 represents the whole stimulus or response sequence.
-Then, the absolute asynchronies were calculated between stimulus response, and averaged."
-  ) +
-  theme_jelle()
-
-ggsave(here("plots", "absolute_asynchrony.pdf"))
-ggsave(here("plots", "absolute_asynchrony.png"), dpi = 300)
-
-```
-
-## Sum of absolute asynchronies
-For this measure, the response sequence was first tempo normalized to the stimulus, and then to 1.
-Then, the absolute asynchronies were calculated, and summed.
-
-```{r sum-of-absolute-asynchronies}
-
-ggplot(pp.measures, aes(x = condition, y = small_integers_introduced_sum, colour = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.3) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  labs(
-    x = "Condition", y = "Sum of inserted simple integer ratios",
-    title = "Increase in simple integer ratios by condition",
-    subtitle = "Each point represents one participant",
-    caption = "Simple integer ratios were isochronous, binary, and ternary interval ratios"
-  ) +
-  theme_jelle()
-
-ggsave(here("plots", "small_integers_introduced.pdf"))
-ggsave(here("plots", "small_integers_introduced.png"), dpi = 300)
-
-```
-
-## Tempo normalized G
-
-```{r new-G}
-
-ggplot(pp.measures, aes(x = condition, y = stim_resp_error_temponorm_abs_avg, colour = condition, group = condition)) +
-  geom_point(show.legend = FALSE, alpha = 0.3) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  labs(
-    x = "Condition", y = "Average absolute asynchrony (normalized)",
-    title = "Normalized absolute asynchronies by condition",
-    subtitle = "Each point represents one participant",
-    caption = "Responses were first tempo normalized to the stimulus.
-Then both were normalized such that 1 represents the whole stimulus or response sequence.
-Then, the absolute asynchronies were calculated between stimulus response, and averaged."
-  ) +
-  theme_jelle()
-
-ggsave(here("plots", "absolute_asynchrony.pdf"))
-ggsave(here("plots", "absolute_asynchrony.png"), dpi = 300)
-
-```
-
-## Sum of absolute asynchronies
-For this measure, the response sequence was first tempo normalized to the stimulus, and then to 1.
-Then, the absolute asynchronies were calculated, and summed.
-
-```{r sum-of-absolute-asynchronies}
-
-ggplot(pp.measures, aes(x = condition, fill = condition, y = G_resp_temponorm, colour = condition, group = condition)) +
-  geom_point(show.legend = FALSE) +
-  geom_violin(show.legend = FALSE, alpha = 0.75) +
-  stat_summary(geom = "pointrange", show.legend = FALSE, size = 1, linewidth = 2) +
-  scale_x_discrete(labels = c(
-    "400_4" = "400 ms\n4 events",
-    "400_5" = "400 ms\n5 events",
-    "600_4" = "600 ms\n4 events",
-    "600_5" = "600 ms\n5 events"
-  )) +
-  labs(
-    x = "Condition", y = expression(G~(response)),
-    title = "Grammatical redundancy by condition",
-    subtitle = "Each point represents one participant",
-    caption = "Response sequences were first tempo normalized to the stimulus."
-  ) +
-  theme_jelle()
-
-ggsave(here("plots", "G_tempo_normalized.pdf"))
-ggsave(here("plots", "G_tempo_normalized.png"), dpi = 300)
-
-```
-
-
-
-## New correlations
-
-```{r new-correlations}
-
-labels <- as_labeller(c(
-  "G_resp" = "G (response)",
-  "stim_resp_error_temponorm_abs_avg" = "(Tempo) normalized\nabsolute asynchronies",
-  "edit_distance_norm_avg" = "Edit distance\n(quantized)",
-  "entropy_diff_avg" = "Entropy difference",
-  "small_integers_introduced_sum" = "Inserted simple integer ratios",
-  "small_integers_vs_total_prop_q" = "Proportion of\nsimple integer ratios"
-))
-
-levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
-
-# Scatterplots with combinations between all measures
-ggplot2::theme_set(theme_minimal())
-ggpairs(pp.measures,
-  columns = c("G_resp", "stim_resp_error_temponorm_abs_avg", "entropy_diff_avg", "small_integers_introduced_sum", "small_integers_vs_total_prop_q"),
-  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
-)
-
-ggsave(here("plots", "correlations", "correlations_new.pdf"))
-ggsave(here("plots", "correlations", "correlations_new.png"), bg = "white", width = 12, height = 9)
-
 ```

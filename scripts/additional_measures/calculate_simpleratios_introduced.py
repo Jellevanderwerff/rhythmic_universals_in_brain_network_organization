@@ -82,4 +82,4 @@ for sequence_id in df.sequence_id.unique():
 # Save the data
 df.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
 df_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
-ratios_df.to_csv(os.path.join('data', 'experiment', 'processed', 'ratio_preferences.csv'), index=False)
+ratios_df.to_csv(os.path.join('data', 'experiment', 'processed', 'ratios_introduced.csv'), index=False)
