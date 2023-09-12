@@ -88,16 +88,23 @@ descriptives.table <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
   sd_iti = sd(resp_iti),
 )
 
+labels_table1 <- c("Tempo cond.", "Length", "N taps", "N trials", "Mean IOI", "Median IOI", "SD IOI", "Mean ITI", "Median ITI", "SD ITI")
+
 descriptives.table2 <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
   G_resp = mean(G_resp),
   entropy_diff_norm_q_avg = mean(entropy_diff_norm_q),
   asynchrony_norm_abs_avg = mean(asynchrony_norm_abs),
-  simple_ratio_introduced_avg = mean(simple_ratio_introduced))
+  simple_ratio_introduced_avg = mean(simple_ratio_introduced),
+  iti_cov_norm = mean(iti_cov_norm)
+)
+
+labels_table2 <- c("Tempo cond.", "Length", "G", "Entropy diff.", "Asynchrony sum avg.", "Simple ratios introd.", "ITI CoV")
+
 
 
 # kable
-kable(descriptives.table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-kable(descriptives.table2) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+kable(descriptives.table, col.names = labels_table1) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+kable(descriptives.table2, col.names = labels_table2) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 # Measures for final analysis
@@ -119,8 +126,8 @@ ggplot(pp.measures, aes(x = condition, y = tempo_deviation_abs_avg, fill = condi
   labs(
     x = "Condition",
     y = "Tempo deviation",
-    title = "Absolute tempo deviation",
-    subtitle = "Calculated as the absolute ratio between the response and stimulus tempo"
+    title = "Tempo deviation",
+    subtitle = "Calculated as the absolute difference between 1 and the ratio between the\nstimulus and response tempo."
   ) +
   theme(plot.caption = element_text(hjust = 0))
 
@@ -189,8 +196,8 @@ ggplot(pp.measures, aes(
   x = condition,
   y = simple_ratio_introduced_avg,
   colour = condition, fill = condition
- )) +
-   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
   geom_violin(alpha = 0.7, show.legend = FALSE) +
   geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
   scale_x_discrete(labels = c(
@@ -199,11 +206,6 @@ ggplot(pp.measures, aes(
     "600_4" = "600 ms\n4 events",
     "600_5" = "600 ms\n5 events"
   )) +
-theme(
-  axis.title.x = element_blank(),
-  axis.text.x = element_blank(),
-  axis.ticks.x = element_blank()
-) +
   labs(
     x = "Condition", y = "Number of small integer ratios introduced",
     title = "Mean number of small integer ratios introduced in trial",
@@ -219,25 +221,58 @@ ggsave(here("plots", "small_integers.png"), dpi = 300)
 
 ## Asynchrony
 ```{r asynchrony}
-
-ggplot(ITIs.bytrial, aes(y = asynchrony_norm_abs_trialsum, x = 1, colour = pp_id_behav)) +
-  stat_summary(geom = "pointrange", position = position_dodge(width = 0.1), show.legend = FALSE) +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
+ggplot(pp.measures, aes(
+  x = condition,
+  y = asynchrony_norm_abs_avg,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
   theme_jelle() +
-  theme(
-    axis.title.x = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank()
-  ) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
   labs(
-    y = "Sum of absolute asynchronies in trial (normalized)", title = "Asynchrony within trial by participant and condition",
-    subtitle = "Sequences were normalized such that 1 represents the total duration of the sequence")
+    x = "Condition", y = "Sum of absolute asynchronies in trial (normalized)", title = "Asynchrony within trial by participant and condition",
+    subtitle = "Sequences were normalized such that 1 represents the total duration of the sequence"
+  )
 
 ggsave(here("plots", "asynchrony.pdf"))
-ggsave(here("plots", "asynchrony.png"), dpi=300)
-
+ggsave(here("plots", "asynchrony.png"), dpi = 300)
 ```
 
+## Tapping variability (ITI CoV)
+
+```{r iti-cov}
+
+ggplot(pp.measures, aes(
+  x = condition,
+  y = iti_cov_norm_avg,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  theme_jelle() +
+  scale_x_discrete(labels = c(
+  "400_4" = "400 ms\n4 events",
+  "400_5" = "400 ms\n5 events",
+  "600_4" = "600 ms\n4 events",
+  "600_5" = "600 ms\n5 events"
+)) +
+  labs(
+    y = "ITI CoV", title = "Tapping variability", x = "Condition",
+    subtitle = "Calculated as the coefficient of variation of the reponse ITIs"
+  )
+
+ggsave(here("plots", "tapping_variability.pdf"))
+ggsave(here("plots", "tapping_variability.png"), dpi = 300)
+
+```
 
 # Correlations
 
@@ -249,31 +284,29 @@ labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "asynchrony_norm_abs_avg" = "Asynchrony",
-  "iti_cov_norm" = "ITI CoV",
-  "simple_ratio_introduced_avg" = "Introduced simple integer ratios",
+  "iti_cov_norm_avg" = "ITI CoV",
+  "simple_ratio_introduced_avg" = "Introduced\nsimple integer ratios",
   "tempo_deviation_abs_avg" = "Tempo deviation"
 ))
 
-levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+pp.measures.cor <- pp.measures
+
+levels(
+pp.measures.cor$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
 
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
-ggpairs(pp.measures,
-  columns = c("G_resp", "entropy_diff_norm_q_avg", "iti_cov_norm",
-  "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"),
+ggpairs(
+pp.measures.cor,
+  columns = c(
+    "G_resp", "entropy_diff_norm_q_avg", "iti_cov_norm_avg",
+    "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"
+  ),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
 
 ggsave(here("plots", "correlations", "correlations.pdf"))
 ggsave(here("plots", "correlations", "correlations.png"))
-```
-
-## Variability (ITI CoV)
-
-```{r cov}
-
-
-
 ```
 
 
@@ -282,7 +315,7 @@ ggsave(here("plots", "correlations", "correlations.png"))
 ## ITI ridges
 
 ```{r ITI-ridges, fig.width = 20, fig.height = 20}
-ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id, colour = pp_id)) +
+ggplot(ITIs, aes(x = resp_iti, y = pp_id_behav, fill = pp_id_behav, colour = pp_id_behav)) +
   geom_density_ridges(scale = 4, alpha = 0.9, show.legend = FALSE, color = "white") +
   facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
   theme_jelle() +
@@ -297,23 +330,3 @@ ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id, colour = pp_id)) +
 ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
 ```
 
-```{r binned entropy diff}
-
-ITIs$entropy_diff_norm_q <- round(ITIs$entropy_diff_norm_q, 1)
-
-ITIs$binned_entropy <- cut(ITIs$entropy_diff_norm_q, breaks = c(-2, -1, 0, 1, 2), include.lowest = TRUE, right = FALSE)
-
-
-ggplot(ITIs, aes(x = binned_entropy, y = asynchrony_norm_abs)) +
-stat_summary(geom = "pointrange", show.legend = FALSE) +
-facet_rep_wrap(~length + stim_tempo_intended, labeller = labels, repeat.tick.labels = TRUE) +
-theme(
-  axis.ticks.x = element_blank()
-) +
-theme(axis.text.x = element_text(size = 8)) +
-labs(x = "Entropy difference", y = "Asynchrony", title = "Asynchrony by entropy difference") +
-theme_jelle()
-
-ggsave(here("plots", "binned-entropy.pdf"))
-
-```

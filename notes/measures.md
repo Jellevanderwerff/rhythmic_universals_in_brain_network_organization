@@ -54,3 +54,8 @@ Roeske et al., 2017
 
 ## Tapping variability
 Simply calculated as the coefficient of variation of the ITIs in the response. For the pp measures, averages were taken.
+
+## Tempo deviation
+This is the ratio between the response tempo and the stimulus tempo, calculated as the sum of the response ITIs divided by the sum of the stimulus IOIs. Values below 1 thus mean that participant tapped faster than the stimulus. Values above 1 mean the participant tapped slower than the stimulus.
+
+For the participant measures, this was slightly adjusted, and was calculated as the absolute difference between 1 and the ratio mentioned above. This because we are not interested in wheter participants speeded up or slowed down, but rather want a general measure of how 'inaccurate' participants were in terms of copying the tempo from stimulus to response.
