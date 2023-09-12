@@ -18,6 +18,7 @@ df_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_b
 ratios_df = pd.DataFrame()
 
 for sequence_id in df.sequence_id.unique():
+    print(sequence_id)
     # Get stimulus IOIs and response ITIs
     stim_iois = df[df.sequence_id == sequence_id].stim_ioi.values
     resp_itis = df[df.sequence_id == sequence_id].resp_iti.values
@@ -50,7 +51,7 @@ for sequence_id in df.sequence_id.unique():
 
     # Make little dataframe
     df_piece = pd.DataFrame({
-        'pp_id': df[df.sequence_id == sequence_id].pp_id.values[0],
+        'pp_id': df[df.sequence_id == sequence_id].pp_id_behav.values[0],
         'sequence_id': sequence_id,
         'isochrony_freq_stim': isochrony_freq_stim,
         'isochrony_freq_resp': isochrony_freq_resp,
@@ -78,6 +79,7 @@ for sequence_id in df.sequence_id.unique():
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'binary_introduced'] = binary_introduced
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'ternary_introduced'] = ternary_introduced
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'simple_ratio_introduced'] = simple_introduced
+
 
 # Save the data
 df.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)

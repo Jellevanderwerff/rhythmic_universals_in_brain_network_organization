@@ -91,7 +91,7 @@ tapping.raw <- data.frame(matrix(nrow = 0, ncol = 30))
 colnames(tapping.raw) <- c("pp_id_behav", colnames(get(paste0("participant.tapping.", pp_ids[1]))))
 
 for (pp_id_behav in pp_ids) {
-  temp_list <- get(str_glue("participant.tapping.{pp_id}"))
+  temp_list <- get(str_glue("participant.tapping.{pp_id_behav}"))
 
   temp_df <- as.data.frame(temp_list)
 
@@ -139,7 +139,7 @@ for (row_i in seq_len(nrow(tapping.clean))) {
   tapping_row <- tapping.clean[row_i, ]
   pp_id_behav <- tapping_row$pp_id_behav
   print(pp_id_behav)
-  participant_row <- participants.info[participants.info$pp_id_behav == pp_id_behav, ]
+  participant_row <- participants.info[participants.info$pp_id == pp_id_behav, ]
   out_list <- as.list(participant_row)
   out_list$stim_id <- tapping_row$stim_id
   out_list$sequence_id <- paste(pp_id_behav, tapping_row$stim_id, sep = "_")
@@ -199,8 +199,6 @@ ITI_sd = sd(resp_iti)
 )
 
 ```
-
-
 
 
 # save

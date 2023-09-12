@@ -14,15 +14,13 @@ ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
 pp_id_behav_scan_mapping = pd.read_csv(os.path.join('data', 'experiment', 'raw', 'pp_id_behav_scan_mapping.csv'))
 
-small_integer_ratios = ['1:1', '1:2', '2:1', '1:3', '3:1']
-
 # Create empty output df
 pp_measures = pd.DataFrame()
 
 for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
     for length, length_df in tempo_df.groupby('length'):
         for pp_id, pp_df in length_df.groupby('pp_id_behav'):
-
+            print(pp_id)
             # pp's dataframe:
             pp_output_df = pd.DataFrame({
                 'pp_id_behav': pp_id,
@@ -34,6 +32,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'G_resp': pp_df.G_resp.values[0],
                 'entropy_diff_norm_q_avg': pp_df.entropy_diff_norm_q.mean(),
                 'asynchrony_norm_abs_avg': pp_df.asynchrony_norm_abs.mean(),
+                'iti_cov_norm_avg': pp_df.iti_cov_norm.mean(),
                 'simple_ratio_introduced_avg': pp_df.simple_ratio_introduced.mean(),
                 'tempo_deviation_abs_avg': np.mean(np.abs(1 - pp_df.tempo_ratio_resp_to_stim)),
 

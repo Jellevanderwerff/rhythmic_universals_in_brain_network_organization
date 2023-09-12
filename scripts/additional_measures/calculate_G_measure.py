@@ -52,7 +52,7 @@ for stim_resp in ('resp_iti', 'stim_ioi'):
         # Loop over two lengths
         for length, length_df in tempo_df.groupby('length'):
             # Loop over participants
-            for pp_id, pp_df in length_df.groupby('pp_id'):
+            for pp_id, pp_df in length_df.groupby('pp_id_behav'):
                 print(pp_id)
                 # Get the data
                 data = pp_df[stim_resp]
@@ -86,7 +86,7 @@ for stim_resp in ('resp_iti', 'stim_ioi'):
 
                 # Make dataframe for k-means clusters and concatenate
                 pp_df_output = pd.DataFrame({
-                    'pp_id': pp_id,
+                    'pp_id_behav': pp_id,
                     'stim_tempo_intended': tempo,
                     'length': length,
                     'stim_resp': stim_resp,
@@ -98,7 +98,7 @@ for stim_resp in ('resp_iti', 'stim_ioi'):
 
                 # Make dataframe for silhouette scores and concatenate
                 pp_silhouette_output = pd.DataFrame({
-                    'pp_id': pp_id,
+                    'pp_id_behav': pp_id,
                     'stim_tempo_intended': tempo,
                     'length': length,
                     'k_clusters': int(k_clusters),
@@ -113,10 +113,10 @@ Now we calculate G.
 """
 
 # Create empty dataframe for G measure
-G_df = pd.DataFrame(columns=['pp_id', 'stim_tempo_intended', 'length', 'stim_resp', 'k_clusters', 'G'])
+G_df = pd.DataFrame(columns=['pp_id_behav', 'stim_tempo_intended', 'length', 'stim_resp', 'k_clusters', 'G'])
 
 for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
-    for pp_id, pp_df in resp_type_df.groupby('pp_id'):
+    for pp_id, pp_df in resp_type_df.groupby('pp_id_behav'):
         for tempo, pp_clusters_bytempo in pp_df.groupby('stim_tempo_intended'):
             for length, pp_clusters_bytempoandlength in pp_clusters_bytempo.groupby('length'):
                 # Get k and left boundaries of bins
@@ -131,7 +131,7 @@ for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
                 symbols = string.ascii_uppercase[:k]
 
                 # Loop over sequences
-                for sequence_id in ITIs[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length)].sequence_id.unique():
+                for sequence_id in ITIs[(ITIs.pp_id_behav == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length)].sequence_id.unique():
                     # Get the response inter-tap intervals
                     iois = ITIs[ITIs.sequence_id == sequence_id][stim_resp].values
                     # Digitize responses into bins (i.e. we get the indices of the bins to which each ITI belongs)
@@ -156,7 +156,7 @@ for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
                     G = 1 - (U_targetgrammar / U_referencegrammar)
 
                 pp_df = pd.DataFrame({
-                    'pp_id': pp_id,
+                    'pp_id_behav': pp_id,
                     'stim_tempo_intended': tempo,
                     'length': length,
                     'stim_resp': stim_resp,
@@ -167,13 +167,13 @@ for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
                 G_df = pd.concat([G_df, pp_df], ignore_index=True)
 
 
-G_df.sort_values(by=['pp_id', 'stim_tempo_intended', 'length']).reset_index(drop=True)
+G_df.sort_values(by=['pp_id_behav', 'stim_tempo_intended', 'length']).reset_index(drop=True)
 
 # change data types
-G_df.pp_id = G_df.pp_id.astype(int)
+G_df.pp_id_behav = G_df.pp_id_behav.astype(int)
 G_df.stim_tempo_intended = G_df.stim_tempo_intended.astype(int)
 G_df.length = G_df.length.astype(int)
-df_silhouette.pp_id = df_silhouette.pp_id.astype(int)
+df_silhouette.pp_id_behav = df_silhouette.pp_id_behav.astype(int)
 df_silhouette.stim_tempo_intended = df_silhouette.stim_tempo_intended.astype(int)
 df_silhouette.length = df_silhouette.length.astype(int)
 
@@ -183,29 +183,29 @@ ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs
 
 # add G measure to ITIs and ITIs_bytrial
 for stim_resp, stim_resp_df in G_df.groupby('stim_resp'):
-    for pp_id, G_pp_df in stim_resp_df.groupby('pp_id'):
+    for pp_id, G_pp_df in stim_resp_df.groupby('pp_id_behav'):
         for tempo, G_pp_tempo_df in G_pp_df.groupby('stim_tempo_intended'):
             for length, G_pp_tempo_length_df in G_pp_tempo_df.groupby('length'):
                 ITIs.loc[
-                    (ITIs.pp_id == pp_id) &
+                    (ITIs.pp_id_behav == pp_id) &
                     (ITIs.stim_tempo_intended == tempo) &
                     (ITIs.length == length),
                     f'G_{stim_resp[:-4]}'
                     ] = G_pp_tempo_length_df.G.values[0]
                 ITIs.loc[
-                    (ITIs.pp_id == pp_id) &
+                    (ITIs.pp_id_behav == pp_id) &
                     (ITIs.stim_tempo_intended == tempo) &
                     (ITIs.length == length),
                     f'k_clusters_{stim_resp[:-4]}'
                     ] = G_pp_tempo_length_df.k_clusters.values[0]
                 ITIs_bytrial.loc[
-                    (ITIs_bytrial.pp_id == pp_id) &
+                    (ITIs_bytrial.pp_id_behav == pp_id) &
                     (ITIs_bytrial.stim_tempo_intended == tempo) &
                     (ITIs.length == length),
                     f'G_{stim_resp[:-4]}'
                     ] = G_pp_tempo_length_df.G.values[0]
                 ITIs_bytrial.loc[
-                    (ITIs_bytrial.pp_id == pp_id) &
+                    (ITIs_bytrial.pp_id_behav == pp_id) &
                     (ITIs_bytrial.stim_tempo_intended == tempo) &
                     (ITIs.length == length),
                     f'k_clusters_{stim_resp[:-4]}'
@@ -216,15 +216,15 @@ ITIs['G_diff'] = ITIs.G_resp - ITIs.G_stim
 ITIs_bytrial['G_diff'] = ITIs_bytrial.G_resp - ITIs_bytrial.G_stim
 
 # add silhouette score to ITIs and ITIs_bytrial
-for pp_id, silhouette_pp_df in df_silhouette.groupby('pp_id'):
+for pp_id, silhouette_pp_df in df_silhouette.groupby('pp_id_behav'):
     for tempo, silhouette_pp_tempo_df in silhouette_pp_df.groupby('stim_tempo_intended'):
         for length, silhouette_pp_tempo_length_df in silhouette_pp_tempo_df.groupby('length'):
-            ITIs.loc[(ITIs.pp_id == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length), 'silhouette'] = silhouette_pp_tempo_df.silhouette.values[0]
-            ITIs_bytrial.loc[(ITIs_bytrial.pp_id == pp_id) & (ITIs_bytrial.stim_tempo_intended == tempo) & (ITIs.length == length), 'silhouette'] = silhouette_pp_tempo_df.silhouette.values[0]
+            ITIs.loc[(ITIs.pp_id_behav == pp_id) & (ITIs.stim_tempo_intended == tempo) & (ITIs.length == length), 'silhouette'] = silhouette_pp_tempo_df.silhouette.values[0]
+            ITIs_bytrial.loc[(ITIs_bytrial.pp_id_behav == pp_id) & (ITIs_bytrial.stim_tempo_intended == tempo) & (ITIs.length == length), 'silhouette'] = silhouette_pp_tempo_df.silhouette.values[0]
 
 # sort
-ITIs = ITIs.sort_values(by = ["pp_id", "stim_id"]).reset_index(drop = True)
-ITIs_bytrial = ITIs_bytrial.sort_values(by = ["pp_id", "stim_id"]).reset_index(drop = True)
+ITIs = ITIs.sort_values(by = ["pp_id_behav", "stim_id"]).reset_index(drop = True)
+ITIs_bytrial = ITIs_bytrial.sort_values(by = ["pp_id_behav", "stim_id"]).reset_index(drop = True)
 
 # save
 ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index = False)

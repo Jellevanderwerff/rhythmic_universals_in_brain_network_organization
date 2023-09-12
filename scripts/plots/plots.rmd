@@ -163,15 +163,17 @@ ggsave(here("plots", "g-score.png"), dpi = 300)
 ## Entropy
 
 ```{r entropy}
-ggplot(ITIs.bytrial, aes(y = entropy_diff_norm_q, x = 1, colour = pp_id_behav)) +
-  stat_summary(geom = "pointrange", position = position_dodge(width = 0.1)) +
-  facet_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels) +
+ggplot(pp.measures, aes(x = condition, y = entropy_diff_norm_q_avg, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
   theme_jelle() +
-  theme(
-    axis.title.x = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank()
-  ) +
   labs(
     y = "Entropy difference", title = "Entropy difference by participant and condition",
     subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
@@ -247,6 +249,7 @@ labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "asynchrony_norm_abs_avg" = "Asynchrony",
+  "iti_cov_norm" = "ITI CoV",
   "simple_ratio_introduced_avg" = "Introduced simple integer ratios",
   "tempo_deviation_abs_avg" = "Tempo deviation"
 ))
@@ -256,12 +259,21 @@ levels(pp.measures$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "60
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
 ggpairs(pp.measures,
-  columns = c("G_resp", "entropy_diff_norm_q_avg", "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"),
+  columns = c("G_resp", "entropy_diff_norm_q_avg", "iti_cov_norm",
+  "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
 
 ggsave(here("plots", "correlations", "correlations.pdf"))
 ggsave(here("plots", "correlations", "correlations.png"))
+```
+
+## Variability (ITI CoV)
+
+```{r cov}
+
+
+
 ```
 
 
@@ -283,4 +295,25 @@ ggplot(ITIs, aes(x = resp_iti, y = pp_id, fill = pp_id, colour = pp_id)) +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 400, ], aes(xintercept = 400), linetype = "dashed", color = "grey") +
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 600, ], aes(xintercept = 600), linetype = "dashed", color = "grey")
 ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
+```
+
+```{r binned entropy diff}
+
+ITIs$entropy_diff_norm_q <- round(ITIs$entropy_diff_norm_q, 1)
+
+ITIs$binned_entropy <- cut(ITIs$entropy_diff_norm_q, breaks = c(-2, -1, 0, 1, 2), include.lowest = TRUE, right = FALSE)
+
+
+ggplot(ITIs, aes(x = binned_entropy, y = asynchrony_norm_abs)) +
+stat_summary(geom = "pointrange", show.legend = FALSE) +
+facet_rep_wrap(~length + stim_tempo_intended, labeller = labels, repeat.tick.labels = TRUE) +
+theme(
+  axis.ticks.x = element_blank()
+) +
+theme(axis.text.x = element_text(size = 8)) +
+labs(x = "Entropy difference", y = "Asynchrony", title = "Asynchrony by entropy difference") +
+theme_jelle()
+
+ggsave(here("plots", "binned-entropy.pdf"))
+
 ```

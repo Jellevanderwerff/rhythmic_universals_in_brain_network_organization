@@ -23,27 +23,34 @@ Entropy represents the amount of information in a signal, where lower entropy me
 - Then, entropy was calculated for each trial based on the frequencies of occurrence of the note durations in the signal.
 
 
-## Edit (or Levenshtein) distance
-Levenshtein distance is calculated between two strings as the number of insertions, deletions, or substitutions necessary to transform the one string into the other. Say we have two strings, 'hello' and 'hlelo'. We need only one substitution to change the one string into the other, and so the edit distance is one. For rhythms, it is less obvious how one would calculate this, as how would we represent the rhythm as a string? This is generally done by representing an 'underlying grid' as a string of zeroes, and placing each note onset at its appropriate position on the grid as a one. So, a rhythm with a total duration of one quarternote could be represented as a string of four zeroes, assuming the smallest to-be-expected note duration is a sixteenth note. Say this rhythm then also consists of only one quarternote, then the final string is '1000'.
+## Sum of normalized absolute asynchronies
+This measure gives the total amount of stimulus-response asynchrony after tempo normalization. Remember that this was not a synchronization experiment, but that participants copied the stimulus.
 
 
 
 ### How was it calculated?
-- We first quantized the rhythm (see under 'entropy') to sixteenth notes.
-- We then represented the rhythm as a string of zeroes and ones, with an underlying grid of sixteenth notes.
-- We calculated the Levenshtein distance between to strings.
-- We normalized the edit distance by dividing the encountered edit distance by the worst possible edit distance (based on the inverse of the stimulus).
+- We first tempo normalized the response sequence to the stimulus sequence, such that both are of equal duration.
+- Then, we normalized the stimulus and response such that 1 represents the total duration of the stimulus and response.
+- Then, for each pair of stimulus and response onsets, the absolute time difference was taken.
+- Then, for each trial, these asynchronies were summed.
+- In the final pp measures, the average was taken within condition.
 
 
-## Preference for small integer ratios
+## Number of small integer ratios introduced
 Interval ratios represent the relationship between the durations of subsequent notes. If a rhythm consists of two quarternotes, the relationship of the first note to the combined duration of the two notes is 0.5. Note how for each rhythm of n _intervals_ we thus get _n_-1 interval ratios. The ratio is always represented as a number between 0 and 1. It is calculated as $ratio_k = \frac{interval_k}{interval_k + interval_{k+1}}$.
 
-Now, to investigate whether people more frequently produce two subsequent notes with a binary relationship (e.g. quarternote-halfnote) or with a ternary relationship (e.g. eighth note-dotted quarternote), using the interval ratios we counted the number of occurrences of binary and ternary relationships. However, a problem here arises, because produced rhythms are seldom (if ever) perfectly produced, and say we want to count the number of occurrences of interval ratios 0.25 and 0.75 (i.e. ternary relationships), we would have to specify a bandwith around those numbers, and it is difficult to say what that bandwith should be (usually, people just assume some numbers). So, in order to have a measure that is the most objective, and requires the fewest assumptions, we first quantized the rhythms to sixteenth notes using the procedure described under 'entropy', and only then calculated the interval ratios.
+We followed the method from Roeske et al., by dividing the distribution of measured interval ratios into on-ratio and off-ratio values. This was done by equally dividing up the distribution into adjacent bins, where some are consideren on-ratio, and some off-ratio (see Methods section from Roeske for details of which ratios are considered on- and off-ratio).
+
 
 ### How was it calculated?
-- We first quantized the rhythm (see under 'entropy') to sixteenth notes.
-- We then calculated the interval ratios between dyads of intervals using the formula described above.
-- We then calculated the proportion of isochronous, binary, and ternary ratios out of the the total number of ratios.
+- We first tempo normalized the response to the stimulus (i.e. making the response of the same duration as the stimulus).
+- We then calculated the interval ratios for both the stimulus and response.
+- Then, for each trial we counted the number of integer ratios that were isochronous, binary, or ternary, and counted in the stimulus and in the response how many of those there were.
+- We then subtracted the number of isochronous, binary, and ternary ratios in response from the number that was in the stimulus.
+- As such, a negative value for the number of small integer ratios introduced means a reduction in the number of small integer ratios from stimulus to response (i.e. there were small integer ratios in the stimulus, but the pp did not copy those). A positive value means participants introduced small integer ratios in the response that weren't there in the stimulus.
 
 ### References
 Roeske et al., 2017
+
+## Tapping variability
+Simply calculated as the coefficient of variation of the ITIs in the response. For the pp measures, averages were taken.

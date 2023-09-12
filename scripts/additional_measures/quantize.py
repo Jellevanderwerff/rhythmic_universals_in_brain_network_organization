@@ -9,7 +9,7 @@ import fractions
 ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 fourier_df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'fourier.csv'))
 
-for pp_id, pp_df in ITIs.groupby('pp_id'):
+for pp_id, pp_df in ITIs.groupby('pp_id_behav'):
     print(pp_id)
     for tempo, tempo_df in pp_df.groupby('stim_tempo_intended'):
         for length, length_df in tempo_df.groupby('length'):
