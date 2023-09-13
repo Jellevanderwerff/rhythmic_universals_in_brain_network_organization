@@ -1,13 +1,13 @@
-A, Subjects were presented with a sequence of either 4 or 5 pure tones, and were asked to imitate by tapping. 
+A, Subjects were presented with a sequence of either 4 or 5 pure tones, and were asked to imitate by tapping.
 
-B, From the recorded audio signal, tapping onsets were extracted using REPP (Anglada-Tort et al., 2022). 
+B, From the recorded audio signal, tapping onsets were extracted using REPP (Anglada-Tort et al., 2022).
 
 C, To reduce the effect of participants tapping too fast or too slow, the tempo of the response sequence was normalized to the tempo of the stimulus sequence. This also resulted in a dependent variable we call 'tempo deviation', which was calculated by dividing the total sum of the response ITIs by the total sum of the stimulus IOIs. Then, this value was subtracted from one, and the absolute value was taken. This last step was taken because we were not interested in whether participants slowed down or speeded up, compared to the stimulus.
 
-D, Using K-means clustering, the complete set of 'symbols' in the participant's responses were organized into k clusters, where the optimal value for k was determined using Silhouette scores. Subsequently, each individual sequence was coded according to these clusters to calculate a participant's G score to quantify systematicity (Jamieson & Mewhort, 2005; Ravignani et al., 2017). 
+D, Using K-means clustering, the complete set of 'symbols' in the participant's responses were organized into k clusters, where the optimal value for k was determined using Silhouette scores. Subsequently, each individual sequence was coded according to these clusters to calculate a participant's G score to quantify systematicity (Jamieson & Mewhort, 2005; Ravignani et al., 2017).
 
 E, Using a Fourier transform, response inter-onset intervals (IOIs) were automatically quantized to the best describing underlying grid. From the quantized IOIs, Shannon entropy were calculated for the stimulus and the response. E,  F, From dyads of quantized IOIs within each sequence, interval ratios were calculated (Roeske et al., 2020).
 
-F, Stimulus-response asynchronies were calculated by summing the absolute differences between each pair of stimulus and response onsets. Tapping variability was calculated as the coefficient of variation of the tapping ITIs.
+F, Stimulus-response asynchronies were calculated by summing the absolute differences between each pair of stimulus and response onsets. Tapping variability was calculated as the difference between the coefficient of variation of the tapping ITIs and the coefficient of variation of the stimulus IOIs.
 
 G, We followed the method from Roeske et al. (2020, Current Biology) to determine on- and off-integer ratios. Interval ratios themselves were calculated using the given formula.

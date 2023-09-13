@@ -24,9 +24,10 @@ for sequence_id in df.sequence_id.unique():
 
     # Save the measure
     df.loc[df.sequence_id == sequence_id, 'asynchrony_norm_abs'] = abs_diffs
-    df.loc[df.sequence_id == sequence_id, 'iti_cov_norm'] = np.std(resp_itis) / np.mean(resp_itis)
+    df.loc[df.sequence_id == sequence_id, 'iti_ioi_cov_diff'] = (np.std(resp_itis) / np.mean(resp_itis)) - (np.std(stim_iois) / np.mean(stim_iois))
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'asynchrony_norm_abs_trialsum'] = np.sum(abs_diffs)
-    df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'iti_cov_norm'] = np.std(resp_itis) / np.mean(resp_itis)
+    df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'iti_ioi_cov_diff'] = (np.std(resp_itis) / np.mean(resp_itis)) - (np.std(stim_iois) / np.mean(stim_iois))
+
 
 # Save the data
 df.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)

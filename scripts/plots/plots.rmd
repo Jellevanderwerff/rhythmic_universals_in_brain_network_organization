@@ -95,10 +95,10 @@ descriptives.table2 <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
   entropy_diff_norm_q_avg = mean(entropy_diff_norm_q),
   asynchrony_norm_abs_avg = mean(asynchrony_norm_abs),
   simple_ratio_introduced_avg = mean(simple_ratio_introduced),
-  iti_cov_norm = mean(iti_cov_norm)
+  iti_ioi_cov_diff_avg = mean(iti_ioi_cov_diff)
 )
 
-labels_table2 <- c("Tempo cond.", "Length", "G", "Entropy diff.", "Asynchrony sum avg.", "Simple ratios introd.", "ITI CoV")
+labels_table2 <- c("Tempo cond.", "Length", "G", "Entropy diff.", "Asynchrony sum avg.", "Simple ratios introd.", "CoV diff. (resp-stim)")
 
 
 
@@ -245,13 +245,13 @@ ggsave(here("plots", "asynchrony.pdf"))
 ggsave(here("plots", "asynchrony.png"), dpi = 300)
 ```
 
-## Tapping variability (ITI CoV)
+## Tapping variability (CoV difference)
 
 ```{r iti-cov}
 
 ggplot(pp.measures, aes(
   x = condition,
-  y = iti_cov_norm_avg,
+  y = iti_ioi_cov_diff_avg,
   colour = condition, fill = condition
 )) +
   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
@@ -265,8 +265,8 @@ ggplot(pp.measures, aes(
   "600_5" = "600 ms\n5 events"
 )) +
   labs(
-    y = "ITI CoV", title = "Tapping variability", x = "Condition",
-    subtitle = "Calculated as the coefficient of variation of the reponse ITIs"
+    y = "ITI CoV", title = "Difference in interval variability", x = "Condition",
+    subtitle = "Calculated as the difference between the CoV of the\nreponse ITIs abd the CoV of the stimulus IOIs"
   )
 
 ggsave(here("plots", "tapping_variability.pdf"))
@@ -284,7 +284,7 @@ labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "asynchrony_norm_abs_avg" = "Asynchrony",
-  "iti_cov_norm_avg" = "ITI CoV",
+  "iti_ioi_cov_diff_avg" = "Variability difference (CoV)",
   "simple_ratio_introduced_avg" = "Introduced\nsimple integer ratios",
   "tempo_deviation_abs_avg" = "Tempo deviation"
 ))
@@ -299,7 +299,7 @@ ggplot2::theme_set(theme_minimal())
 ggpairs(
 pp.measures.cor,
   columns = c(
-    "G_resp", "entropy_diff_norm_q_avg", "iti_cov_norm_avg",
+    "G_resp", "entropy_diff_norm_q_avg", "iti_ioi_cov_diff_avg",
     "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"
   ),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
