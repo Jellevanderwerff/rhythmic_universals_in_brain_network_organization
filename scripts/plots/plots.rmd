@@ -277,14 +277,12 @@ ggsave(here("plots", "tapping_variability.png"), dpi = 300)
 # Correlations
 
 
-## All
-
 ```{r correlations}
 labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "asynchrony_norm_abs_avg" = "Asynchrony",
-  "iti_ioi_cov_diff_avg" = "Variability difference (CoV)",
+  "iti_ioi_cov_diff_avg" = "Variability\ndifference (CoV)",
   "simple_ratio_introduced_avg" = "Introduced\nsimple integer ratios",
   "tempo_deviation_abs_avg" = "Tempo deviation"
 ))
@@ -305,8 +303,8 @@ pp.measures.cor,
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
 
-ggsave(here("plots", "correlations", "correlations.pdf"))
-ggsave(here("plots", "correlations", "correlations.png"))
+ggsave(here("plots", "correlations.pdf"))
+ggsave(here("plots", "correlations.png"))
 ```
 
 
