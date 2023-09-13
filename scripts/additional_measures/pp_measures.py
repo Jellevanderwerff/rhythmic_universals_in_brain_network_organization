@@ -32,7 +32,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'G_resp': pp_df.G_resp.values[0],
                 'entropy_diff_norm_q_avg': pp_df.entropy_diff_norm_q.mean(),
                 'asynchrony_norm_abs_avg': pp_df.asynchrony_norm_abs.mean(),
-                'iti_ioi_cof_diff_avg': pp_df.iti_ioi_cof_diff.mean(),
+                'iti_ioi_cov_diff_avg': pp_df.iti_ioi_cov_diff.mean(),
                 'simple_ratio_introduced_avg': pp_df.simple_ratio_introduced.mean(),
                 'tempo_deviation_abs_avg': np.mean(np.abs(1 - pp_df.tempo_ratio_resp_to_stim)),
 
