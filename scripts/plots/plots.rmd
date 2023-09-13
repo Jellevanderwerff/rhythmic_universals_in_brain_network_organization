@@ -265,7 +265,7 @@ ggplot(pp.measures, aes(
   "600_5" = "600 ms\n5 events"
 )) +
   labs(
-    y = "ITI CoV", title = "Difference in interval variability", x = "Condition",
+    y = "Difference between IOI CoV and ITI CoV", title = "Difference in interval variability", x = "Condition",
     subtitle = "Calculated as the difference between the CoV of the\nreponse ITIs abd the CoV of the stimulus IOIs"
   )
 
