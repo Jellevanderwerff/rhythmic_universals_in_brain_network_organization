@@ -140,20 +140,21 @@ for stim_resp, resp_type_df in df_clusters.groupby('stim_resp'):
                     iois_symbols = [symbols[i] for i in iois_symbol_indices]
                     # Add the bigrams to the list
                     bigrams_observations.extend(list(zip(iois_symbols[:-1], iois_symbols[1:])))
-                    # Merge each bigram tuple into a string
-                    bigrams_observations = [''.join(bigram) for bigram in bigrams_observations]
-                    # Get unique bigrams
-                    bigrams_set = set(bigrams_observations)
-                    # Get the frequency of each bigram
-                    bigrams_frequencies = [bigrams_observations.count(bigram) for bigram in bigrams_set]
-                    # Get the probabilities
-                    bigrams_probabilities = [freq / sum(bigrams_frequencies) for freq in bigrams_frequencies]
-                    # Calculate entropies
-                    U_referencegrammar = scipy.stats.entropy([1/len(bigrams_set)] * len(bigrams_set))  # uniform probabilities
-                    U_targetgrammar = scipy.stats.entropy(bigrams_probabilities)
 
-                    # Galculate G
-                    G = 1 - (U_targetgrammar / U_referencegrammar)
+                # Merge each bigram tuple into a string
+                bigrams_observations = [''.join(bigram) for bigram in bigrams_observations]
+                # Get unique bigrams
+                bigrams_set = set(bigrams_observations)
+                # Get the frequency of each bigram
+                bigrams_frequencies = [bigrams_observations.count(bigram) for bigram in bigrams_set]
+                # Get the probabilities
+                bigrams_probabilities = [freq / sum(bigrams_frequencies) for freq in bigrams_frequencies]
+                # Calculate entropies
+                U_referencegrammar = scipy.stats.entropy([1/len(bigrams_set)] * len(bigrams_set))  # uniform probabilities
+                U_targetgrammar = scipy.stats.entropy(bigrams_probabilities)
+
+                # Galculate G
+                G = 1 - (U_targetgrammar / U_referencegrammar)
 
                 pp_df = pd.DataFrame({
                     'pp_id_behav': pp_id,
