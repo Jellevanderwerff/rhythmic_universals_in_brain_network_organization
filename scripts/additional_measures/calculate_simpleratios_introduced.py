@@ -31,9 +31,9 @@ for sequence_id in df.sequence_id.unique():
     # 'Aggregate'. If any of the interval ratios is larger than 0.5, we take the inverse
     stim_interval_ratios = [ratio if ratio <= 0.5 else 1 - ratio for ratio in stim_interval_ratios]
     resp_interval_ratios = [ratio if ratio <= 0.5 else 1 - ratio for ratio in resp_interval_ratios]
-    # Discretize
-    stim_ratios_freqs = np.histogram(stim_interval_ratios, bins=boundaries)
-    resp_ratios_freqs = np.histogram(resp_interval_ratios, bins=boundaries)
+    # Discretize (and normalize)
+    stim_ratios_freqs = np.histogram(stim_interval_ratios, bins=boundaries, normalize=True)
+    resp_ratios_freqs = np.histogram(resp_interval_ratios, bins=boundaries, normalize=True)
     # Count isochrony
     isochrony_freq_stim = stim_ratios_freqs[0][isochrony_bin_index]
     isochrony_freq_resp = resp_ratios_freqs[0][isochrony_bin_index]
@@ -47,22 +47,16 @@ for sequence_id in df.sequence_id.unique():
     isochrony_introduced = isochrony_freq_resp - isochrony_freq_stim
     binary_introduced = binary_freq_resp - binary_freq_stim
     ternary_introduced = ternary_freq_resp - ternary_freq_stim
-    simple_introduced = isochrony_introduced + binary_introduced + ternary_introduced
+    binary_or_ternary_introduced = binary_introduced + ternary_introduced
 
     # Make little dataframe
     df_piece = pd.DataFrame({
         'pp_id': df[df.sequence_id == sequence_id].pp_id_behav.values[0],
         'sequence_id': sequence_id,
-        'isochrony_freq_stim': isochrony_freq_stim,
-        'isochrony_freq_resp': isochrony_freq_resp,
-        'binary_freq_stim': binary_freq_stim,
-        'binary_freq_resp': binary_freq_resp,
-        'ternary_freq_stim': ternary_freq_stim,
-        'ternary_freq_resp': ternary_freq_resp,
-        'isochrony_introduced': int(isochrony_introduced),
-        'binary_introduced': int(binary_introduced),
-        'ternary_introduced': int(ternary_introduced),
-        'simple_ratio_introduced': int(simple_introduced)
+        'isochrony_introduced': isochrony_introduced,
+        'binary_introduced': binary_introduced,
+        'ternary_introduced': ternary_introduced,
+        'binary_or_ternary_introduced': binary_or_ternary_introduced
     }, index=[0])
 
     # Add to ratios_df
@@ -72,13 +66,13 @@ for sequence_id in df.sequence_id.unique():
     df.loc[df.sequence_id == sequence_id, 'isochrony_introduced'] = isochrony_introduced
     df.loc[df.sequence_id == sequence_id, 'binary_introduced'] = binary_introduced
     df.loc[df.sequence_id == sequence_id, 'ternary_introduced'] = ternary_introduced
-    df.loc[df.sequence_id == sequence_id, 'simple_ratio_introduced'] = simple_introduced
+    df.loc[df.sequence_id == sequence_id, 'binary_or_ternary_introduced'] = binary_or_ternary_introduced
 
     # Also add to ITIs_bytrial df the important bits
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'isochrony_introduced'] = isochrony_introduced
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'binary_introduced'] = binary_introduced
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'ternary_introduced'] = ternary_introduced
-    df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'simple_ratio_introduced'] = simple_introduced
+    df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'binary_or_ternary_introduced'] = binary_or_ternary_introduced
 
 
 # Save the data
