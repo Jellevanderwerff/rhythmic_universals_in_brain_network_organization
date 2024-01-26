@@ -46,7 +46,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
 
 
 # sort df
-pp_measures = pp_measures.sort_values(by=['pp_id_scan', 'stim_tempo_intended', 'length']).reset_index(drop=True)
+pp_measures = pp_measures.sort_values(by=['stim_tempo_intended', 'length', 'pp_id_scan']).reset_index(drop=True)
 pp_measures.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures.csv'), index=False)
 ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
 ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
