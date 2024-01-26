@@ -50,3 +50,15 @@ pp_measures = pp_measures.sort_values(by=['stim_tempo_intended', 'length', 'pp_i
 pp_measures.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures.csv'), index=False)
 ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
 ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
+
+# split by condition
+pp_measures_400_4 = pp_measures[pp_measures.condition == '400_4'].reset_index(drop=True)
+pp_measures_400_5 = pp_measures[pp_measures.condition == '400_5'].reset_index(drop=True)
+pp_measures_600_4 = pp_measures[pp_measures.condition == '600_4'].reset_index(drop=True)
+pp_measures_600_5 = pp_measures[pp_measures.condition == '600_5'].reset_index(drop=True)
+
+# save
+pp_measures_400_4.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_4004.csv'), index=False)
+pp_measures_400_5.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_4005.csv'), index=False)
+pp_measures_600_4.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_6004.csv'), index=False)
+pp_measures_600_5.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_6005.csv'), index=False)
