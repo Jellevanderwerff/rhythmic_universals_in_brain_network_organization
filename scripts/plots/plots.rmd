@@ -22,13 +22,13 @@ if (!require("pacman")) install.packages("pacman")
 p_load(
   "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
   "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally", "kableExtra",
-  "cowplot"
+  "cowplot", "rmatio"
 )
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
 here::i_am(file.path("scripts", "plots", "plots.Rmd"))
 
-source(here("scripts", "custom_ggplot_theme.R"))
+source(here("scripts", "jelle_ggplot_theme.R"))
 
 # Knitr output settings
 knitr::opts_chunk$set(
@@ -55,6 +55,15 @@ ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
 ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
 pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
 interval.ratios <- read.csv(here("data", "experiment", "processed", "ratios_introduced.csv"))
+
+correlations <- as.data.frame(list(
+  "binary_ternary_behav" = read.mat(here("scripts", "plots", "correlations", "binary_or_ternary_introduced_all_behav.mat"))$all_behav,
+  "binary_ternary_conn" = read.mat(here("scripts", "plots", "correlations", "binary_or_ternary_introduced_NegConnStrength.mat"))$train_sumneg,
+  "entropy_behav" = read.mat(here("scripts", "plots", "correlations", "entropyDiff_all_behav.mat"))$all_behav,
+  "entropy_conn" = read.mat(here("scripts", "plots", "correlations", "entropyDiff_NegConnStrength.mat"))$train_sumneg,
+  "G_behav" = read.mat(here("scripts", "plots", "correlations", "Gresponse_all_behav.mat"))$all_behav,
+  "G_conn" = read.mat(here("scripts", "plots", "correlations", "Gresponse_NegConnStrength.mat"))$train_sumneg
+))
 ```
 
 ```{r datatypes}
@@ -90,21 +99,9 @@ descriptives.table <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
 
 labels_table1 <- c("Tempo cond.", "Length", "N taps", "N trials", "Mean IOI", "Median IOI", "SD IOI", "Mean ITI", "Median ITI", "SD ITI")
 
-descriptives.table2 <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
-  G_resp = mean(G_resp),
-  entropy_diff_norm_q_avg = mean(entropy_diff_norm_q),
-  asynchrony_norm_abs_avg = mean(asynchrony_norm_abs),
-  simple_ratio_introduced_avg = mean(simple_ratio_introduced),
-  iti_ioi_cov_diff_avg = mean(iti_ioi_cov_diff)
-)
-
-labels_table2 <- c("Tempo cond.", "Length", "G", "Entropy diff.", "Asynchrony sum avg.", "Simple ratios introd.", "CoV diff. (resp-stim)")
-
-
 
 # kable
 kable(descriptives.table, col.names = labels_table1) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-kable(descriptives.table2, col.names = labels_table2) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 # Measures for final analysis
@@ -194,7 +191,7 @@ ggsave(here("plots", "entropy.png"), dpi = 300)
 ```{r simple-integers}
 ggplot(pp.measures, aes(
   x = condition,
-  y = simple_ratio_introduced_avg,
+  y = isochrony_introduced,
   colour = condition, fill = condition
 )) +
   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
@@ -207,15 +204,38 @@ ggplot(pp.measures, aes(
     "600_5" = "600 ms\n5 events"
   )) +
   labs(
-    x = "Condition", y = "Number of small integer ratios introduced",
-    title = "Mean number of small integer ratios introduced in trial",
-    subtitle = "Negative values mean a reduction of small integer ratios from stimulus to response",
-    caption = "Simple integer ratios were isochronous, binary, and ternary interval ratios"
+    x = "Condition", y = "Isochronous ratios introduced",
+    title = "Isochronous ratios introduced by participant by condition (normalized counts)",
+    subtitle = "Negative values mean a reduction of isochrony from stimulus to response",
   ) +
   theme_jelle()
 
-ggsave(here("plots", "small_integers.pdf"))
-ggsave(here("plots", "small_integers.png"), dpi = 300)
+ggsave(here("plots", "isochrony_introduced.pdf"))
+ggsave(here("plots", "isochrony_introduced.png"), dpi = 300)
+
+ggplot(pp.measures, aes(
+  x = condition,
+  y = binary_or_ternary_introduced,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Binary and ternary ratios introduced (normalized counts)",
+    title = "Binary and ternary ratios introduced by participant by condition",
+    subtitle = "Negative values mean a general reduction of binary or ternary ratios from stimulus to response",
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "binary_ternary_introduced.pdf"))
+ggsave(here("plots", "binary_ternary_introduced.png"), dpi = 300)
 ```
 
 
@@ -248,7 +268,6 @@ ggsave(here("plots", "asynchrony.png"), dpi = 300)
 ## Tapping variability (CoV difference)
 
 ```{r iti-cov}
-
 ggplot(pp.measures, aes(
   x = condition,
   y = iti_ioi_cov_diff_avg,
@@ -259,11 +278,11 @@ ggplot(pp.measures, aes(
   geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
   theme_jelle() +
   scale_x_discrete(labels = c(
-  "400_4" = "400 ms\n4 events",
-  "400_5" = "400 ms\n5 events",
-  "600_4" = "600 ms\n4 events",
-  "600_5" = "600 ms\n5 events"
-)) +
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
   labs(
     y = "Difference between IOI CoV and ITI CoV", title = "Difference in interval variability", x = "Condition",
     subtitle = "Calculated as the difference between the CoV of the\nreponse ITIs abd the CoV of the stimulus IOIs"
@@ -271,7 +290,6 @@ ggplot(pp.measures, aes(
 
 ggsave(here("plots", "tapping_variability.pdf"))
 ggsave(here("plots", "tapping_variability.png"), dpi = 300)
-
 ```
 
 # Correlations
@@ -281,30 +299,29 @@ ggsave(here("plots", "tapping_variability.png"), dpi = 300)
 labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
-  "asynchrony_norm_abs_avg" = "Asynchrony",
-  "iti_ioi_cov_diff_avg" = "Variability\ndifference (CoV)",
-  "simple_ratio_introduced_avg" = "Introduced\nsimple integer ratios",
-  "tempo_deviation_abs_avg" = "Tempo deviation"
+  "isochrony_introduced" = "Isochrony introduced",
+  "binary_or_ternary_introduced" = "Binary/ternary\nintroduced"
 ))
 
 pp.measures.cor <- pp.measures
 
 levels(
-pp.measures.cor$condition) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+  pp.measures.cor$condition
+) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
 
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
-ggpairs(
-pp.measures.cor,
+pm <- ggpairs(
+  pp.measures.cor,
   columns = c(
-    "G_resp", "entropy_diff_norm_q_avg", "iti_ioi_cov_diff_avg",
-    "asynchrony_norm_abs_avg", "simple_ratio_introduced_avg", "tempo_deviation_abs_avg"
+    "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced"
   ),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
+pm + scico::scale_colour_scico_d("roma") + scico::scale_fill_scico_d("roma")
 
 ggsave(here("plots", "correlations.pdf"))
-ggsave(here("plots", "correlations.png"))
+ggsave(here("plots", "correlations.png"), bg = "white")
 ```
 
 
@@ -327,4 +344,54 @@ ggplot(ITIs, aes(x = resp_iti, y = pp_id_behav, fill = pp_id_behav, colour = pp_
   geom_vline(data = ITIs[ITIs$stim_tempo_intended == 600, ], aes(xintercept = 600), linetype = "dashed", color = "grey")
 ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
 ```
+
+# Correlations with network connectivity
+
+## Entropy
+```{r network-correlations}
+ggplot(correlations, aes(x = entropy_conn, y = entropy_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = entropy_behav, colour = "1"), show.legend = FALSE) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Between-network connection strength", y = "Entropy difference"
+  ) +
+  scale_size(range = c(20, 1)) +
+  scale_fill_manual(values = c("1" = rgb(28, 101, 148, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(28, 101, 148, maxColorValue = 255)))
+ggsave(here("plots", "correlations_behav_conn", "entropy_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "entropy_network.png"), dpi = 300, scale = 0.5)
+```
+
+```{r G}
+ggplot(correlations, aes(x = G_conn, y = G_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = G_behav, colour = "1"), show.legend = FALSE, shape = "square") +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Between-network connection strength", y = "Grammatical redundancy"
+  ) +
+  scale_size(range = c(1, 15)) +
+  scale_fill_manual(values = c("1" = rgb(55, 124, 40, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(55, 124, 40, maxColorValue = 255)))
+ggsave(here("plots", "correlations_behav_conn", "G_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "G_network.png"), dpi = 300, scale = 0.5)
+```
+
+```{r binary-ternary}
+ggplot(correlations, aes(x = binary_ternary_conn, y = binary_ternary_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = binary_ternary_behav, colour = "1"), show.legend = FALSE, shape = "triangle") +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Between-network connection strength", y = "Binary/ternary ratios introduced\n(normalized counts)"
+  ) +
+  scale_fill_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255)))
+  scale_size(range = c(1, 15))
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.png"), dpi = 300, scale = 0.5)
+```
+
+
 
