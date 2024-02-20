@@ -10,14 +10,23 @@ ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
 
 fourier_df = pd.DataFrame()
 
-for pp_id, pp_df in ITIs.groupby('pp_id'):
+for pp_id, pp_df in ITIs.groupby('pp_id_behav'):
     print(pp_id)
     for tempo, tempo_df in pp_df.groupby('stim_tempo_intended'):
         for length, length_df in tempo_df.groupby('length'):
             for sequence_id, sequence_df in length_df.groupby('sequence_id'):
-                for stim_resp in ('stim_ioi', 'resp_iti_norm'):
-                    # Make thebeat sequence
-                    seq = thebeat.Sequence(sequence_df[stim_resp].values)
+                stim = sequence_df.stim_ioi.values
+                resp = sequence_df.resp_iti_norm.values
+                combined = np.concatenate((stim, resp))
+                for stim_resp in ("stim", "resp", "combined"):
+                    if stim_resp == "stim":
+                        seq = thebeat.Sequence(stim)
+                    elif stim_resp == "resp":
+                        seq = thebeat.Sequence(resp)
+                    elif stim_resp == "combined":
+                        seq = thebeat.Sequence(combined)
+                    else:
+                        raise ValueError("Invalid stim_resp value")
 
                     # plot fft
                     fig, ax = thebeat.stats.fft_plot(seq, unit_size=1000, x_max=10, suppress_display=True)
@@ -45,10 +54,12 @@ for pp_id, pp_df in ITIs.groupby('pp_id'):
                     sixteenth_duration = round(peak / possibilities[note_values.index(peak_closest_to)])
                     seq_q = seq.quantize_iois(to=sixteenth_duration)
 
-                    if stim_resp == 'stim_ioi':
+                    if stim_resp == 'stim':
                         fourier_16th_duration_stim = sixteenth_duration
-                    else:
+                    elif stim_resp == "resp":
                         fourier_16th_duration_resp = sixteenth_duration
+                    elif stim_resp == "combined":
+                        fourier_16th_duration_combined = sixteenth_duration
 
                 df_piece = pd.DataFrame({
                     'pp_id': pp_id,
@@ -56,7 +67,8 @@ for pp_id, pp_df in ITIs.groupby('pp_id'):
                     'length': length,
                     'sequence_id': sequence_id,
                     'fourier_16th_duration_stim': fourier_16th_duration_stim,
-                    'fourier_16th_duration_resp': fourier_16th_duration_resp
+                    'fourier_16th_duration_resp': fourier_16th_duration_resp,
+                    'fourier_16th_duration_combined': fourier_16th_duration_combined
                 }, index=[0])
                 fourier_df = pd.concat([fourier_df, df_piece], ignore_index=True)
 

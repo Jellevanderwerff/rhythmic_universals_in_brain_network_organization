@@ -38,6 +38,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'binary_or_ternary_introduced': ratios_introduced[(ratios_introduced.pp_id == pp_id) & (ratios_introduced.stim_tempo_intended == tempo) & (ratios_introduced.length == length)].binary_or_ternary_introduced.values[0],
                 'simple_ratios_introduced': ratios_introduced[(ratios_introduced.pp_id == pp_id) & (ratios_introduced.stim_tempo_intended == tempo) & (ratios_introduced.length == length)].simple_ratios_introduced.values[0],
                 'tempo_deviation_abs_avg': np.mean(np.abs(1 - pp_df.tempo_ratio_resp_to_stim)),
+                'edit_distance_norm_q': pp_df.edit_distance_norm_q.values[0],
 
             }, index=[0])
 
@@ -48,8 +49,6 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
 # sort df
 pp_measures = pp_measures.sort_values(by=['stim_tempo_intended', 'length', 'pp_id_scan']).reset_index(drop=True)
 pp_measures.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures.csv'), index=False)
-ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
-ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
 
 # split by condition
 pp_measures_400_4 = pp_measures[pp_measures.condition == '400_4'].reset_index(drop=True)

@@ -34,6 +34,13 @@ This measure gives the amount of stimulus-response asynchrony after tempo normal
 - Then, for each trial, these asynchronies were summed.
 - In the final pp measures, the average was taken within condition.
 
+## Levenshtein distance
+The Levenshtein distance is a measure of the difference between two sequences. It is calculated as the minimum number of single-character edits (insertions, deletions, or substitutions) required to change one word into the other. In the context of rhythm, it is the minimum number of single-note edits required to change one rhythm into the other.
+
+### How was it calculated?
+- We first tempo normalized the response sequence to the stimulus sequence, such that both are of equal duration.
+- Then, we quantized the stimulus and response using a Fourier transform, first concatenating the stimulus and response, and then finding the note duration in milliseconds that could represent a sixteenth note (see other quantized measures for details).
+
 
 ## Number of small integer ratios introduced
 Interval ratios represent the relationship between the durations of subsequent intervals. If a rhythm consists of two quarternotes, the relationship of the first note duration to the combined duration of the two notes is 0.5. Note how for each rhythm with $n$ onsets, $n-1$ intervals and $n-2$ interval ratios. The ratio is always represented as a number between 0 and 1. It is calculated as $ratio_k = \frac{interval_k}{interval_k + interval_{k+1}}$.
