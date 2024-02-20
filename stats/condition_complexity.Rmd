@@ -1,0 +1,50 @@
+---
+title: "NPOR: Analysis of condition complexity"
+author: jellevanderwerff
+date: 04/04/2022
+output:
+    html_notebook:
+        code_folding: hide
+---
+
+
+```{r}
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "car", "emmeans", "sjPlot")
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("stats", "group_variability.Rmd"))
+
+# select correct here
+here <- here::here
+
+# Load custom helper functions
+source(here("scripts", "helper_functions.R"))
+
+# Set theme
+source(here("scripts", "jelle_ggplot_theme.R"))
+
+# Load dataframe
+df.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+df.bytrial$condition <- paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_")
+```
+
+
+
+```{r anova}
+
+mod <- aov(edit_distance_norm_q ~ condition, data = df.bytrial)
+summary(mod)
+
+# post-hoc
+sjPlot::plot_model(mod, type = "pred", terms = c("condition"), show.values = TRUE, show.p = TRUE)
+
+```
+
+```{r plot}
+
+```
+
