@@ -38,7 +38,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
                 'binary_or_ternary_introduced': ratios_introduced[(ratios_introduced.pp_id == pp_id) & (ratios_introduced.stim_tempo_intended == tempo) & (ratios_introduced.length == length)].binary_or_ternary_introduced.values[0],
                 'simple_ratios_introduced': ratios_introduced[(ratios_introduced.pp_id == pp_id) & (ratios_introduced.stim_tempo_intended == tempo) & (ratios_introduced.length == length)].simple_ratios_introduced.values[0],
                 'tempo_deviation_abs_avg': np.mean(np.abs(1 - pp_df.tempo_ratio_resp_to_stim)),
-                'edit_distance_norm_q': pp_df.edit_distance_norm_q.values[0],
+                'edit_distance_norm_q_avg': pp_df.edit_distance_norm_q.mean(),
 
             }, index=[0])
 

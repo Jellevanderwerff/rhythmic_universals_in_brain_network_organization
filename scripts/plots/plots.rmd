@@ -238,6 +238,25 @@ ggsave(here("plots", "binary_ternary_introduced.pdf"))
 ggsave(here("plots", "binary_ternary_introduced.png"), dpi = 300)
 ```
 
+## Levenshtein distance
+
+```{r levenshtein}
+ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_q, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(position = position_jitter(width=0.01)) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme_jelle() +
+  labs(
+    x = "Condition",
+    y = "Levenshtein distance",
+    title = "Levenshtein distance by participant and condition"
+  )
+```
 
 ## Asynchrony
 ```{r asynchrony}
@@ -300,7 +319,8 @@ labels <- as_labeller(c(
   "G_resp" = "G (response)",
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "isochrony_introduced" = "Isochrony introduced",
-  "binary_or_ternary_introduced" = "Binary/ternary\nintroduced"
+  "binary_or_ternary_introduced" = "Binary/ternary\nintroduced",
+  "edit_distance_norm_q" = "Levenshtein distance"
 ))
 
 pp.measures.cor <- pp.measures
@@ -314,7 +334,7 @@ ggplot2::theme_set(theme_minimal())
 pm <- ggpairs(
   pp.measures.cor,
   columns = c(
-    "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced"
+    "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced", "edit_distance_norm_q"
   ),
   title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
 )
