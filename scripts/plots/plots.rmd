@@ -256,6 +256,8 @@ ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_q_avg, fill = cond
     y = "Levenshtein distance",
     title = "Levenshtein distance by participant and condition"
   )
+ggsave(here('plots', 'levenshtein_distance_by_condition.png'))
+ggsave(here('plots', 'levenshtein_distance_by_condition.pdf'))
 ```
 
 ## Asynchrony
