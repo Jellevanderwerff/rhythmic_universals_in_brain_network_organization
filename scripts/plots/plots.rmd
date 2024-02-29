@@ -539,7 +539,8 @@ ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = G_resp,
     axis.ticks.x.bottom = element_blank(),
   ) +
   labs(title = "", y = "", x = "") +
-  coord_cartesian(ylim = c(-max(pp.measures$G_resp[pp.measures$condition == "600_5"]), max(pp.measures$G_resp[pp.measures$condition == "600_5"])))
+  coord_cartesian(ylim = c(-max(pp.measures$G_resp[pp.measures$condition == "600_5"]), max(pp.measures$G_resp[pp.measures$condition == "600_5"]))) +
+  scale_y_continuous(breaks = c(0, 0.1, 0.2))
 
 
 
