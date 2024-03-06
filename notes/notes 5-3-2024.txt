@@ -1,0 +1,48 @@
+See:
+
+
+
+DIFFUSION
+- In a glass brain, representation of binary matrix using desikan_killiany atlas
+- One node in cerebellum one in the thalamus, etc. Network-of-interest
+- Only contains nodes, no edges
+
+
+FIXEL
+- To create the plots for isochrony, you need to correlate partial residuals (that I derived from a multiple regression analysis; partial_residuals_regression_X_subcortical-cortical.csv) with behavioral measures (by_pp_updated_27_01_2024.csv). I'll send you both files and also the script that works fine (perhaps you want to change the graphical part to make it coherent with the other plots)
+
+One correlation is between: isochrony_introduced_600_5_ST_PREC_fd_X_partial_resid and isochrony_introduced_600_5
+
+(ST_PREC = striatal-precentral)
+
+The other correlation is between: isochrony_introduced_600_5_T_PREC_fd_X_partial_resid and isochrony_introduced_600_5
+
+(T_PREC = thalamus-precentral)
+
+You can find this part in the script: x_variable = 'isochrony_introduced_600_5_ST_PREC_fd_X_partial_resid'
+y_variable = 'isochrony_introduced_600_5'
+
+and you change it when you do it with T_PREC
+
+You'll also need to change the labels. This is for ST_PREC.     # Define labels
+y_label = 'Isochrony (600 ms 5 events)'
+x_label = 'ST_PREC fd (partial residuals)'
+
+while for T_PREC is
+
+# Define labels
+y_label = 'Isochrony (600 ms 5 events)'
+x_label = 'T_PREC fd (partial residuals)'
+
+But maybe we want to have simpler labels
+
+in the infographic
+
+
+
+
+
+
+
+
+desikan_killiany = Brain_Data('https://github.com/neurodata/neuroparc/raw/master/atlases/label/Human/Desikan_space-MNI152NLin6_res-1x1x1.nii.gz').to_nifti()

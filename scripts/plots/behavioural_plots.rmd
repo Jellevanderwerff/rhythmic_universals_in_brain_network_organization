@@ -1,0 +1,605 @@
+---
+title: "NPOR: Plots"
+author: Jelle van der Werff
+date: 08/08/2023
+output:
+    html_notebook:
+        code_folding: hide
+        toc: true
+        toc_float: true
+---
+
+
+# Preliminaries
+
+```{r load-packages, echo = FALSE, warning = FALSE, message = FALSE}
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load(
+  "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
+  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally", "kableExtra",
+  "cowplot", "rmatio"
+)
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "plots", "plots.Rmd"))
+
+source(here("scripts", "jelle_ggplot_theme.R"))
+
+# Knitr output settings
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = "100%",
+  fig.width = 10,
+  fig.height = 10,
+  cache = TRUE
+)
+
+labels <- as_labeller(c(
+  "400" = "400 ms",
+  "600" = "600 ms",
+  "4" = "4 events",
+  "5" = "5 events"
+))
+```
+
+
+```{r load-data}
+ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
+ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
+interval.ratios <- read.csv(here("data", "experiment", "processed", "ratios_introduced.csv"))
+
+correlations <- as.data.frame(list(
+  "binary_ternary_behav" = read.mat(here("scripts", "plots", "correlations", "binary_or_ternary_introduced_all_behav.mat"))$all_behav,
+  "binary_ternary_conn" = read.mat(here("scripts", "plots", "correlations", "binary_or_ternary_introduced_NegConnStrength.mat"))$train_sumneg,
+  "binary_ternary_struct" = read.mat(here("scripts", "plots", "correlations", "binary_or_ternary_introduced_structural_NegConnStrength.mat"))$train_sumneg,
+  "entropy_behav" = read.mat(here("scripts", "plots", "correlations", "entropyDiff_all_behav.mat"))$all_behav,
+  "entropy_conn" = read.mat(here("scripts", "plots", "correlations", "entropyDiff_NegConnStrength.mat"))$train_sumneg,
+  "G_behav" = read.mat(here("scripts", "plots", "correlations", "Gresponse_all_behav.mat"))$all_behav,
+  "G_conn" = read.mat(here("scripts", "plots", "correlations", "Gresponse_NegConnStrength.mat"))$train_sumneg
+))
+```
+
+```{r datatypes}
+pp.measures$pp_id_behav <- as.factor(pp.measures$pp_id_behav)
+pp.measures$stim_tempo_intended <- as.factor(pp.measures$stim_tempo_intended)
+pp.measures$length <- as.factor(pp.measures$length)
+
+pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = "_"))
+
+
+ITIs$pp_id_behav <- as.factor(ITIs$pp_id_behav)
+ITIs$condition <- as.factor(paste(ITIs$stim_tempo_intended, ITIs$length, sep = "_"))
+
+ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = "_"))
+ITIs.bytrial$pp_id_behav <- as.factor(ITIs.bytrial$pp_id_behav)
+```
+
+
+# Descriptives table
+
+
+```{r table}
+descriptives.table <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
+  n_taps = length(resp_iti),
+  n_trials = length(unique(sequence_id)),
+  mean_ioi = mean(stim_ioi),
+  median_ioi = median(stim_ioi),
+  sd_ioi = sd(stim_ioi),
+  mean_iti = mean(resp_iti),
+  median_iti = median(resp_iti),
+  sd_iti = sd(resp_iti),
+)
+
+labels_table1 <- c("Tempo cond.", "Length", "N taps", "N trials", "Mean IOI", "Median IOI", "SD IOI", "Mean ITI", "Median ITI", "SD ITI")
+
+
+# kable
+kable(descriptives.table, col.names = labels_table1) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+# Measures for final analysis
+
+## Tempo deviation
+
+```{r tempo-diff}
+ggplot(pp.measures, aes(x = condition, y = tempo_deviation_abs_avg, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Condition",
+    y = "Tempo deviation",
+    title = "Tempo deviation",
+    subtitle = "Calculated as the absolute difference between 1 and the ratio between the\nstimulus and response tempo."
+  ) +
+  theme(plot.caption = element_text(hjust = 0))
+
+ggsave(here("plots", "tempo_deviation.pdf"))
+```
+
+## G measure
+
+```{r g-score}
+ggplot(pp.measures, aes(x = condition, y = G_resp, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Condition",
+    y = expression(italic(G) ~ measure),
+    title = "Grammatical redundancy by condition",
+    subtitle = "Higher values mean more grammatical redundancy",
+    caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
+This means the quarternote-eighth note combination is redundant, as it could have been
+one symbol, so G is higher. The more different combinations of symbols a participant uses,
+the lower the G score."
+  ) +
+  theme(plot.caption = element_text(hjust = 0))
+
+
+
+ggsave(here("plots", "g-score.pdf"))
+ggsave(here("plots", "g-score.png"), dpi = 300)
+```
+
+
+## Entropy
+
+```{r entropy}
+ggplot(pp.measures, aes(x = condition, y = entropy_diff_norm_q_avg, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    y = "Entropy difference", title = "Entropy difference by participant and condition",
+    subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
+  )
+ggsave(here("plots", "entropy.pdf"))
+ggsave(here("plots", "entropy.png"), dpi = 300)
+```
+
+## Number of small integer ratios introduced
+
+```{r simple-integers}
+ggplot(pp.measures, aes(
+  x = condition,
+  y = isochrony_introduced,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Isochronous ratios introduced",
+    title = "Isochronous ratios introduced by participant by condition (normalized counts)",
+    subtitle = "Negative values mean a reduction of isochrony from stimulus to response",
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "isochrony_introduced.pdf"))
+ggsave(here("plots", "isochrony_introduced.png"), dpi = 300)
+
+ggplot(pp.measures, aes(
+  x = condition,
+  y = binary_or_ternary_introduced,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Binary and ternary ratios introduced (normalized counts)",
+    title = "Binary and ternary ratios introduced by participant by condition",
+    subtitle = "Negative values mean a general reduction of binary or ternary ratios from stimulus to response",
+  ) +
+  theme_jelle()
+
+ggsave(here("plots", "binary_ternary_introduced.pdf"))
+ggsave(here("plots", "binary_ternary_introduced.png"), dpi = 300)
+```
+
+## Levenshtein distance
+
+```{r levenshtein}
+ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_q_avg, fill = condition, colour = condition)) +
+  geom_boxplot(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1.5, position = position_jitter(width = 0.2, height = 0), show.legend = FALSE) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  theme_jelle() +
+  labs(
+    x = "Condition",
+    y = "Levenshtein distance",
+    title = "Levenshtein distance by participant and condition"
+  )
+ggsave(here("plots", "levenshtein_distance_by_condition.png"))
+ggsave(here("plots", "levenshtein_distance_by_condition.pdf"))
+```
+
+## Asynchrony
+```{r asynchrony}
+ggplot(pp.measures, aes(
+  x = condition,
+  y = asynchrony_norm_abs_avg,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  theme_jelle() +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Sum of absolute asynchronies in trial (normalized)", title = "Asynchrony within trial by participant and condition",
+    subtitle = "Sequences were normalized such that 1 represents the total duration of the sequence"
+  )
+
+ggsave(here("plots", "asynchrony.pdf"))
+ggsave(here("plots", "asynchrony.png"), dpi = 300)
+```
+
+## Tapping variability (CoV difference)
+
+```{r iti-cov}
+ggplot(pp.measures, aes(
+  x = condition,
+  y = iti_ioi_cov_diff_avg,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  theme_jelle() +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    y = "Difference between IOI CoV and ITI CoV", title = "Difference in interval variability", x = "Condition",
+    subtitle = "Calculated as the difference between the CoV of the\nreponse ITIs abd the CoV of the stimulus IOIs"
+  )
+
+ggsave(here("plots", "tapping_variability.pdf"))
+ggsave(here("plots", "tapping_variability.png"), dpi = 300)
+```
+
+# Correlations
+
+
+```{r correlations}
+labels <- as_labeller(c(
+  "G_resp" = "G (response)",
+  "entropy_diff_norm_q_avg" = "Entropy difference",
+  "isochrony_introduced" = "Isochrony introduced",
+  "binary_or_ternary_introduced" = "Binary/ternary\nintroduced",
+  "edit_distance_norm_q_avg" = "Levenshtein distance"
+))
+
+pp.measures.cor <- pp.measures
+
+levels(
+  pp.measures.cor$condition
+) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+
+# Scatterplots with combinations between all measures
+ggplot2::theme_set(theme_minimal())
+pm <- ggpairs(
+  pp.measures.cor,
+  columns = c(
+    "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced", "edit_distance_norm_q_avg"
+  ),
+  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
+)
+pm + scico::scale_colour_scico_d("roma") + scico::scale_fill_scico_d("roma")
+
+ggsave(here("plots", "correlations.pdf"))
+ggsave(here("plots", "correlations.png"), bg = "white")
+```
+
+
+# Other plots
+
+## ITI ridges
+
+```{r ITI-ridges, fig.width = 20, fig.height = 20}
+ggplot(ITIs, aes(x = resp_iti, y = pp_id_behav, fill = pp_id_behav, colour = pp_id_behav)) +
+  geom_density_ridges(scale = 4, alpha = 0.9, show.legend = FALSE, color = "white") +
+  facet_rep_grid(rows = vars(length), cols = vars(stim_tempo_intended), labeller = labels, repeat.tick.labels = "x") +
+  theme_jelle() +
+  scale_x_continuous(breaks = seq(0, 1200, 200)) +
+  coord_cartesian(xlim = c(0, 1200)) +
+  labs(
+    x = "ITI [ms]", y = "Participant", title = "Inter-tap intervals produced by participants by condition",
+    subtitle = "Dashed line indicates (intended) tempo of condition"
+  ) +
+  geom_vline(data = ITIs[ITIs$stim_tempo_intended == 400, ], aes(xintercept = 400), linetype = "dashed", color = "grey") +
+  geom_vline(data = ITIs[ITIs$stim_tempo_intended == 600, ], aes(xintercept = 600), linetype = "dashed", color = "grey")
+ggsave(here("plots", "ITI-ridges.pdf"), width = 20, height = 20)
+```
+
+# Correlations with network connectivity
+
+
+```{r network-correlations}
+ggplot(correlations, aes(x = entropy_conn, y = entropy_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = entropy_behav, colour = "1"), show.legend = FALSE) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Connection strength", y = "Entropy difference"
+  ) +
+  scale_size(range = c(20, 1)) +
+  scale_fill_manual(values = c("1" = rgb(28, 101, 148, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(28, 101, 148, maxColorValue = 255)))
+ggsave(here("plots", "correlations_behav_conn", "entropy_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "entropy_network.png"), dpi = 300, scale = 0.5)
+```
+
+```{r G}
+ggplot(correlations, aes(x = G_conn, y = G_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = G_behav, colour = "1"), show.legend = FALSE, shape = "square") +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Connection strength", y = "Grammatical redundancy"
+  ) +
+  scale_size(range = c(1, 10)) +
+  scale_fill_manual(values = c("1" = rgb(55, 124, 40, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(55, 124, 40, maxColorValue = 255)))
+ggsave(here("plots", "correlations_behav_conn", "G_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "G_network.png"), dpi = 300, scale = 0.5)
+```
+
+```{r binary-ternary}
+ggplot(correlations, aes(x = binary_ternary_conn, y = binary_ternary_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = binary_ternary_behav, colour = "1"), show.legend = FALSE, shape = "triangle") +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Connection strength", y = "Binary/ternary ratios introduced\n(normalized counts)"
+  ) +
+  scale_fill_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255))) +
+  scale_size(range = c(1, 10))
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.png"), dpi = 300, scale = 0.5)
+```
+
+```{r binary-ternary-struct}
+ggplot(correlations, aes(x = binary_ternary_struct, y = binary_ternary_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = binary_ternary_behav, colour = "1"), show.legend = FALSE, shape = 18) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_jelle() +
+  labs(
+    x = "Connection strength", y = "Binary/ternary ratios introduced\n(normalized counts)"
+  ) +
+  scale_fill_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255))) +
+  scale_colour_manual(values = c("1" = rgb(102, 37, 20, maxColorValue = 255))) +
+  scale_size(range = c(1, 7))
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_struct.pdf"), scale = 0.5)
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_struct.png"), dpi = 300, scale = 0.5)
+```
+
+
+# Between-network connectivity
+
+```{r between-network}
+library(brainconn)
+
+# Entropy
+entropy <- as.data.frame(read.mat(here("data", "brain", "AvAdjacencyMat.rsFC.negative.EntropyDiff.weighted.mat"))$neg_averageValues)
+entropy[is.na(entropy)] <- 0
+entropy.binarized <- entropy
+entropy.binarized[entropy.binarized != 0] <- 1
+node_size_entropy <- colSums(entropy.binarized)
+node_size_entropy <- node_size_entropy[node_size_entropy != 0]
+node_size_entropy <- node_size_entropy / max(node_size_entropy) * 20
+
+brainconn(atlas = "dk68", conmat = entropy, node.size = node_size_entropy, view = "left", node.color = "#2079A5", show.legend = FALSE)
+ggsave(here("plots", "network_connections", "entropy.pdf"))
+
+# G
+G <- as.data.frame(read.mat(here("data", "brain", "AvAdjacencyMat.rsFC.negative.Gresponse.weighted.mat"))$neg_averageValues)
+G[is.na(G)] <- 0
+G.binarized <- G
+G.binarized[G.binarized != 0] <- 1
+node_size_G <- colSums(G.binarized)
+node_size_G <- node_size_G[node_size_G != 0]
+node_size_G <- node_size_G / max(node_size_G) * 20
+
+brainconn(atlas = "dk68", conmat = G, node.size = node_size_G, view = "left", node.color = "#377C28", show.legend = FALSE)
+ggsave(here("plots", "network_connections", "G.pdf"))
+
+# binary/ternary introduced (functional)
+binary_ternary <- as.data.frame(read.mat(here("data", "brain", "AvAdjacencyMat.rsFC.negative.binary_or_ternary_introduced.weighted.mat"))$neg_averageValues)
+binary_ternary[is.na(binary_ternary)] <- 0
+binary_ternary.binarized <- binary_ternary
+binary_ternary.binarized[binary_ternary.binarized != 0] <- 1
+node_size_binary_ternary <- colSums(binary_ternary.binarized)
+node_size_binary_ternary <- node_size_binary_ternary[node_size_binary_ternary != 0]
+node_size_binary_ternary <- node_size_binary_ternary / max(node_size_binary_ternary) * 20
+
+brainconn(atlas = "dk68", conmat = binary_ternary, node.size = node_size_binary_ternary, view = "left", node.color = "#7A3418", show.legend = FALSE)
+ggsave(here("plots", "network_connections", "binary_ternary_functional.pdf"))
+
+# binary/ternary introduced (structural)
+binary_ternary_struct <- as.data.frame(read.mat(here("data", "brain", "AvAdjacencyMat.rsFC.negative.binary_or_ternary_introduced.structural.weighted.mat"))$neg_averageValues)
+binary_ternary_struct[is.na(binary_ternary_struct)] <- 0
+binary_ternary_struct.binarized <- binary_ternary_struct
+binary_ternary_struct.binarized[binary_ternary_struct.binarized != 0] <- 1
+node_size_binary_ternary_struct <- colSums(binary_ternary_struct.binarized)
+node_size_binary_ternary_struct <- node_size_binary_ternary_struct[node_size_binary_ternary_struct != 0]
+node_size_binary_ternary_struct <- node_size_binary_ternary_struct / max(node_size_binary_ternary_struct) * 20
+
+brainconn(atlas = "dk68", conmat = binary_ternary_struct, node.size = node_size_binary_ternary_struct, view = "ortho", node.color = "#7A3418", show.legend = FALSE)
+ggsave(here("plots", "network_connections", "binary_ternary_structural.pdf"))
+```
+
+
+
+# Behavioural measures for publication
+
+## Entropy
+
+```{r entropy-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = entropy_diff_norm_q_avg, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, alpha = 0.5, colour = "black") +
+  geom_point(show.legend = FALSE, colour = "black", alpha = 0.7, size = 5) +
+  # stat_summary(geom = "pointrange", colour = "black", show.legend = FALSE, size = 2, linewidth = 3) +
+  theme_jelle() +
+  scale_fill_manual(values = "#2079A5") +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "") +
+  coord_cartesian(ylim = c(
+    min(pp.measures$entropy_diff_norm_q_avg[pp.measures$condition == "600_5"]),
+    abs(min(pp.measures$entropy_diff_norm_q_avg[pp.measures$condition == "600_5"]))
+  )) +
+  scale_y_continuous(breaks = c(-0.3, -0.2, -0.1, 0, 0.1, 0.2))
+
+
+
+ggsave(here("plots", "publication", "entropy.pdf"))
+ggsave(here("plots", "publication", "entropy.png"), dpi = 300)
+```
+
+## G measure
+
+```{r G-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = G_resp, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, alpha = 0.5, colour = "black") +
+  geom_point(show.legend = FALSE, colour = "black", alpha = 0.7, size = 5) +
+  theme_jelle() +
+  scale_fill_manual(values = "#458C35") +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(-max(pp.measures$G_resp[pp.measures$condition == "600_5"]), max(pp.measures$G_resp[pp.measures$condition == "600_5"]))) +
+  scale_y_continuous(breaks = c(0, 0.1, 0.2))
+
+
+
+ggsave(here("plots", "publication", "G.pdf"))
+ggsave(here("plots", "publication", "G.png"), dpi = 300)
+```
+
+## Binary/ternary introduced
+
+```{r binary-ternary-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = binary_or_ternary_introduced, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, alpha = 0.5, colour = "black") +
+  geom_point(show.legend = FALSE, colour = "black", alpha = 0.7, size = 5) +
+  theme_jelle() +
+  scale_fill_manual(values = "#7A3418") +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(
+    -max(pp.measures$binary_or_ternary_introduced[pp.measures$condition == "600_5"]),
+    max(pp.measures$binary_or_ternary_introduced[pp.measures$condition == "600_5"])
+  ))
+
+
+
+ggsave(here("plots", "publication", "binary_ternary.pdf"))
+ggsave(here("plots", "publication", "binary_ternary.png"), dpi = 300)
+```
+
+```{r isochrony-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = isochrony_introduced, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, alpha = 0.5, colour = "black") +
+  geom_point(show.legend = FALSE, colour = "black", alpha = 0.7, size = 5) +
+  theme_jelle() +
+  scale_fill_manual(values = "#FF7B47") +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(
+    -max(pp.measures$isochrony_introduced[pp.measures$condition == "600_5"]),
+    max(pp.measures$isochrony_introduced[pp.measures$condition == "600_5"])
+  ))
+
+
+
+ggsave(here("plots", "publication", "isochrony.pdf"))
+ggsave(here("plots", "publication", "isochrony.png"), dpi = 300)
+```

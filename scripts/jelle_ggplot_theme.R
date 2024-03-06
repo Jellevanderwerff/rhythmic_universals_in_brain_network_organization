@@ -61,10 +61,10 @@ theme_jelle <- function() {
     ggplot2::guides(
       colour = guide_legend(label.position = "left"), # second item in list
       fill = guide_legend(label.position = "left")
-    ), # third item in list
-    scico::scale_colour_scico_d(palette = "roma"), # fourth item in list
-    scico::scale_fill_scico_d(palette = "roma") # fifth item in list
+    )
   )
 
   return(theme)
 }
+
+jelle_colours <- list("Entropy" = "", "G" = "", "binary_ternary_struct" = "", "binary_ternary_func" = "", "isochrony" = "")

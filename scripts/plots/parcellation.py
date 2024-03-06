@@ -1,25 +1,11 @@
-import mne
+from nltools import Brain_Data
+from nilearn import plotting, datasets, image
+import matplotlib.pyplot as plt
 
-Brain = mne.viz.get_brain_class()
-
-subjects_dir = mne.datasets.sample.data_path() / "subjects"
-mne.datasets.fetch_hcp_mmp_parcellation(subjects_dir=subjects_dir, verbose=True)
-
-mne.datasets.fetch_aparc_sub_parcellation(subjects_dir=subjects_dir, verbose=True)
-
-labels = mne.read_labels_from_annot(
-    "fsaverage", "HCPMMP1", "lh", subjects_dir=subjects_dir
-)
-
-brain = Brain(
-    "fsaverage",
-    "lh",
-    "inflated",
-    subjects_dir=subjects_dir,
-    cortex="low_contrast",
-    background="white",
-    size=(800, 600),
-)
-brain.add_annotation("HCPMMP1")
-aud_label = [label for label in labels if label.name == "L_A1_ROI-lh"][0]
-brain.add_label(aud_label, borders=False)
+desikan_killiany = Brain_Data('https://github.com/neurodata/neuroparc/raw/master/atlases/label/Human/Desikan_space-MNI152NLin6_res-1x1x1.nii.gz').to_nifti()
+orthoslicer = plotting.plot_roi(desikan_killiany, title='Desikan-Killiany', cmap='Grays', colorbar=True, display_mode='x', draw_cross=False)
+orthoslicer.savefig('desikan_gray.pdf')
+orthoslicer = plotting.plot_roi(desikan_killiany, title='Desikan-Killiany', colorbar=True, display_mode='x', draw_cross=False)
+orthoslicer.savefig('desikan_colour.pdf')
+orthoslicer = plotting.plot_roi(desikan_killiany, title='Desikan-Killiany', cmap='Grays', colorbar=True, display_mode='x', draw_cross=False, view_type='contours')
+orthoslicer.savefig('desikan_contours.pdf')
