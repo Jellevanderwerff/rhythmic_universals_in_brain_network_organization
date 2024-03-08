@@ -5,17 +5,18 @@ import numpy as np
 from nilearn import plotting
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+import warnings
+warnings.filterwarnings('ignore')
 
 # Load coordinates
 coords = pd.read_csv(os.path.join("data", "brain", "mappings", "coordinates.csv"))
 coords = list(zip(coords["X"], coords["Y"], coords["Z"]))
 
 colors = {
-    "G_weighted.mat": ['#315E25', '#000000', '#86FF64'],
-    "binary_ternary_weighted.mat": [],
-    "binary_ternary_nonweighted.mat": [],
-    "entropy_weighted.mat": [],
-    "binary_ternary_struct_weighted.mat": [],
+    "G_weighted.mat": [(245/255, 185/255, 101/255, 0.5), (245/255, 185/255, 101/255, 0.5)],
+    "binary_ternary_weighted.mat": [(33/255, 63/255, 82/255, 0.3), (33/255, 63/255, 82/255, 1)],
+    "entropy_weighted.mat": [(119/255, 144/255, 160/255, 0.3), (119/255, 144/255, 160/255, 1)],
+    "binary_ternary_struct_weighted.mat": [(33/255, 63/255, 82/255, 0.3), (33/255, 63/255, 82/255, 1)],
 }
 
 
@@ -25,6 +26,7 @@ for file in (
     "entropy_weighted.mat",
     "binary_ternary_struct_weighted.mat",
 ):
+    print(file)
     # Copy coords
     current_coords = coords.copy()
     # Load data
@@ -41,45 +43,32 @@ for file in (
     current_coords = [current_coords[i] for i in indices]
     # node_sizes
     node_sizes = np.sum(np.abs(adj), axis=1)
+    if 'entropy' in file:
+        print(node_sizes)
     # normalize node_sizes
-    node_sizes = (node_sizes - np.min(node_sizes)) / (np.max(node_sizes) - np.min(node_sizes)) * 250
+    node_sizes = (node_sizes - np.min(node_sizes) + 0.01) / (np.max(node_sizes) - np.min(node_sizes)) * 250
+    if 'entropy' in file:
+        print(node_sizes)
 
-    fig, ax = plt.subplots(figsize=(4, 4))
-
-    # Plot connectome
-    plotting.plot_connectome(
-        adj,
-        current_coords,
-        colorbar=True,
-        node_color="black",
-        edge_cmap='viridis' if not 'struct' in file else 'cividis',
-        edge_vmin=None if not 'struct' in file else 0,
-        edge_vmax=None if not 'struct' in file else np.max(adj),
-        node_size=node_sizes,
-        axes=ax,
-        display_mode="z",
-    )
-
-    # Save
-    fig.savefig(os.path.join('plots', 'connectomes', f'{file[:-4]}_withcolorbar.pdf'))
-    fig.savefig(os.path.join('plots', 'connectomes', f'{file[:-4]}_withcolorbar.png'), dpi=600)
+    # Make colourmap
+    cmap = LinearSegmentedColormap.from_list('custom', colors[file])
 
     # Plot connectome
-    fig, ax = plt.subplots(figsize=(6, 4))
+    for colorbar in (True, False):
+        fig, ax = plt.subplots(figsize=(4, 4))
+        plotting.plot_connectome(
+            adj,
+            current_coords,
+            colorbar=colorbar,
+            node_color=colors[file][1][:-1],
+            edge_cmap=cmap,
+            edge_vmin = None if not 'struct' in file else 0,
+            edge_vmax = None if not 'struct' in file else 1,
+            node_size=node_sizes,
+            axes=ax,
+            display_mode="z",
+        )
 
-    plotting.plot_connectome(
-        adj,
-        current_coords,
-        colorbar=False,
-        node_color="black",
-        edge_cmap='viridis' if not 'struct' in file else 'cividis',
-        edge_vmin=None if not 'struct' in file else 0,
-        edge_vmax=None if not 'struct' in file else np.max(adj),
-        node_size=node_sizes,
-        axes=ax,
-        display_mode="z",
-    )
-
-    # Save
-    fig.savefig(os.path.join('plots', 'connectomes', f'{file[:-4]}_nocolorbar.pdf'))
-    fig.savefig(os.path.join('plots', 'connectomes', f'{file[:-4]}_nocolorbar.png'), dpi=600)
+        # Save
+        filename = f'{file[:-4]}_withcolorbar.pdf' if colorbar else f'{file[:-4]}_nocolorbar.pdf'
+        fig.savefig(os.path.join('plots', 'connectomes', filename))

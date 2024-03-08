@@ -2,13 +2,16 @@ import os
 import numpy as np
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+
+cmap = LinearSegmentedColormap.from_list('mycmap', ['#0028D0', '#FE2E13'])
 
 # generate random 6x6 matrix
 matrix = np.random.default_rng(123).uniform(-1, 1, (6, 6))
 
 # plot the matrix
 fig, ax = plt.subplots()
-ax.imshow(matrix, cmap='Grays', interpolation='none')
+ax.imshow(matrix, cmap=cmap, interpolation='none')
 # remove x and y axis
 ax.set_xticks([])
 ax.set_yticks([])

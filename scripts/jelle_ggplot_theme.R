@@ -25,15 +25,15 @@ theme_jelle <- function() {
 
       ## LEGEND
       legend.title = ggplot2::element_text(family = font, size = 16, color = "#222222"),
-      #legend.title.align = 0,
+      # legend.title.align = 0,
       legend.key = ggplot2::element_blank(),
       legend.text = ggplot2::element_text(
         family = font, size = 16,
         color = "#222222"
       ),
-      #legend.position = c(.98, .99),
-      #legend.justification = c("right", "top"),
-      #legend.box.just = "right",
+      # legend.position = c(.98, .99),
+      # legend.justification = c("right", "top"),
+      # legend.box.just = "right",
 
 
       ## AXIS
@@ -67,4 +67,9 @@ theme_jelle <- function() {
   return(theme)
 }
 
-jelle_colours <- list("Entropy" = "", "G" = "", "binary_ternary_struct" = "", "binary_ternary_func" = "", "isochrony" = "")
+npor_colours <- list(
+  "entropy" = "#7790A0",
+  "G" = "#F5B965",
+  "binary_ternary" = "#213F52",
+  "isochrony" = "#B59B77"
+)

@@ -35,6 +35,7 @@ colors = [
 ]
 colors = np.array(colors) / 255
 
+
 for file in ('binary_ternary_func.mat', 'binary_ternary_struct.mat', 'entropy.mat', 'g.mat'):
     # Load data
     data = scipy.io.loadmat(
