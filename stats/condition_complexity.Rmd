@@ -40,7 +40,8 @@ mod <- aov(edit_distance_norm_q ~ condition, data = df.bytrial)
 summary(mod)
 
 # post-hoc
-sjPlot::plot_model(mod, type = "pred", terms = c("condition"), show.values = TRUE, show.p = TRUE) + theme_jelle()
+sjPlot::plot_model(mod, type = "pred", terms = c("condition"), show.values = TRUE, show.p = TRUE) + theme_jelle() +
+labs(x = "Condition", y = "Edit distance", title = "Predicted values for edit distance")
 
 ```
 
