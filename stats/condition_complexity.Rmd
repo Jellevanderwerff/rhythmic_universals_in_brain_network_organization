@@ -8,12 +8,12 @@ output:
 ---
 
 
-```{r}
+```{r prelims}
 # for easy loading of packages
 if (!require("pacman")) install.packages("pacman")
 
 # load packages
-p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "car", "emmeans", "sjPlot")
+p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "car", "emmeans", "sjPlot", "effectsize")
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
 here::i_am(file.path("stats", "group_variability.Rmd"))
@@ -29,23 +29,35 @@ source(here("scripts", "jelle_ggplot_theme.R"))
 
 # Load dataframe
 df.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
-df.bytrial$condition <- paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_")
+df.bytrial$condition <- as.factor(paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_"))
 ```
 
 
 
 ```{r anova}
-
 mod <- aov(edit_distance_norm_q ~ condition, data = df.bytrial)
 summary(mod)
-
-# post-hoc
-sjPlot::plot_model(mod, type = "pred", terms = c("condition"), show.values = TRUE, show.p = TRUE) + theme_jelle() +
-labs(x = "Condition", y = "Edit distance", title = "Predicted values for edit distance")
-
+effectsize(mod)
 ```
 
 ```{r plot}
+labels <- c(
+    "Fast tempo (400 ms IOI)\n4 sounds",
+    "Fast tempo (400 ms IOI)\n5 sounds",
+    "Slow tempo (600 ms IOI)\n4 sounds",
+    "Slow tempo (600 ms IOI)\n5 sounds"
+)
 
+ggplot(df.bytrial, aes(x = condition, y = edit_distance_norm_q)) +
+    geom_pointrange(stat = "summary", fun.data = "mean_se", size = 1.3, linewidth = 1.3) +
+    theme_jelle() +
+    labs(
+        x = "Condition", y = "Edit distance", title = "Edit distance by condition",
+        subtitle = "Higher edit distance indicates participants were less accurate in reproducing the\nstimulus."
+    ) +
+    scale_x_discrete(labels = labels)
+
+ggsave(here("plots", "behavioural_measures", "condition_complexity_edit_distance.pdf"), width = 10, height = 8)
+ggsave(here("plots", "behavioural_measures", "condition_complexity_edit_distance.png"), width = 10, height = 8)
 ```
 
