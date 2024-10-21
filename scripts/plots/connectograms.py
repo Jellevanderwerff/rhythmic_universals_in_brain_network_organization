@@ -17,23 +17,23 @@ plt.rcParams["font.family"] = "Helvetica"
 # Define labels and colors
 labels = [
     "Visual",
-    "Somatomotor",
+    "Motor",
     "Dorsal attention",
-    "Fronto-parietal",
+    "Auditory",
     "Limbic",
     "Ventral attention",
     "Default-mode",
 ]
 colors = [
-    (120, 18, 134),
-    (70, 130, 180),
-    (0, 118, 14),
-    (196, 58, 250),
-    (220, 248, 164),
-    (230, 148, 34),
-    (205, 62, 78),
+    (0.4706, 0.706, 0.5255),
+    (0.2745, 0.5098, 0.7059),
+    (0, 0.4627, 0.0549),
+    (0.786, 0.2275, 0.9804),
+    (0.8627, 0.9725, 0.6431),
+    (0.902, 0.5804, 0.1333),
+    (0.8039, 0.2431, 0.3059),
 ]
-colors = np.array(colors) / 255
+colors = np.array(colors)
 
 
 for file in ('binary_ternary_func.mat', 'binary_ternary_struct.mat', 'entropy.mat', 'g.mat'):

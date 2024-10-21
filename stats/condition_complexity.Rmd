@@ -16,7 +16,7 @@ if (!require("pacman")) install.packages("pacman")
 p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "car", "emmeans", "sjPlot", "effectsize")
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path("stats", "group_variability.Rmd"))
+here::i_am(file.path("stats", "condition_complexity.Rmd"))
 
 # select correct here
 here <- here::here

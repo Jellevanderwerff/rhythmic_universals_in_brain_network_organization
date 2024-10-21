@@ -428,15 +428,15 @@ ggsave(here("plots", "correlations_behav_conn", "binary_ternary_struct.pdf"), wi
 # Fixel-based analysis (isochrony vs. partial residuals)
 
 ```{r fixel-based}
-residuals <- read.csv(here("data", "brain", "fixel", "subcortical_cortical_regression.csv"))
+results <- read.csv(here("data", "brain", "fixel", "cortical_subcortical_regression.csv"))
 behav <- pp.measures[pp.measures$condition == "600_5" & !pp.measures$pp_id_behav %in% c(30, 45), ]
 
 # Create DataFrame
 fixel <- data.frame(
   "pp_id_behav" = behav$pp_id_behav,
   "isochrony_introduced" = behav$isochrony_introduced,
-  "strial_precentral" = residuals$isochrony_introduced_600_5_ST_PREC_fd_X_partial_resid,
-  "thalamus_precentral" = residuals$isochrony_introduced_600_5_T_PREC_fd_X_partial_resid
+  "strial_precentral" = results$ST_PREC_fd,
+  "thalamus_precentral" = results$T_PREC_fd
 )
 
 ggplot(fixel, aes(x = strial_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
