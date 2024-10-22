@@ -141,7 +141,7 @@ ggsave(here("plots", "behavioural_measures", "G.pdf"))
 
 ## Entropy
 
-```{r entropy}
+```{r entropy-all}
 ggplot(pp.measures, aes(x = condition, y = entropy_diff_norm_q_avg, fill = condition, colour = condition)) +
   geom_violin(alpha = 0.7, show.legend = FALSE) +
   geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
@@ -184,7 +184,7 @@ ggplot(pp.measures, aes(
   ) +
   theme_jelle()
 
-ggsave(here("plots", "plots", "behavioural_measures", "isochrony.pdf"))
+ggsave(here("plots", "behavioural_measures", "isochrony.pdf"))
 
 ggplot(pp.measures, aes(
   x = condition,
@@ -207,7 +207,7 @@ ggplot(pp.measures, aes(
   ) +
   theme_jelle()
 
-ggsave(here("plots", "plots", "behavioural_measures", "binary_ternary.pdf"))
+ggsave(here("plots", "behavioural_measures", "binary_ternary.pdf"))
 ```
 
 

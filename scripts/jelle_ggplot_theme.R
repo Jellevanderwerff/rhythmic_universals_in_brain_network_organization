@@ -69,7 +69,7 @@ theme_jelle <- function() {
 
 npor_colours <- list(
   "entropy" = "#7790A0",
-  "G" = "#F5B965",
+  "G" = "#CF9993",
   "binary_ternary" = "#213F52",
   "isochrony" = "#B59B77"
 )

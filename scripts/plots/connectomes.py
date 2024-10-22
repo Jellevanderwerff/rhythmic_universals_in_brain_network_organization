@@ -13,7 +13,7 @@ coords = pd.read_csv(os.path.join("data", "brain", "mappings", "coordinates.csv"
 coords = list(zip(coords["X"], coords["Y"], coords["Z"]))
 
 colors = {
-    "G_weighted.mat": [(245/255, 185/255, 101/255, 0.5), (245/255, 185/255, 101/255, 0.5)],
+    "G_weighted.mat": [(207/255, 153/255, 147/255, 0.5), (207/255, 153/255, 147/255, 0.5)],
     "binary_ternary_weighted.mat": [(33/255, 63/255, 82/255, 0.3), (33/255, 63/255, 82/255, 1)],
     "entropy_weighted.mat": [(119/255, 144/255, 160/255, 0.3), (119/255, 144/255, 160/255, 1)],
     "binary_ternary_struct_weighted.mat": [(33/255, 63/255, 82/255, 0.3), (33/255, 63/255, 82/255, 1)],
@@ -23,8 +23,7 @@ colors = {
 for file in (
     "G_weighted.mat",
     "binary_ternary_weighted.mat",
-    "entropy_weighted.mat",
-    "binary_ternary_struct_weighted.mat",
+    "entropy_weighted.mat"
 ):
     print(file)
     # Copy coords
@@ -62,8 +61,8 @@ for file in (
             colorbar=colorbar,
             node_color=colors[file][1][:-1],
             edge_cmap=cmap,
-            edge_vmin = None if not 'struct' in file else 0,
-            edge_vmax = None if not 'struct' in file else 1,
+            edge_vmin = None,
+            edge_vmax = None,
             node_size=node_sizes,
             axes=ax,
             display_mode="z",

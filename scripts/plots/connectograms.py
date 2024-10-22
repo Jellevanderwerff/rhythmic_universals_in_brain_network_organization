@@ -19,24 +19,24 @@ labels = [
     "Visual",
     "Motor",
     "Dorsal attention",
-    "Auditory",
-    "Limbic",
     "Ventral attention",
+    "Limbic",
+    "Auditory",
     "Default-mode",
 ]
 colors = [
-    (0.4706, 0.706, 0.5255),
-    (0.2745, 0.5098, 0.7059),
-    (0, 0.4627, 0.0549),
-    (0.786, 0.2275, 0.9804),
-    (0.8627, 0.9725, 0.6431),
-    (0.902, 0.5804, 0.1333),
-    (0.8039, 0.2431, 0.3059),
+    (120.003, 18.003, 134.0025),
+    (69.9975, 129.999, 180.00449999999998),
+    (0.0, 117.9885, 13.9995),
+    (230.01000000000002,148.002, 33.9915),
+    (219.98850000000002, 247.9875, 163.9905),
+    (195.993, 58.0125, 250.002),
+    (204.9945, 61.990500000000004, 78.00450000000001),
 ]
-colors = np.array(colors)
+colors = np.array(colors) / 255
 
 
-for file in ('binary_ternary_func.mat', 'binary_ternary_struct.mat', 'entropy.mat', 'g.mat'):
+for file in ('binary_ternary_ratios.mat', 'entropy_difference.mat', 'gramm_redundancy.mat'):
     # Load data
     data = scipy.io.loadmat(
         os.path.join(
@@ -45,7 +45,7 @@ for file in ('binary_ternary_func.mat', 'binary_ternary_struct.mat', 'entropy.ma
             "between_network_connections",
             file
         )
-    )["connectivityMatrix"]
+    )[file[:-4]]
 
     # Plot connectogram
     fig = plt.figure(figsize=(3, 3), tight_layout=True)
