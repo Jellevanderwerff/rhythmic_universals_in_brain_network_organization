@@ -7,7 +7,7 @@
 
         <meta name="author" content="Massimo Lumaca, Jelle van der Werff" />
     
-        <meta name="date" content="2024-10-21" />
+        <meta name="date" content="2024-10-23" />
     
     <title>NPOR analysis: Behavioural measures</title>
     <!-- Material Design fonts -->
@@ -923,6 +923,230 @@ font-weight: bold;
 
 });
 </script>
+        <script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+        <style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
     
     
         <style type="text/css">code{white-space: pre;}</style>
@@ -1083,7 +1307,7 @@ display: none;
 	    <h1 class="title">NPOR analysis: Behavioural measures</h1>
 	    	    	    	    <h4 class="author">Massimo Lumaca, Jelle van der
 Werff</h4>
-	    	    	    	    <h4 class="date">2024-10-21</h4>
+	    	    	    	    <h4 class="date">2024-10-23</h4>
 	    	  </div>
 	  	</div>
       </div>
@@ -1102,6 +1326,8 @@ Werff</h4>
 measures</a></li>
 <li><a href="#between-individual-variability-for-all-measures" id="toc-between-individual-variability-for-all-measures">Between-individual
 variability for all measures</a></li>
+<li><a href="#variability-between-subjects-vs.-within-subjects" id="toc-variability-between-subjects-vs.-within-subjects">Variability
+between-subjects vs. within-subjects</a></li>
 </ul>
 </div>
 </nav>
@@ -1177,8 +1403,8 @@ alternative hypothesis: true location is not equal to 0</code></pre>
 </div>
 <div id="correlations-among-measures" class="section level1">
 <h1>Correlations among measures</h1>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">cor</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced, pp.measures<span class="sc">$</span>edit_distance_norm_q)</span></code></pre></div>
-<pre><code>[1] 0.3016111</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Correlation between binary/ternary and edit distance:&quot;</span>, <span class="fu">cor</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced, pp.measures<span class="sc">$</span>edit_distance_norm_q)))</span></code></pre></div>
+<pre><code>[1] &quot;Correlation between binary/ternary and edit distance: 0.301611142269324&quot;</code></pre>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># get p value from correlation</span></span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">cor.test</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced, pp.measures<span class="sc">$</span>edit_distance_norm_q)</span></code></pre></div>
 <pre><code>
@@ -1192,8 +1418,8 @@ alternative hypothesis: true correlation is not equal to 0
 sample estimates:
       cor 
 0.3016111 </code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">cor</span>(pp.measures<span class="sc">$</span>G_resp, pp.measures<span class="sc">$</span>edit_distance_norm_q)</span></code></pre></div>
-<pre><code>[1] 0.4318249</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Correlation between G and edit distance:&quot;</span>, <span class="fu">cor</span>(pp.measures<span class="sc">$</span>G_resp, pp.measures<span class="sc">$</span>edit_distance_norm_q)))</span></code></pre></div>
+<pre><code>[1] &quot;Correlation between G and edit distance: 0.431824928645992&quot;</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">cor.test</span>(pp.measures<span class="sc">$</span>G_resp, pp.measures<span class="sc">$</span>edit_distance_norm_q)</span></code></pre></div>
 <pre><code>
     Pearson&#39;s product-moment correlation
@@ -1213,19 +1439,396 @@ sample estimates:
 <span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>entropy.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>entropy_diff_norm_q) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>entropy_diff_norm_q))</span>
 <span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Entropy CV: &quot;</span>, entropy.cov))</span></code></pre></div>
 <pre><code>[1] &quot;Entropy CV:  1.10104788120129&quot;</code></pre>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># Grammatical redundancy</span></span>
-<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>grammatical_redundancy.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>G_resp) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>G_resp))</span>
-<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Grammatical redundancy CV: &quot;</span>, grammatical_redundancy.cov))</span></code></pre></div>
-<pre><code>[1] &quot;Grammatical redundancy CV:  0.761751366589971&quot;</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># isochrony introduced</span></span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>isochrony_introduced.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>isochrony_introduced) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>isochrony_introduced))</span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Isochrony introduced CV: &quot;</span>, isochrony_introduced.cov))</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># isochrony introduced</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>isochrony_introduced.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>isochrony_introduced) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>isochrony_introduced))</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Isochrony introduced CV: &quot;</span>, isochrony_introduced.cov))</span></code></pre></div>
 <pre><code>[1] &quot;Isochrony introduced CV:  1.22396335023975&quot;</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co"># binary/ternary introduced</span></span>
-<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>binary_ternary_introduced.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced))</span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Binary/ternary introduced CV: &quot;</span>, binary_ternary_introduced.cov))</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># binary/ternary introduced</span></span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>binary_ternary_introduced.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>binary_or_ternary_introduced))</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Binary/ternary introduced CV: &quot;</span>, binary_ternary_introduced.cov))</span></code></pre></div>
 <pre><code>[1] &quot;Binary/ternary introduced CV:  0.957554250172124&quot;</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co"># Grammatical redundancy</span></span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>G_resp.cov <span class="ot">&lt;-</span> <span class="fu">sd</span>(pp.measures<span class="sc">$</span>G_resp) <span class="sc">/</span> <span class="fu">mean</span>(<span class="fu">abs</span>(pp.measures<span class="sc">$</span>G_resp))</span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;G CV: &quot;</span>, G_resp.cov))</span></code></pre></div>
+<pre><code>[1] &quot;G CV:  0.761751366589971&quot;</code></pre>
 <p>CV for measures range from 0.76 to 1.22.</p>
+</div>
+<div id="variability-between-subjects-vs.-within-subjects" class="section level1">
+<h1>Variability between-subjects vs. within-subjects</h1>
+<div id="entropy" class="section level2">
+<h2>Entropy</h2>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="co"># start with baseline</span></span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>entropy.baseline <span class="ot">&lt;-</span> <span class="fu">gls</span>(entropy_diff_norm_q_avg <span class="sc">~</span> <span class="dv">1</span>, <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>, <span class="at">data =</span> pp.measures)</span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a><span class="co"># add in random factor</span></span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>entropy.random <span class="ot">&lt;-</span> <span class="fu">lme</span>(entropy_diff_norm_q_avg <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a>  <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> pp_id_behav,</span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a>  <span class="at">data =</span> pp.measures</span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a>)</span>
+<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a><span class="co"># compare models</span></span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a>entropy.model.comp <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">anova</span>(entropy.baseline, entropy.random))</span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a><span class="fu">kable</span>(entropy.model.comp, <span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">caption =</span> <span class="st">&quot;Entropy: between- vs. within-subject variability&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">&quot;center&quot;</span>)</span></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Entropy: between- vs. within-subject variability
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+call
+</th>
+<th style="text-align:right;">
+Model
+</th>
+<th style="text-align:right;">
+df
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+logLik
+</th>
+<th style="text-align:left;">
+Test
+</th>
+<th style="text-align:right;">
+L.Ratio
+</th>
+<th style="text-align:right;">
+p-value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+entropy.baseline
+</td>
+<td style="text-align:left;">
+gls(model = entropy_diff_norm_q_avg ~ 1, data = pp.measures, method =
+“ML”)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+-76.78694
+</td>
+<td style="text-align:right;">
+-73.08664
+</td>
+<td style="text-align:right;">
+40.39347
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+entropy.random
+</td>
+<td style="text-align:left;">
+lme.formula(fixed = entropy_diff_norm_q_avg ~ 1, data = pp.measures,
+random = ~1 | pp_id_behav, method = “ML”)
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+-74.78694
+</td>
+<td style="text-align:right;">
+-69.23649
+</td>
+<td style="text-align:right;">
+40.39347
+</td>
+<td style="text-align:left;">
+1 vs 2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="binaryternary-ratios" class="section level2">
+<h2>Binary/ternary ratios</h2>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="co"># start with baseline</span></span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>binary_ternary.baseline <span class="ot">&lt;-</span> <span class="fu">gls</span>(binary_or_ternary_introduced <span class="sc">~</span> <span class="dv">1</span>, <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>, <span class="at">data =</span> pp.measures)</span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co"># add in random factor</span></span>
+<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>binary_ternary.random <span class="ot">&lt;-</span> <span class="fu">lme</span>(binary_or_ternary_introduced <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a>  <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> pp_id_behav,</span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>,</span>
+<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a>  <span class="at">data =</span> pp.measures</span>
+<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a>)</span>
+<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a><span class="co"># compare models</span></span>
+<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a>binary_ternary.model.comp <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">anova</span>(binary_ternary.baseline, binary_ternary.random))</span>
+<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" tabindex="-1"></a><span class="fu">kable</span>(binary_ternary.model.comp, <span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">caption =</span> <span class="st">&quot;Binary/ternary ratios: between- vs. within-subject variability&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-15"><a href="#cb37-15" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">&quot;center&quot;</span>)</span></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Binary/ternary ratios: between- vs. within-subject variability
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+call
+</th>
+<th style="text-align:right;">
+Model
+</th>
+<th style="text-align:right;">
+df
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+logLik
+</th>
+<th style="text-align:left;">
+Test
+</th>
+<th style="text-align:right;">
+L.Ratio
+</th>
+<th style="text-align:right;">
+p-value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+binary_ternary.baseline
+</td>
+<td style="text-align:left;">
+gls(model = binary_or_ternary_introduced ~ 1, data = pp.measures, method
+= “ML”)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+178.655
+</td>
+<td style="text-align:right;">
+182.3553
+</td>
+<td style="text-align:right;">
+-87.32751
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+binary_ternary.random
+</td>
+<td style="text-align:left;">
+lme.formula(fixed = binary_or_ternary_introduced ~ 1, data =
+pp.measures, random = ~1 | pp_id_behav, method = “ML”)
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+180.655
+</td>
+<td style="text-align:right;">
+186.2055
+</td>
+<td style="text-align:right;">
+-87.32751
+</td>
+<td style="text-align:left;">
+1 vs 2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.9999998
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="isochrony-introduced" class="section level2">
+<h2>Isochrony introduced</h2>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="co"># start with baseline</span></span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>isochrony.baseline <span class="ot">&lt;-</span> <span class="fu">gls</span>(isochrony_introduced <span class="sc">~</span> <span class="dv">1</span>, <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>, <span class="at">data =</span> pp.measures)</span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a><span class="co"># add in random factor</span></span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>isochrony.random <span class="ot">&lt;-</span> <span class="fu">lme</span>(isochrony_introduced <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>  <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> pp_id_behav,</span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a>  <span class="at">data =</span> pp.measures</span>
+<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a>)</span>
+<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a></span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a><span class="co"># compare models</span></span>
+<span id="cb38-12"><a href="#cb38-12" tabindex="-1"></a>isochrony.model.comp <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">anova</span>(isochrony.baseline, isochrony.random))</span>
+<span id="cb38-13"><a href="#cb38-13" tabindex="-1"></a></span>
+<span id="cb38-14"><a href="#cb38-14" tabindex="-1"></a><span class="fu">kable</span>(isochrony.model.comp, <span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">caption =</span> <span class="st">&quot;Isochrony introduced: between- vs. within-subject variability&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-15"><a href="#cb38-15" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">&quot;center&quot;</span>)</span></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Isochrony introduced: between- vs. within-subject variability
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+call
+</th>
+<th style="text-align:right;">
+Model
+</th>
+<th style="text-align:right;">
+df
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+logLik
+</th>
+<th style="text-align:left;">
+Test
+</th>
+<th style="text-align:right;">
+L.Ratio
+</th>
+<th style="text-align:right;">
+p-value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+isochrony.baseline
+</td>
+<td style="text-align:left;">
+gls(model = isochrony_introduced ~ 1, data = pp.measures, method = “ML”)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+195.9596
+</td>
+<td style="text-align:right;">
+199.6599
+</td>
+<td style="text-align:right;">
+-95.9798
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+isochrony.random
+</td>
+<td style="text-align:left;">
+lme.formula(fixed = isochrony_introduced ~ 1, data = pp.measures, random
+= ~1 | pp_id_behav, method = “ML”)
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+197.9596
+</td>
+<td style="text-align:right;">
+203.5100
+</td>
+<td style="text-align:right;">
+-95.9798
+</td>
+<td style="text-align:left;">
+1 vs 2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<div id="grammatical-redundancy" class="section level3">
+<h3>Grammatical redundancy</h3>
+<p>G is already a summary statistic at the level of the individual
+within condition. As such, we can’t test between vs. within-subject
+variability.</p>
+</div>
+</div>
 </div>
 </div>
 

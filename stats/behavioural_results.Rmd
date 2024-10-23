@@ -22,7 +22,7 @@ output:
 if (!require("pacman")) install.packages("pacman")
 
 # load packages
-p_load("here", "ggplot2", "dplyr", "nlme", "dplyr", "plyr", "knitr", "rmdformats", "kableExtra", "effectsize", "psych")
+p_load("here", "ggplot2", "dplyr", "nlme", "boot", "effectsize", "rmdformats", "knitr", "kableExtra")
 
 here <- here::here
 
@@ -80,10 +80,10 @@ binary_ternary_introduced.r
 # Correlations among measures
 
 ```{r correlations}
-cor(pp.measures$binary_or_ternary_introduced, pp.measures$edit_distance_norm_q)
+print(paste("Correlation between binary/ternary and edit distance:", cor(pp.measures$binary_or_ternary_introduced, pp.measures$edit_distance_norm_q)))
 # get p value from correlation
 cor.test(pp.measures$binary_or_ternary_introduced, pp.measures$edit_distance_norm_q)
-cor(pp.measures$G_resp, pp.measures$edit_distance_norm_q)
+print(paste("Correlation between G and edit distance:", cor(pp.measures$G_resp, pp.measures$edit_distance_norm_q)))
 cor.test(pp.measures$G_resp, pp.measures$edit_distance_norm_q)
 ```
 
@@ -95,10 +95,6 @@ cor.test(pp.measures$G_resp, pp.measures$edit_distance_norm_q)
 entropy.cov <- sd(pp.measures$entropy_diff_norm_q) / mean(abs(pp.measures$entropy_diff_norm_q))
 print(paste("Entropy CV: ", entropy.cov))
 
-# Grammatical redundancy
-grammatical_redundancy.cov <- sd(pp.measures$G_resp) / mean(abs(pp.measures$G_resp))
-print(paste("Grammatical redundancy CV: ", grammatical_redundancy.cov))
-
 # isochrony introduced
 isochrony_introduced.cov <- sd(pp.measures$isochrony_introduced) / mean(abs(pp.measures$isochrony_introduced))
 print(paste("Isochrony introduced CV: ", isochrony_introduced.cov))
@@ -107,7 +103,79 @@ print(paste("Isochrony introduced CV: ", isochrony_introduced.cov))
 binary_ternary_introduced.cov <- sd(pp.measures$binary_or_ternary_introduced) / mean(abs(pp.measures$binary_or_ternary_introduced))
 print(paste("Binary/ternary introduced CV: ", binary_ternary_introduced.cov))
 
+# Grammatical redundancy
+G_resp.cov <- sd(pp.measures$G_resp) / mean(abs(pp.measures$G_resp))
+print(paste("G CV: ", G_resp.cov))
+
 
 ```
 
-CV for measures range from 0.76 to 1.22.
+  CV for measures range from 0.76 to 1.22.
+
+# Variability between-subjects vs. within-subjects
+
+## Entropy
+```{r variability-between-within-entropy}
+# start with baseline
+entropy.baseline <- gls(entropy_diff_norm_q_avg ~ 1, method = "ML", data = pp.measures)
+
+# add in random factor
+entropy.random <- lme(entropy_diff_norm_q_avg ~ 1,
+  random = ~ 1 | pp_id_behav,
+  method = "ML",
+  data = pp.measures
+)
+
+# compare models
+entropy.model.comp <- as.data.frame(anova(entropy.baseline, entropy.random))
+
+kable(entropy.model.comp, format = "html", caption = "Entropy: between- vs. within-subject variability") %>%
+  kable_styling("striped", full_width = FALSE, position = "center")
+
+```
+
+## Binary/ternary ratios
+
+```{r variability-between-within-binaryternary}
+# start with baseline
+binary_ternary.baseline <- gls(binary_or_ternary_introduced ~ 1, method = "ML", data = pp.measures)
+
+# add in random factor
+binary_ternary.random <- lme(binary_or_ternary_introduced ~ 1,
+  random = ~ 1 | pp_id_behav,
+  method = "ML",
+  data = pp.measures
+)
+
+# compare models
+binary_ternary.model.comp <- as.data.frame(anova(binary_ternary.baseline, binary_ternary.random))
+
+kable(binary_ternary.model.comp, format = "html", caption = "Binary/ternary ratios: between- vs. within-subject variability") %>%
+  kable_styling("striped", full_width = FALSE, position = "center")
+
+```
+
+## Isochrony introduced
+
+```{r isochrony-introduced-isoc-introduced}
+# start with baseline
+isochrony.baseline <- gls(isochrony_introduced ~ 1, method = "ML", data = pp.measures)
+
+# add in random factor
+isochrony.random <- lme(isochrony_introduced ~ 1,
+  random = ~ 1 | pp_id_behav,
+  method = "ML",
+  data = pp.measures
+)
+
+# compare models
+isochrony.model.comp <- as.data.frame(anova(isochrony.baseline, isochrony.random))
+
+kable(isochrony.model.comp, format = "html", caption = "Isochrony introduced: between- vs. within-subject variability") %>%
+  kable_styling("striped", full_width = FALSE, position = "center")
+
+```
+
+### Grammatical redundancy
+
+G is already a summary statistic at the level of the individual within condition. As such, we can't test between vs. within-subject variability.
