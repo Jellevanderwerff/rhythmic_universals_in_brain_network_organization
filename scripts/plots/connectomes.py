@@ -42,12 +42,8 @@ for file in (
     current_coords = [current_coords[i] for i in indices]
     # node_sizes
     node_sizes = np.sum(np.abs(adj), axis=1)
-    if 'entropy' in file:
-        print(node_sizes)
     # normalize node_sizes
     node_sizes = (node_sizes - np.min(node_sizes) + 0.01) / (np.max(node_sizes) - np.min(node_sizes)) * 250
-    if 'entropy' in file:
-        print(node_sizes)
 
     # Make colourmap
     cmap = LinearSegmentedColormap.from_list('custom', colors[file])
