@@ -44,12 +44,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, out.width =
 # Stimulus vs. response
 We compare stimulus and response measures using one-sample Wilcoxon signed-rank tests.
 
-```{r only-6005}
-pp.measures <- pp.measures[pp.measures$condition == "600_5", ]
-
-```
-
-```{r sttats-and-effect-size-stim-to-resp}
+```{r stats-and-effect-size-stim-to-resp}
 
 # Entropy
 entropy.wc <- wilcox.test(pp.measures$entropy_diff_norm_q, alternative = "two.sided")
@@ -111,71 +106,3 @@ print(paste("G CV: ", G_resp.cov))
 ```
 
   CV for measures range from 0.76 to 1.22.
-
-# Variability between-subjects vs. within-subjects
-
-## Entropy
-```{r variability-between-within-entropy}
-# start with baseline
-entropy.baseline <- gls(entropy_diff_norm_q_avg ~ 1, method = "ML", data = pp.measures)
-
-# add in random factor
-entropy.random <- lme(entropy_diff_norm_q_avg ~ 1,
-  random = ~ 1 | pp_id_behav,
-  method = "ML",
-  data = pp.measures
-)
-
-# compare models
-entropy.model.comp <- as.data.frame(anova(entropy.baseline, entropy.random))
-
-kable(entropy.model.comp, format = "html", caption = "Entropy: between- vs. within-subject variability") %>%
-  kable_styling("striped", full_width = FALSE, position = "center")
-
-```
-
-## Binary/ternary ratios
-
-```{r variability-between-within-binaryternary}
-# start with baseline
-binary_ternary.baseline <- gls(binary_or_ternary_introduced ~ 1, method = "ML", data = pp.measures)
-
-# add in random factor
-binary_ternary.random <- lme(binary_or_ternary_introduced ~ 1,
-  random = ~ 1 | pp_id_behav,
-  method = "ML",
-  data = pp.measures
-)
-
-# compare models
-binary_ternary.model.comp <- as.data.frame(anova(binary_ternary.baseline, binary_ternary.random))
-
-kable(binary_ternary.model.comp, format = "html", caption = "Binary/ternary ratios: between- vs. within-subject variability") %>%
-  kable_styling("striped", full_width = FALSE, position = "center")
-
-```
-
-## Isochrony introduced
-
-```{r isochrony-introduced-isoc-introduced}
-# start with baseline
-isochrony.baseline <- gls(isochrony_introduced ~ 1, method = "ML", data = pp.measures)
-
-# add in random factor
-isochrony.random <- lme(isochrony_introduced ~ 1,
-  random = ~ 1 | pp_id_behav,
-  method = "ML",
-  data = pp.measures
-)
-
-# compare models
-isochrony.model.comp <- as.data.frame(anova(isochrony.baseline, isochrony.random))
-
-kable(isochrony.model.comp, format = "html", caption = "Isochrony introduced: between- vs. within-subject variability") %>%
-  kable_styling("striped", full_width = FALSE, position = "center")
-
-```
-
-### Grammatical redundancy
-
-G is already a summary statistic at the level of the individual within condition. As such, we can't test between vs. within-subject variability.
