@@ -326,8 +326,6 @@ ggsave(here("plots", "behavioural_measures", "isochrony_6005.pdf"))
 
 
 
-
-
 # Correlations between behavioural measures
 
 
@@ -337,7 +335,7 @@ labels <- as_labeller(c(
   "entropy_diff_norm_q_avg" = "Entropy difference",
   "isochrony_introduced" = "Isochrony introduced",
   "binary_or_ternary_introduced" = "Binary/ternary\nintroduced",
-  "edit_distance_norm_q_avg" = "Levenshtein distance"
+  "edit_distance_norm_q_avg" = "Edit\n(Levenshtein) distance"
 ))
 
 pp.measures.cor <- pp.measures
@@ -348,17 +346,18 @@ levels(
 
 # Scatterplots with combinations between all measures
 ggplot2::theme_set(theme_minimal())
-pm <- ggpairs(
+p <- ggpairs(
   pp.measures.cor,
   columns = c(
     "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced", "edit_distance_norm_q_avg"
   ),
-  title = "Correlations between participant measures", labeller = labels, aes(colour = condition, alpha = 0.8)
-)
-pm + scico::scale_colour_scico_d("roma") + scico::scale_fill_scico_d("roma")
+  title = "Correlations between behavioral measures",
+  labeller = labels,
+  mapping = aes(colour = condition, fill = condition, alpha = 1, label_color = condition)
+) + scico::scale_fill_scico_d(palette = "berlin", begin = 0.1, end = 1) + scico::scale_color_scico_d(palette = "berlin", begin = 0.1, end = 1)
 
-ggsave(here("plots", "correlations.pdf"))
-ggsave(here("plots", "correlations.png"), bg = "white")
+ggsave(here("plots", "behavioural_measures", "correlations.pdf"), p, width = 9, height = 9)
+ggsave(here("plots", "behavioural_measures", "correlations.png"), p, bg = "white", width = 9, height = 9)
 ```
 
 
