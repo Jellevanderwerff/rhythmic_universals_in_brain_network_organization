@@ -24,7 +24,7 @@ here::i_am(file.path("scripts", "dataprep.Rmd"))
 # select correct here
 here <- here::here
 
-# Load custom helper functions
+# load custom helper functions
 source(here("scripts", "helper_functions.R"))
 ```
 
@@ -155,14 +155,12 @@ for (row_i in seq_len(nrow(tapping.clean))) {
 
   ITIs <- rbind(ITIs, as.data.frame(out_list))
 }
-
 ```
 
 
 # Recoding
 
 ```{r recoding}
-
 # Make everything lowercase
 ITIs$gender <- str_to_lower(ITIs$gender)
 ITIs$L1 <- str_to_lower(ITIs$L1)
@@ -174,14 +172,14 @@ ITIs$gender <- dplyr::recode(ITIs$gender,
   "m" = "male",
   "man" = "male",
   "trans woman" = "trans woman",
-  .missing = "ERROR")
+  .missing = "ERROR"
+)
 
 # Recode L1
 ITIs$L1 <- dplyr::recode(ITIs$L1,
   "german, polish" = "german",
   "french " = "french"
 )
-
 ```
 
 
@@ -197,7 +195,6 @@ dplyr::summarize,
 ITI_mean = mean(resp_iti),
 ITI_sd = sd(resp_iti)
 )
-
 ```
 
 

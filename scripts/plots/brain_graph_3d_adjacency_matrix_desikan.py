@@ -15,14 +15,14 @@ mat_data = scipy.io.loadmat(data_path / 'AvAdjacencyMat.rsFC.negative.Gresponse.
 matrix = mat_data['neg_mask_true']
 
 # Load the coordinates csv data
-coords_data = pd.read_csv(project_root / 'scripts' / 'neuroplot' / 'coordinates.csv')
+coords_data = pd.read_csv(project_root / 'scripts' / 'plots' / 'coordinates.csv')
 coords = coords_data[['X', 'Y', 'Z']].values
 
-# Load node RGB colors from the new CSV file and convert to hex format: nodes can be colored according to: 
+# Load node RGB colors from the new CSV file and convert to hex format: nodes can be colored according to:
 # 1) Yeo atlas in Freesurfer (sortedDataTable_colors_yeoNet.csv)
 # 2) Lobe (sortedDataTable_colors_lobe.csv)
 colors_data = pd.read_csv(data_path / 'sortedDataTable_colors_shirer.csv')
-colors = colors_data[['R', 'G', 'B']].values 
+colors = colors_data[['R', 'G', 'B']].values
 
 def rgb_to_hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(int(rgb[0]*255), int(rgb[1]*255), int(rgb[2]*255))

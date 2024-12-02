@@ -27,7 +27,7 @@ p_load("here", "ggplot2", "dplyr", "nlme", "boot", "effectsize", "rmdformats", "
 here <- here::here
 
 # for relative file paths (e.g. here('Input', 'file.csv'))
-here::i_am(file.path("stats", "behavioural.Rmd"))
+here::i_am(file.path("scripts", "behavioural_measures_stats", "behavioural.Rmd"))
 
 # load custom ggplot theme
 source(here("scripts", "custom_ggplot_theme.R"))
