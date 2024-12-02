@@ -25,15 +25,13 @@ here <- here::here
 source(here("scripts", "helper_functions.R"))
 
 # Set theme
-source(here("scripts", "jelle_ggplot_theme.R"))
+source(here("scripts", "custom_ggplot_theme.R"))
 
 # Load dataframe
 df.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
 df.bytrial$condition <- as.factor(paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_"))
 pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
 ```
-
-
 
 ```{r anova}
 mod <- aov(edit_distance_norm_q ~ condition, data = df.bytrial)
@@ -55,7 +53,7 @@ ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_q_avg, colour = co
   geom_violin(width = 1, show.legend = FALSE, linewidth = 2) +
   geom_boxplot(width = 0.3, show.legend = FALSE, outlier.shape = NA) +
   geom_point(colour = "black", position = position_jitter(width = 0.2)) +
-  theme_jelle() +
+  theme_npor() +
   labs(x = "Condition", y = "Edit (Levenshtein) distance", title = "Average edit distance of each participant by condition",
         subtitle = "Higher edit distance indicates participants were less accurate in reproducing the\nstimulus.") +
   scico::scale_fill_scico_d(palette = "berlin", begin = 0.1, end = 1) +

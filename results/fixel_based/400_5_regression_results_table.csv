@@ -1,0 +1,61 @@
+Behavioral Variable,Condition,Metric Type,Base Metric,P-Value,Coefficient,Standard Error,T-Statistic,"Lower,Upper",F-Statistic,Adjusted R-Squared
+G (response),400_5,fd,T_PREM,0.38,0.22,0.25,0.88,"-0.29,0.73",2.10,0.05
+G (response),400_5,fd,T_PREC,0.04,0.61,0.28,2.15,"0.04,1.19",4.18,0.13
+G (response),400_5,fd,ST_PREM,0.46,0.20,0.26,0.74,"-0.34,0.73",1.98,0.04
+G (response),400_5,fd,ST_PREC,0.05,0.66,0.33,2.01,"-0.00,1.33",3.87,0.12
+G (response),400_5,fd,CP,0.12,0.59,0.38,1.57,"-0.17,1.35",3.00,0.08
+G (response),400_5,log_fc,T_PREM,0.13,0.19,0.12,1.54,"-0.06,0.43",2.65,0.10
+G (response),400_5,log_fc,T_PREC,0.14,0.13,0.09,1.49,"-0.05,0.31",2.60,0.10
+G (response),400_5,log_fc,ST_PREM,0.13,0.17,0.11,1.56,"-0.05,0.39",2.67,0.10
+G (response),400_5,log_fc,ST_PREC,0.10,0.15,0.09,1.69,"-0.03,0.34",2.83,0.11
+G (response),400_5,log_fc,CP,0.14,0.13,0.09,1.51,"-0.04,0.30",2.61,0.10
+G (response),400_5,fdc,T_PREM,0.10,0.29,0.17,1.69,"-0.06,0.63",2.83,0.11
+G (response),400_5,fdc,T_PREC,0.02,0.36,0.14,2.51,"0.07,0.65",4.13,0.18
+G (response),400_5,fdc,ST_PREM,0.14,0.24,0.16,1.49,"-0.09,0.57",2.59,0.10
+G (response),400_5,fdc,ST_PREC,0.02,0.38,0.16,2.41,"0.06,0.70",3.94,0.17
+G (response),400_5,fdc,CP,0.04,0.35,0.16,2.15,"0.02,0.68",3.50,0.15
+Entropy differences,400_5,fd,T_PREM,0.09,-1.08,0.62,-1.75,"-2.33,0.16",1.68,0.03
+Entropy differences,400_5,fd,T_PREC,0.04,-1.54,0.72,-2.15,"-2.99,-0.09",2.46,0.06
+Entropy differences,400_5,fd,ST_PREM,0.16,-0.95,0.65,-1.45,"-2.27,0.37",1.19,0.01
+Entropy differences,400_5,fd,ST_PREC,0.04,-1.72,0.83,-2.08,"-3.38,-0.05",2.31,0.06
+Entropy differences,400_5,fd,CP,0.63,-0.48,0.97,-0.49,"-2.44,1.49",0.25,-0.04
+Entropy differences,400_5,log_fc,T_PREM,0.86,-0.06,0.31,-0.18,"-0.69,0.58",0.81,-0.01
+Entropy differences,400_5,log_fc,T_PREC,0.58,-0.13,0.23,-0.56,"-0.59,0.33",0.91,-0.01
+Entropy differences,400_5,log_fc,ST_PREM,0.98,-0.01,0.28,-0.03,"-0.57,0.56",0.80,-0.01
+Entropy differences,400_5,log_fc,ST_PREC,0.52,-0.15,0.24,-0.65,"-0.63,0.32",0.95,0.00
+Entropy differences,400_5,log_fc,CP,0.81,0.05,0.22,0.24,"-0.40,0.50",0.82,-0.01
+Entropy differences,400_5,fdc,T_PREM,0.24,-0.52,0.43,-1.19,"-1.39,0.36",1.30,0.02
+Entropy differences,400_5,fdc,T_PREC,0.11,-0.61,0.38,-1.63,"-1.38,0.15",1.73,0.05
+Entropy differences,400_5,fdc,ST_PREM,0.42,-0.34,0.42,-0.81,"-1.18,0.50",1.03,0.00
+Entropy differences,400_5,fdc,ST_PREC,0.13,-0.64,0.41,-1.53,"-1.47,0.20",1.63,0.04
+Entropy differences,400_5,fdc,CP,0.77,-0.13,0.43,-0.29,"-1.00,0.75",0.83,-0.01
+Binary or ternary introduced,400_5,fd,T_PREM,0.83,2.54,11.98,0.21,"-21.63,26.71",1.81,0.04
+Binary or ternary introduced,400_5,fd,T_PREC,0.46,10.51,14.03,0.75,"-17.81,38.83",2.09,0.05
+Binary or ternary introduced,400_5,fd,ST_PREM,0.42,10.21,12.44,0.82,"-14.89,35.32",2.15,0.05
+Binary or ternary introduced,400_5,fd,ST_PREC,0.46,12.11,16.09,0.75,"-20.36,44.59",2.09,0.05
+Binary or ternary introduced,400_5,fd,CP,0.71,-6.84,18.23,-0.38,"-43.63,29.96",1.86,0.04
+Binary or ternary introduced,400_5,log_fc,T_PREM,0.85,1.10,5.90,0.19,"-10.81,13.01",1.78,0.05
+Binary or ternary introduced,400_5,log_fc,T_PREC,0.72,1.58,4.32,0.36,"-7.16,10.31",1.82,0.05
+Binary or ternary introduced,400_5,log_fc,ST_PREM,0.68,2.18,5.25,0.42,"-8.42,12.77",1.83,0.05
+Binary or ternary introduced,400_5,log_fc,ST_PREC,0.58,2.46,4.45,0.55,"-6.54,11.45",1.88,0.06
+Binary or ternary introduced,400_5,log_fc,CP,0.28,-4.52,4.12,-1.10,"-12.83,3.79",2.22,0.08
+Binary or ternary introduced,400_5,fdc,T_PREM,0.85,1.62,8.25,0.20,"-15.05,18.29",1.78,0.05
+Binary or ternary introduced,400_5,fdc,T_PREC,0.56,4.23,7.29,0.58,"-10.49,18.95",1.89,0.06
+Binary or ternary introduced,400_5,fdc,ST_PREM,0.52,5.09,7.85,0.65,"-10.76,20.94",1.92,0.06
+Binary or ternary introduced,400_5,fdc,ST_PREC,0.56,4.72,7.97,0.59,"-11.38,20.82",1.90,0.06
+Binary or ternary introduced,400_5,fdc,CP,0.34,-7.81,8.04,-0.97,"-24.06,8.43",2.12,0.07
+Isochrony introduced,400_5,fd,T_PREM,0.06,16.77,8.52,1.97,"-0.42,33.95",3.88,0.12
+Isochrony introduced,400_5,fd,T_PREC,0.07,18.86,10.08,1.87,"-1.48,39.20",3.68,0.11
+Isochrony introduced,400_5,fd,ST_PREM,0.28,10.01,9.18,1.09,"-8.52,28.55",2.43,0.06
+Isochrony introduced,400_5,fd,ST_PREC,0.07,21.57,11.56,1.87,"-1.76,44.91",3.67,0.11
+Isochrony introduced,400_5,fd,CP,0.56,7.89,13.51,0.58,"-19.38,35.16",1.97,0.04
+Isochrony introduced,400_5,log_fc,T_PREM,0.96,-0.23,4.47,-0.05,"-9.25,8.79",1.18,0.01
+Isochrony introduced,400_5,log_fc,T_PREC,0.87,0.55,3.28,0.17,"-6.07,7.17",1.19,0.01
+Isochrony introduced,400_5,log_fc,ST_PREM,0.81,-0.96,3.98,-0.24,"-8.99,7.08",1.20,0.01
+Isochrony introduced,400_5,log_fc,ST_PREC,0.92,0.36,3.38,0.11,"-6.47,7.20",1.18,0.01
+Isochrony introduced,400_5,log_fc,CP,0.72,1.14,3.16,0.36,"-5.24,7.51",1.23,0.02
+Isochrony introduced,400_5,fdc,T_PREM,0.27,6.93,6.16,1.13,"-5.51,19.37",1.64,0.04
+Isochrony introduced,400_5,fdc,T_PREC,0.37,5.02,5.49,0.92,"-6.06,16.10",1.48,0.03
+Isochrony introduced,400_5,fdc,ST_PREM,0.67,2.52,5.96,0.42,"-9.51,14.56",1.24,0.02
+Isochrony introduced,400_5,fdc,ST_PREC,0.40,5.10,6.01,0.85,"-7.03,17.24",1.44,0.03
+Isochrony introduced,400_5,fdc,CP,0.58,3.39,6.14,0.55,"-9.01,15.78",1.29,0.02

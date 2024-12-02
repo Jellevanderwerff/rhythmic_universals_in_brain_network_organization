@@ -28,7 +28,7 @@ p_load(
 # for relative file paths (e.g. here('Input', 'file.csv'))
 here::i_am(file.path("scripts", "plots", "behavioural.Rmd"))
 
-source(here("scripts", "jelle_ggplot_theme.R"))
+source(here("scripts", "custom_ggplot_theme.R"))
 
 # Knitr output settings
 knitr::opts_chunk$set(
@@ -120,7 +120,7 @@ ggplot(pp.measures, aes(x = condition, y = G_resp, fill = condition, colour = co
     "600_5" = "600 ms\n5 events"
   )) +
   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "Condition",
     y = expression(italic(G) ~ measure),
@@ -152,7 +152,7 @@ ggplot(pp.measures, aes(x = condition, y = entropy_diff_norm_q_avg, fill = condi
     "600_5" = "600 ms\n5 events"
   )) +
   stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     y = "Entropy difference", title = "Entropy difference by participant and condition",
     subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
@@ -182,7 +182,7 @@ ggplot(pp.measures, aes(
     title = "Isochronous ratios introduced by participant by condition (normalized counts)",
     subtitle = "Negative values mean a reduction of isochrony from stimulus to response",
   ) +
-  theme_jelle()
+  theme_npor()
 
 ggsave(here("plots", "behavioural_measures", "isochrony.pdf"))
 
@@ -205,7 +205,7 @@ ggplot(pp.measures, aes(
     title = "Binary and ternary ratios introduced by participant by condition",
     subtitle = "Negative values mean a general reduction of binary or ternary ratios from stimulus to response",
   ) +
-  theme_jelle()
+  theme_npor()
 
 ggsave(here("plots", "behavioural_measures", "binary_ternary.pdf"))
 ```
@@ -221,7 +221,7 @@ ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = entropy
   geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
   geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
   geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
-  theme_jelle() +
+  theme_npor() +
   scale_fill_manual(values = npor_colours$entropy) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
   theme(
@@ -250,7 +250,7 @@ ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = G_resp,
   geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
   geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
   geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
-  theme_jelle() +
+  theme_npor() +
   scale_fill_manual(values = npor_colours$G) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
   theme(
@@ -276,7 +276,7 @@ ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = binary_
   geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
   geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
   geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
-  theme_jelle() +
+  theme_npor() +
   scale_fill_manual(values = npor_colours$binary_ternary) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
   theme(
@@ -302,7 +302,7 @@ ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = isochro
   geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
   geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
   geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
-  theme_jelle() +
+  theme_npor() +
   scale_fill_manual(values = npor_colours$isochrony) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
   theme(
@@ -367,7 +367,7 @@ ggsave(here("plots", "behavioural_measures", "correlations.png"), p, bg = "white
 ggplot(correlations, aes(x = entropy_conn, y = entropy_behav, colour = "1", fill = "1")) +
   geom_point(aes(size = abs(entropy_behav)), show.legend = FALSE, shape = 18) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
@@ -382,7 +382,7 @@ ggsave(here("plots", "correlations_behav_conn", "entropy_network.pdf"), width = 
 ggplot(correlations, aes(x = G_conn, y = G_behav, colour = "1", fill = "1")) +
   geom_point(aes(size = abs(G_behav)), show.legend = FALSE, shape = 18) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
@@ -397,7 +397,7 @@ ggsave(here("plots", "correlations_behav_conn", "G_network.pdf"), width = 4, hei
 ggplot(correlations, aes(x = binary_ternary_conn, y = binary_ternary_behav, colour = "1", fill = "1")) +
   geom_point(aes(size = abs(binary_ternary_behav)), show.legend = FALSE, shape = 18) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
@@ -412,7 +412,7 @@ ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.pdf"), w
 ggplot(correlations, aes(x = binary_ternary_struct, y = binary_ternary_behav, colour = "1", fill = "1")) +
   geom_point(aes(size = abs(binary_ternary_behav)), show.legend = FALSE, shape = 18) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
@@ -441,7 +441,7 @@ fixel <- data.frame(
 ggplot(fixel, aes(x = strial_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
   geom_point(, show.legend = FALSE) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
@@ -454,7 +454,7 @@ ggsave(here("plots", "fixel", "isochrony_strial_precentral.pdf"), width = 4, hei
 ggplot(fixel, aes(x = thalamus_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
   geom_point(show.legend = FALSE) +
   geom_smooth(method = "lm", show.legend = FALSE) +
-  theme_jelle() +
+  theme_npor() +
   labs(
     x = "", y = ""
   ) +
