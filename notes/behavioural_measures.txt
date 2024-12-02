@@ -1,4 +1,0 @@
-Shannon's entropy: tempo-normalization > quantization > entropy
-Edit distance: tempo-normalization > quantization > edit distance
-G: Raw IOIs/ITIs > K-means clustering > G
-Simple interval ratios: Raw IOIs/ITIs > ratio

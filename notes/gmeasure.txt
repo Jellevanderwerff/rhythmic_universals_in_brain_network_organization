@@ -1,8 +1,0 @@
-Even aantekeningen voor morgen:
-
-- Hoe Andrea het gedaan heeft, is alle discretized waardes achter elkaar plakken met een '.' ertussen om een hele lange string te krijgen. Daarna de frequentie van elkaar bigram berekenen en dus de probability.
-
-Maar, die punt vertekent het hele beeld...
-
-
-https://math.stackexchange.com/questions/885050/measuring-the-entropy-of-a-graph-representing-a-transition-probability-matrix-of

@@ -1,7 +1,0 @@
-Visualnetwork				120,18,134
-Somatomotornetwork			70,130,180
-Dorsalattentionnetwork		0,118,14
-Fronto-parietalnetwork		196,58,250
-Lymbicnetwork				220,248,164
-Ventral-attentionnetwork	230,148,34
-Default-modenetwork			205,62,78

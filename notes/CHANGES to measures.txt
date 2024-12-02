@@ -1,7 +1,0 @@
-to-do
-
-
-* Update measures descriptions in pdf
-* add G (only response instead of difference) to correlogram
-* Find a way of plotting densities in a correlogram
-
