@@ -86,7 +86,7 @@ This repository is organized as follows:
 The data that are included in this repository concern the raw and processed behavioural data, as well as processed MRI data. Raw MRI data
 can be requested from the corresponding author.
 
-## Refernces
+## References
 
 ```
 Anglada-Tort, M., Harrison, P. M. C., & Jacoby, N. (2022). REPP: A robust cross-platform solution for online sensorimotor synchronization experiments. Behavior Research Methods. https://doi.org/10.3758/s13428-021-01722-2
