@@ -1,0 +1,10 @@
+*DS_Store*
+scratch.py
+*_cache*
+*_files*
+scratch.R
+collapse.py
+venv/
+data/
+illustrations/
+notes/

@@ -1,0 +1,466 @@
+---
+title: "NPOR: Plots"
+author: Jelle van der Werff
+date: 08/08/2023
+output:
+    html_notebook:
+        code_folding: hide
+        toc: true
+        toc_float: true
+---
+
+
+# Preliminaries
+
+```{r load-packages, echo = FALSE, warning = FALSE, message = FALSE}
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load(
+  "stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "reshape2", "ggsci",
+  "gghighlight", "ggridges", "viridis", "RColorBrewer", "lemon", "scico", "latex2exp", "GGally", "kableExtra",
+  "cowplot", "rmatio"
+)
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "plots", "behavioural.Rmd"))
+
+source(here("scripts", "custom_ggplot_theme.R"))
+
+# Knitr output settings
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = "100%",
+  fig.width = 10,
+  fig.height = 10,
+  cache = TRUE
+)
+
+labels <- as_labeller(c(
+  "400" = "400 ms",
+  "600" = "600 ms",
+  "4" = "4 events",
+  "5" = "5 events"
+))
+```
+
+
+```{r load-data}
+ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
+ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
+interval.ratios <- read.csv(here("data", "experiment", "processed", "ratios_introduced.csv"))
+
+correlations <- as.data.frame(list(
+  "binary_ternary_behav" = read.mat(here("data", "brain", "correlations", "binary_or_ternary_introduced_all_behav.mat"))$all_behav,
+  "binary_ternary_conn" = read.mat(here("data", "brain", "correlations", "binary_or_ternary_introduced_NegConnStrength.mat"))$train_sumneg,
+  "binary_ternary_struct" = read.mat(here("data", "brain", "correlations", "binary_or_ternary_introduced_structural_NegConnStrength.mat"))$train_sumneg,
+  "entropy_behav" = read.mat(here("data", "brain", "correlations", "entropyDiff_all_behav.mat"))$all_behav,
+  "entropy_conn" = read.mat(here("data", "brain", "correlations", "entropyDiff_NegConnStrength.mat"))$train_sumneg,
+  "G_behav" = read.mat(here("data", "brain", "correlations", "Gresponse_all_behav.mat"))$all_behav,
+  "G_conn" = read.mat(here("data", "brain", "correlations", "Gresponse_NegConnStrength.mat"))$train_sumneg
+))
+```
+
+```{r datatypes}
+pp.measures$pp_id_behav <- as.factor(pp.measures$pp_id_behav)
+pp.measures$stim_tempo_intended <- as.factor(pp.measures$stim_tempo_intended)
+pp.measures$length <- as.factor(pp.measures$length)
+
+pp.measures$condition <- as.factor(paste(pp.measures$stim_tempo_intended, pp.measures$length, sep = "_"))
+
+
+ITIs$pp_id_behav <- as.factor(ITIs$pp_id_behav)
+ITIs$condition <- as.factor(paste(ITIs$stim_tempo_intended, ITIs$length, sep = "_"))
+
+ITIs.bytrial$condition <- as.factor(paste(ITIs.bytrial$stim_tempo_intended, ITIs.bytrial$length, sep = "_"))
+ITIs.bytrial$pp_id_behav <- as.factor(ITIs.bytrial$pp_id_behav)
+```
+
+
+# Descriptives
+
+```{r table}
+descriptives.table <- ddply(ITIs, .(stim_tempo_intended, length), summarize,
+  n_taps = length(resp_iti),
+  n_trials = length(unique(sequence_id)),
+  mean_ioi = mean(stim_ioi),
+  median_ioi = median(stim_ioi),
+  sd_ioi = sd(stim_ioi),
+  mean_iti = mean(resp_iti),
+  median_iti = median(resp_iti),
+  sd_iti = sd(resp_iti),
+)
+
+labels_table1 <- c("Tempo cond.", "Length", "N taps", "N trials", "Mean IOI", "Median IOI", "SD IOI", "Mean ITI", "Median ITI", "SD ITI")
+
+
+# kable
+kable(descriptives.table, col.names = labels_table1) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+# Violin plots with all conditions
+
+
+## G measure
+
+```{r g-score}
+ggplot(pp.measures, aes(x = condition, y = G_resp, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "Condition",
+    y = expression(italic(G) ~ measure),
+    title = "Grammatical redundancy by condition",
+    subtitle = "Higher values mean more grammatical redundancy",
+    caption = "Interpretation: Let's say a participant always taps a quarternote and then an eighth note.
+This means the quarternote-eighth note combination is redundant, as it could have been
+one symbol, so G is higher. The more different combinations of symbols a participant uses,
+the lower the G score."
+  ) +
+  theme(plot.caption = element_text(hjust = 0))
+
+
+
+ggsave(here("plots", "behavioural_measures", "G.pdf"))
+```
+
+
+## Entropy
+
+```{r entropy-all}
+ggplot(pp.measures, aes(x = condition, y = entropy_diff_norm_q_avg, fill = condition, colour = condition)) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    y = "Entropy difference", title = "Entropy difference by participant and condition",
+    subtitle = "Negative values mean participants decreased entropy", colour = "Participant"
+  )
+ggsave(here("plots", "behavioural_measures", "entropy.pdf"))
+```
+
+## Number of small integer ratios introduced
+
+```{r simple-integers}
+ggplot(pp.measures, aes(
+  x = condition,
+  y = isochrony_introduced,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Isochronous ratios introduced",
+    title = "Isochronous ratios introduced by participant by condition (normalized counts)",
+    subtitle = "Negative values mean a reduction of isochrony from stimulus to response",
+  ) +
+  theme_npor()
+
+ggsave(here("plots", "behavioural_measures", "isochrony.pdf"))
+
+ggplot(pp.measures, aes(
+  x = condition,
+  y = binary_or_ternary_introduced,
+  colour = condition, fill = condition
+)) +
+  stat_summary(geom = "pointrange", size = 1, linewidth = 1.5, colour = "black", show.legend = FALSE) +
+  geom_violin(alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 1, show.legend = FALSE, colour = "black", alpha = 0.3) +
+  scale_x_discrete(labels = c(
+    "400_4" = "400 ms\n4 events",
+    "400_5" = "400 ms\n5 events",
+    "600_4" = "600 ms\n4 events",
+    "600_5" = "600 ms\n5 events"
+  )) +
+  labs(
+    x = "Condition", y = "Binary and ternary ratios introduced (normalized counts)",
+    title = "Binary and ternary ratios introduced by participant by condition",
+    subtitle = "Negative values mean a general reduction of binary or ternary ratios from stimulus to response",
+  ) +
+  theme_npor()
+
+ggsave(here("plots", "behavioural_measures", "binary_ternary.pdf"))
+```
+
+
+# Violin plots with only 600 ms, 5 events
+
+
+## Entropy
+
+```{r entropy-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = entropy_diff_norm_q_avg, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
+  geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
+  theme_npor() +
+  scale_fill_manual(values = npor_colours$entropy) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "") +
+  coord_cartesian(ylim = c(
+    min(pp.measures$entropy_diff_norm_q_avg[pp.measures$condition == "600_5"]),
+    abs(min(pp.measures$entropy_diff_norm_q_avg[pp.measures$condition == "600_5"]))
+  )) +
+  scale_y_continuous(breaks = c(-0.3, -0.2, -0.1, 0, 0.1, 0.2))
+
+
+
+ggsave(here("plots", "behavioural_measures", "entropy_6005.pdf"))
+```
+
+## G measure
+
+```{r G-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = G_resp, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
+  geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
+  theme_npor() +
+  scale_fill_manual(values = npor_colours$G) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(-max(pp.measures$G_resp[pp.measures$condition == "600_5"]), max(pp.measures$G_resp[pp.measures$condition == "600_5"]))) +
+  scale_y_continuous(breaks = c(0, 0.1, 0.2))
+
+
+
+ggsave(here("plots", "behavioural_measures", "G_6005.pdf"))
+```
+
+## Binary/ternary introduced
+
+```{r binary-ternary-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = binary_or_ternary_introduced, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
+  geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
+  theme_npor() +
+  scale_fill_manual(values = npor_colours$binary_ternary) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(
+    -max(pp.measures$binary_or_ternary_introduced[pp.measures$condition == "600_5"]),
+    max(pp.measures$binary_or_ternary_introduced[pp.measures$condition == "600_5"])
+  ))
+
+
+
+ggsave(here("plots", "behavioural_measures", "binary_ternary_6005.pdf"))
+```
+
+```{r isochrony-pub}
+ggplot(pp.measures[pp.measures$condition == "600_5", ], aes(x = "1", y = isochrony_introduced, fill = "1")) +
+  geom_violin(alpha = 1, show.legend = FALSE, linewidth = 0) +
+  geom_boxplot(width = 0.1, show.legend = FALSE, linewidth = 1.1, colour = "white") +
+  geom_point(show.legend = FALSE, colour = "white", size = 3, position = position_jitter(width = 0.02)) +
+  theme_npor() +
+  scale_fill_manual(values = npor_colours$isochrony) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "black", linetype = "dashed", linewidth = 1.5) +
+  theme(
+    axis.text.y = element_text(size = 24),
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks.x.bottom = element_blank(),
+  ) +
+  labs(title = "", y = "", x = "") +
+  coord_cartesian(ylim = c(
+    -max(pp.measures$isochrony_introduced[pp.measures$condition == "600_5"]),
+    max(pp.measures$isochrony_introduced[pp.measures$condition == "600_5"])
+  ))
+
+
+
+ggsave(here("plots", "behavioural_measures", "isochrony_6005.pdf"))
+```
+
+
+
+
+# Correlations between behavioural measures
+
+
+```{r correlations}
+labels <- as_labeller(c(
+  "G_resp" = "G (response)",
+  "entropy_diff_norm_q_avg" = "Entropy difference",
+  "isochrony_introduced" = "Isochrony introduced",
+  "binary_or_ternary_introduced" = "Binary/ternary\nintroduced",
+  "edit_distance_norm_q_avg" = "Edit\n(Levenshtein) distance"
+))
+
+pp.measures.cor <- pp.measures
+
+levels(
+  pp.measures.cor$condition
+) <- c("400 ms (4)", "400 ms (5)", "600 ms (4)", "600 ms (5)")
+
+# Scatterplots with combinations between all measures
+ggplot2::theme_set(theme_minimal())
+p <- ggpairs(
+  pp.measures.cor,
+  columns = c(
+    "G_resp", "entropy_diff_norm_q_avg", "isochrony_introduced", "binary_or_ternary_introduced", "edit_distance_norm_q_avg"
+  ),
+  title = "Correlations between behavioral measures",
+  labeller = labels,
+  mapping = aes(colour = condition, fill = condition, alpha = 1, label_color = condition)
+) + scico::scale_fill_scico_d(palette = "berlin", begin = 0.1, end = 1) + scico::scale_color_scico_d(palette = "berlin", begin = 0.1, end = 1)
+
+ggsave(here("plots", "behavioural_measures", "correlations.pdf"), p, width = 9, height = 9)
+ggsave(here("plots", "behavioural_measures", "correlations.png"), p, bg = "white", width = 9, height = 9)
+```
+
+
+# Correlations with network connectivity
+
+```{r entropy}
+ggplot(correlations, aes(x = entropy_conn, y = entropy_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = abs(entropy_behav)), show.legend = FALSE, shape = 18) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_fill_manual(values = c("1" = npor_colours$entropy)) +
+  scale_colour_manual(values = c("1" = npor_colours$entropy)) +
+  theme(panel.grid.major.y = element_blank()) +
+  scale_size(range = c(1, 7))
+ggsave(here("plots", "correlations_behav_conn", "entropy_network.pdf"), width = 4, height = 4)
+```
+
+```{r G}
+ggplot(correlations, aes(x = G_conn, y = G_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = abs(G_behav)), show.legend = FALSE, shape = 18) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_fill_manual(values = c("1" = npor_colours$G)) +
+  scale_colour_manual(values = c("1" = npor_colours$G)) +
+  theme(panel.grid.major.y = element_blank()) +
+  scale_size(range = c(1, 7))
+ggsave(here("plots", "correlations_behav_conn", "G_network.pdf"), width = 4, height = 4)
+```
+
+```{r binary-ternary}
+ggplot(correlations, aes(x = binary_ternary_conn, y = binary_ternary_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = abs(binary_ternary_behav)), show.legend = FALSE, shape = 18) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_fill_manual(values = c("1" = npor_colours$binary_ternary)) +
+  scale_colour_manual(values = c("1" = npor_colours$binary_ternary)) +
+  theme(panel.grid.major.y = element_blank()) +
+  scale_size(range = c(1, 7))
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_network.pdf"), width = 4, height = 4)
+```
+
+```{r binary-ternary-struct}
+ggplot(correlations, aes(x = binary_ternary_struct, y = binary_ternary_behav, colour = "1", fill = "1")) +
+  geom_point(aes(size = abs(binary_ternary_behav)), show.legend = FALSE, shape = 18) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_fill_manual(values = c("1" = npor_colours$binary_ternary)) +
+  scale_colour_manual(values = c("1" = npor_colours$binary_ternary)) +
+  theme(panel.grid.major.y = element_blank()) +
+  scale_size(range = c(1, 7))
+ggsave(here("plots", "correlations_behav_conn", "binary_ternary_struct.pdf"), width = 4, height = 4)
+```
+
+
+# Fixel-based analysis (isochrony vs. partial residuals)
+
+```{r fixel-based}
+results <- read.csv(here("data", "brain", "fixel", "cortical_subcortical_regression.csv"))
+behav <- pp.measures[pp.measures$condition == "600_5" & !pp.measures$pp_id_behav %in% c(30, 45), ]
+
+# Create DataFrame
+fixel <- data.frame(
+  "pp_id_behav" = behav$pp_id_behav,
+  "isochrony_introduced" = behav$isochrony_introduced,
+  "strial_precentral" = results$ST_PREC_fd,
+  "thalamus_precentral" = results$T_PREC_fd
+)
+
+ggplot(fixel, aes(x = strial_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
+  geom_point(, show.legend = FALSE) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_colour_manual(values = c("1" = npor_colours$isochrony)) +
+  scale_fill_manual(values = c("1" = npor_colours$isochrony)) +
+  theme(panel.grid.major.y = element_blank())
+
+ggsave(here("plots", "fixel", "isochrony_strial_precentral.pdf"), width = 4, height = 4)
+
+ggplot(fixel, aes(x = thalamus_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
+  geom_point(show.legend = FALSE) +
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  theme_npor() +
+  labs(
+    x = "", y = ""
+  ) +
+  scale_colour_manual(values = c("1" = npor_colours$isochrony)) +
+  scale_fill_manual(values = c("1" = npor_colours$isochrony)) +
+  theme(panel.grid.major.y = element_blank())
+
+ggsave(here("plots", "fixel", "isochrony_thalamus_precentral.pdf"), width = 4, height = 4)
+```

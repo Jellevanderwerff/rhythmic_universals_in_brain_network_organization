@@ -1,0 +1,208 @@
+---
+title: "NPOR: Data preparation"
+author: jellevanderwerff
+date: 04/04/2022
+output:
+    html_notebook:
+        code_folding: hide
+---
+
+# Loading packages
+
+```{r load-packages}
+############# PACKAGES AND OTHER PRELIMINARIES ############
+
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "entropy")
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "dataprep.Rmd"))
+
+# select correct here
+here <- here::here
+
+# load custom helper functions
+source(here("scripts", "helper_functions.R"))
+```
+
+# Loading data
+
+```{r load-data}
+####### EXPERIMENT CONFIG PARAMETERS #######
+
+# Read in the experiment config file
+config <- read.ini(here("data", "experiment", "raw", "config.txt"))
+# Change data types
+for (i in seq_along(config$experiment)) {
+  config$experiment[i] <- as.double(config$experiment[i])
+}
+for (i in seq_along(config$training)) {
+  config$training[i] <- as.double(config$training[i])
+}
+
+############# FILE LOCATIONS ############
+
+# folders
+data_participants_info_dir <- here("data", "experiment", "raw", "data_participants_info")
+data_participants_tapping_dir <- here("data", "experiment", "raw", "data_participants_tapping")
+
+# files
+data_participants_info_filenames <- list.files(data_participants_info_dir)
+data_participants_tapping_filenames <- list.files(data_participants_tapping_dir)
+
+##### INITIAL DATAFRAME ######
+pp_ids <- integer()
+
+# First the general participant info file
+if (length(data_participants_info_filenames) > 1) {
+  stop("Error: More than one file in the data_participants_info dir")
+} else {
+  participants.info <-
+    read.csv(file.path(
+      data_participants_info_dir,
+      data_participants_info_filenames[1]
+    ))
+}
+
+# Then all the participant files
+for (i in seq_along(data_participants_tapping_filenames)) {
+  filename <- data_participants_tapping_filenames[i]
+  if (endsWith(filename, ".csv")) {
+    pp_id_behav <- as.integer(str_extract(filename, "[0-9]+"))
+    pp_ids <- c(pp_ids, pp_id_behav)
+
+    assign(
+      sprintf("participant.tapping.%d", pp_id_behav),
+      read.csv(file.path(data_participants_tapping_dir, filename))
+    )
+  } else {
+    stop("Files other than csv files in the participant tapping data dir")
+  }
+}
+
+# Combine everything into one df
+
+# start with an empty df
+tapping.raw <- data.frame(matrix(nrow = 0, ncol = 30))
+# get colnames from one of the df's and add column pp_id
+colnames(tapping.raw) <- c("pp_id_behav", colnames(get(paste0("participant.tapping.", pp_ids[1]))))
+
+for (pp_id_behav in pp_ids) {
+  temp_list <- get(str_glue("participant.tapping.{pp_id_behav}"))
+
+  temp_df <- as.data.frame(temp_list)
+
+  # add pp_id_behav to df as column
+  for (i in seq_len(nrow(temp_df))) {
+    temp_df$pp_id_behav[i] <- pp_id_behav
+  }
+  # combine with empty list
+  tapping.raw <- rbind(tapping.raw, temp_df)
+}
+
+# clean up
+gdata::keep(list = c("calculatePDVs", "config", "participants.info", "pp_ids", "tapping.raw", "splitPythonListString"), sure = TRUE)
+```
+
+# Cleaning
+
+Remove all responses that have a different number of responses than the number of events in the stimulus:
+
+```{r cleaning}
+tapping.clean <- tapping.raw[0, ]
+tapping.removed <- tapping.raw[0, ]
+
+for (row_i in seq_len(nrow(tapping.raw))) {
+  tapping_row <- tapping.raw[row_i, ]
+  if (tapping_row$length == (length(splitPythonListString(tapping_row$resp_ITIs))) + 1) {
+    tapping.clean <- rbind(tapping.clean, tapping_row)
+  } else {
+    tapping.removed <- rbind(tapping.removed, tapping_row)
+  }
+}
+```
+
+
+# ITI dataframe
+
+```{r ITIs}
+col_names <- c(
+  "pp_id_behav", "age", "gender", "L1", "handedness", "musical_experience", "stim_id", "sequence_id", "length", "n_resp", "stim_tempo_intended",
+  "stim_tempo", "stim_sd", "interval_i", "stim_ioi", "resp_iti", "ioi_iti_diff"
+)
+ITIs <- data.frame(matrix(nrow = 0, ncol = length(col_names)))
+
+for (row_i in seq_len(nrow(tapping.clean))) {
+  tapping_row <- tapping.clean[row_i, ]
+  pp_id_behav <- tapping_row$pp_id_behav
+  print(pp_id_behav)
+  participant_row <- participants.info[participants.info$pp_id == pp_id_behav, ]
+  out_list <- as.list(participant_row)
+  out_list$stim_id <- tapping_row$stim_id
+  out_list$sequence_id <- paste(pp_id_behav, tapping_row$stim_id, sep = "_")
+  out_list$length <- tapping_row$length
+  out_list$n_resp <- as.integer(length(splitPythonListString(tapping_row$resp_ITIs)) + 1)
+  out_list$stim_tempo_intended <- tapping_row$int_tempo
+  out_list$stim_tempo <- mean(diff(as.double(splitPythonListString(tapping_row$stim_onsets))))
+  out_list$stim_sd <- sd(diff(as.double(splitPythonListString(tapping_row$stim_onsets))))
+  out_list$interval_i <- 1:(out_list$length - 1)
+  out_list$stim_ioi <- diff(as.double(splitPythonListString(tapping_row$stim_onsets)))
+  out_list$resp_iti <- as.double(splitPythonListString(tapping_row$resp_ITIs))
+  out_list$ioi_iti_diff <- abs(out_list$resp_iti - out_list$stim_ioi)
+
+  ITIs <- rbind(ITIs, as.data.frame(out_list))
+}
+```
+
+
+# Recoding
+
+```{r recoding}
+# Make everything lowercase
+ITIs$gender <- str_to_lower(ITIs$gender)
+ITIs$L1 <- str_to_lower(ITIs$L1)
+
+# Recode gender
+ITIs$gender <- dplyr::recode(ITIs$gender,
+  "woman" = "female",
+  "f" = "female",
+  "m" = "male",
+  "man" = "male",
+  "trans woman" = "trans woman",
+  .missing = "ERROR"
+)
+
+# Recode L1
+ITIs$L1 <- dplyr::recode(ITIs$L1,
+  "german, polish" = "german",
+  "french " = "french"
+)
+```
+
+
+# ITI by trial dataframe
+
+```{r per-trial}
+ITIs.bytrial <- ddply(ITIs, .(
+  pp_id_behav, age, gender, L1, handedness, musical_experience, stim_id, sequence_id,
+  stim_tempo_intended, stim_tempo,
+  stim_sd, length, n_resp
+),
+dplyr::summarize,
+ITI_mean = mean(resp_iti),
+ITI_sd = sd(resp_iti)
+)
+```
+
+
+# save
+
+```{r write-out}
+write.csv(ITIs, here("data", "experiment", "processed", "ITIs.csv"), row.names = FALSE)
+write.csv(ITIs.bytrial, here("data", "experiment", "processed", "ITIs_bytrial.csv"), row.names = FALSE)
+write.csv(tapping.removed, here("data", "experiment", "processed", "removed.csv"), row.names = FALSE)
+```
+

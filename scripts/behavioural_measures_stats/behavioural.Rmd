@@ -1,0 +1,108 @@
+---
+title: "NPOR analysis: Behavioural measures"
+author: Massimo Lumaca, Jelle van der Werff
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    cards: true
+    code_folding: hide
+---
+
+# Preliminaries
+
+## Load packages and data
+
+```{r load-packages, echo = FALSE, warning = FALSE}
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load("here", "ggplot2", "dplyr", "nlme", "boot", "effectsize", "rmdformats", "knitr", "kableExtra")
+
+here <- here::here
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "behavioural_measures_stats", "behavioural.Rmd"))
+
+# load custom ggplot theme
+source(here("scripts", "custom_ggplot_theme.R"))
+
+# Load ata
+pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
+itis <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
+itis.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+
+# set knitr options
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 10, fig.width = 10, comment = NA)
+```
+
+# Stimulus vs. response
+We compare stimulus and response measures using one-sample Wilcoxon signed-rank tests.
+
+```{r stats-and-effect-size-stim-to-resp}
+
+# Entropy
+entropy.wc <- wilcox.test(pp.measures$entropy_diff_norm_q, alternative = "two.sided")
+entropy.wc
+entropy.r <- entropy.wc$statistic[[1]] / sqrt(length(pp.measures$entropy_diff_norm_q))
+entropy.r
+
+# Grammatical redundancy
+grammatical_redundancy.wc <- wilcox.test(pp.measures$G_resp, alternative = "greater")
+grammatical_redundancy.wc
+grammatical_redundancy.r <- grammatical_redundancy.wc$statistic[[1]] / sqrt(length(pp.measures$G_resp))
+grammatical_redundancy.r
+
+# isochrony introduced
+isochrony_introduced.wc <- wilcox.test(pp.measures$isochrony_introduced, alternative = "two.sided")
+isochrony_introduced.wc
+isochrony_introduced.r <- isochrony_introduced.wc$statistic[[1]] / sqrt(length(pp.measures$isochrony_introduced))
+isochrony_introduced.r
+
+# binary/ternary introduced
+binary_ternary_introduced.wc <- wilcox.test(pp.measures$binary_or_ternary_introduced, alternative = "two.sided")
+binary_ternary_introduced.wc
+binary_ternary_introduced.r <- binary_ternary_introduced.wc$statistic[[1]] / sqrt(length(pp.measures$binary_or_ternary_introduced))
+binary_ternary_introduced.r
+
+```
+
+# Correlations among measures
+
+```{r correlations}
+print(paste("Correlation between binary/ternary and edit distance:", cor(pp.measures$binary_or_ternary_introduced, pp.measures$edit_distance_norm_q)))
+# get p value from correlation
+cor.test(pp.measures$binary_or_ternary_introduced, pp.measures$edit_distance_norm_q)
+print(paste("Correlation between G and edit distance:", cor(pp.measures$G_resp, pp.measures$edit_distance_norm_q)))
+cor.test(pp.measures$G_resp, pp.measures$edit_distance_norm_q)
+```
+
+# Between-individual variability for all measures
+
+```{r cov-all-measures}
+
+# Entropy
+entropy.cov <- sd(pp.measures$entropy_diff_norm_q) / mean(abs(pp.measures$entropy_diff_norm_q))
+print(paste("Entropy CV: ", entropy.cov))
+
+# isochrony introduced
+isochrony_introduced.cov <- sd(pp.measures$isochrony_introduced) / mean(abs(pp.measures$isochrony_introduced))
+print(paste("Isochrony introduced CV: ", isochrony_introduced.cov))
+
+# binary/ternary introduced
+binary_ternary_introduced.cov <- sd(pp.measures$binary_or_ternary_introduced) / mean(abs(pp.measures$binary_or_ternary_introduced))
+print(paste("Binary/ternary introduced CV: ", binary_ternary_introduced.cov))
+
+# Grammatical redundancy
+G_resp.cov <- sd(pp.measures$G_resp) / mean(abs(pp.measures$G_resp))
+print(paste("G CV: ", G_resp.cov))
+
+
+```
+
+CV for measures range from 0.76 to 1.22.

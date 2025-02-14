@@ -1,0 +1,66 @@
+---
+title: "NPOR: Analysis of condition complexity"
+author: jellevanderwerff
+date: 04/04/2022
+output:
+    html_notebook:
+        code_folding: hide
+---
+
+
+```{r prelims}
+# for easy loading of packages
+if (!require("pacman")) install.packages("pacman")
+
+# load packages
+p_load("stringr", "ini", "gdata", "plyr", "dplyr", "here", "ggplot2", "car", "emmeans", "sjPlot", "effectsize")
+
+# for relative file paths (e.g. here('Input', 'file.csv'))
+here::i_am(file.path("scripts", "behavioural_measures_stats", "condition_complexity.Rmd"))
+
+# select correct here
+here <- here::here
+
+# Load custom helper functions
+source(here("scripts", "helper_functions.R"))
+
+# Set theme
+source(here("scripts", "custom_ggplot_theme.R"))
+
+# Load dataframe
+df.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+df.bytrial$condition <- as.factor(paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_"))
+pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
+```
+
+```{r anova}
+mod <- aov(edit_distance_norm_q ~ condition, data = df.bytrial)
+summary(mod)
+effectsize(mod)
+```
+
+```{r plot}
+labels <- c(
+    "Fast tempo (400 ms IOI)\n4 sounds",
+    "Fast tempo (400 ms IOI)\n5 sounds",
+    "Slow tempo (600 ms IOI)\n4 sounds",
+    "Slow tempo (600 ms IOI)\n5 sounds"
+)
+levels(df.bytrial$condition) <- labels
+levels(pp.measures$condition) <- labels
+
+ggplot(pp.measures, aes(x = condition, y = edit_distance_norm_q_avg, colour = condition)) +
+  geom_violin(width = 1, show.legend = FALSE, linewidth = 2) +
+  geom_boxplot(width = 0.3, show.legend = FALSE, outlier.shape = NA) +
+  geom_point(colour = "black", position = position_jitter(width = 0.2)) +
+  theme_npor() +
+  labs(x = "Condition", y = "Edit (Levenshtein) distance", title = "Average edit distance of each participant by condition",
+        subtitle = "Higher edit distance indicates participants were less accurate in reproducing the\nstimulus.") +
+  scico::scale_fill_scico_d(palette = "berlin", begin = 0.1, end = 1) +
+  scico::scale_color_scico_d(palette = "berlin", begin = 0.1, end = 1) +
+  scale_x_discrete(labels = labels)
+
+ggsave(here("plots", "behavioural_measures", "condition_complexity_edit_distance.pdf"), width = 10, height = 8)
+ggsave(here("plots", "behavioural_measures", "condition_complexity_edit_distance.png"), width = 10, height = 8)
+```
+
