@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'fixel_based'
+data_path = project_root / 'data' / 'brain' / 'fixel_based'
 results_path = project_root / 'results' / 'fixel_based'
 
 # Create the results directory if it doesn't exist

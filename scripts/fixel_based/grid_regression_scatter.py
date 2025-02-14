@@ -17,8 +17,9 @@ metric_type = 'fdc'
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'fixel_based'        # Ensure this matches your actual directory name
+data_path = project_root / 'data' / 'brain' / 'fixel_based'        # Ensure this matches your actual directory name
 results_path = project_root / 'results' / 'fixel_based'  # Ensure this matches your actual directory name
+plots_path = project_root / 'plots' / 'fixel_based'
 
 # Ensure that the results_path exists
 results_path.mkdir(parents=True, exist_ok=True)
@@ -79,7 +80,7 @@ _, p_fdr_adjusted, _, _ = multipletests(p_values, method='fdr_bh')
 logging.info("Applied FDR correction to p-values.")
 
 # Define the file name for the PDF output within results_path
-pdf_filename = results_path / f'{condition}_{metric_type}_grid_scatter.pdf'
+pdf_filename = plots_path / f'{condition}_{metric_type}_grid_scatter.pdf'
 logging.info(f"PDF will be saved as: {pdf_filename}")
 
 # Create a PdfPages object to save the plots in a single PDF

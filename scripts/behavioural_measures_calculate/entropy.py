@@ -3,9 +3,9 @@ import os
 import pandas as pd
 
 # Load the data
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
-ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
-fourier_df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'fourier.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
+ITIs_bytrial = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'))
+fourier_df = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'fourier.csv'))
 
 # Calculate stim-resp entropy diff
 for sequence, sequence_df in ITIs.groupby('sequence_id'):
@@ -25,5 +25,5 @@ for sequence, sequence_df in ITIs.groupby('sequence_id'):
     ITIs_bytrial.loc[ITIs_bytrial['sequence_id'] == sequence, 'entropy_diff_norm_q'] = resp_entropy - stim_entropy
 
 # Save the data
-ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
-ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
+ITIs.to_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'), index=False)
+ITIs_bytrial.to_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'), index=False)

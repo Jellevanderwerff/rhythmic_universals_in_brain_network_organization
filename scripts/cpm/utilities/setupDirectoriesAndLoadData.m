@@ -3,7 +3,7 @@ function [connectomeDirectory, behaviourDirectory, scriptsDirectory, all_mats, a
     currentDirectory = pwd;
     [mainscriptDirectory, ~, ~] = fileparts(currentDirectory);
     [baseDirectory, ~, ~] = fileparts(mainscriptDirectory);
-   
+
 
     % Set up directory paths
     connectomeDirectory = fullfile(baseDirectory, 'data', 'CPM', 'connectomes');

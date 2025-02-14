@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'CPM' / 'behaviour'
+data_path = project_root / 'data' / 'behavioural' / 'processed'
 
 # Load the data from the Excel file
 
@@ -32,8 +32,8 @@ plt.xlabel("Predicted", fontsize=15)
 plt.ylabel("Actual", fontsize=15)
 
 # Add the R and p-values to the bottom right of the figure with increased font size
-plt.text(0.95*data["Predicted"].max(), 0.20*data["Actual"].max(), 
-         f'R = {r_value:.2f}\np = {p_value:.4f}', 
+plt.text(0.95*data["Predicted"].max(), 0.20*data["Actual"].max(),
+         f'R = {r_value:.2f}\np = {p_value:.4f}',
          horizontalalignment='right', fontsize=16)
 
 plt.tight_layout()

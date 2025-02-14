@@ -4,10 +4,12 @@ import scipy.io
 import plotly.graph_objects as go
 import webbrowser
 from pathlib import Path
+import os
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'network_assignment'
+data_path = project_root / 'data' / 'brain' / 'network_assignment'
+plots_path = project_root / 'plots' / 'connectomes'
 
 # Load the matrix data
 # Entropy difference: AvAdjacencyMat.rsFC.negative.EntropyDiff.mat
@@ -18,7 +20,7 @@ mat_data = scipy.io.loadmat(data_path / 'AvAdjacencyMat.rsFC.negative.binary_or_
 matrix = mat_data['neg_mask_true']
 
 # Load the csv data
-csv_data = pd.read_csv('coordinates.csv')
+csv_data = pd.read_csv(project_root / 'data' / 'brain' / 'mappings' / 'coordinates.csv')
 coords = csv_data[['X', 'Y', 'Z']].values
 labels = csv_data['Label'].tolist()
 
@@ -52,7 +54,7 @@ for i, j in edges:
     edges_x += [coords[i, 0], coords[j, 0], None]
     edges_y += [coords[i, 1], coords[j, 1], None]
     edges_z += [coords[i, 2], coords[j, 2], None]
-    
+
 edge_trace = go.Scatter3d(x=edges_x, y=edges_y, z=edges_z, mode='lines', line=dict(color='red', width=2))
 
 layout = go.Layout(scene=dict(aspectmode='cube',
@@ -62,8 +64,7 @@ layout = go.Layout(scene=dict(aspectmode='cube',
 
 # Combine traces and save to an HTML file
 fig = go.Figure(data=[edge_trace, node_trace], layout=layout)
-fig.write_html("connectome_plot.html")
+fig.write_html(os.path.join(plots_path, "connectome_plot.html"))
 
 # Automatically open the saved HTML file in the default web browser
-webbrowser.open('connectome_plot.html', new=2)
-
+webbrowser.open(os.path.join(plots_path, 'connectome_plot.html'), new=2)

@@ -10,10 +10,10 @@ import os
 from itertools import permutations
 import scipy.io
 
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
-ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
-ratios_introduced = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ratios_introduced.csv'))
-pp_id_behav_scan_mapping = pd.read_csv(os.path.join('data', 'experiment', 'raw', 'pp_id_behav_scan_mapping.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
+ITIs_bytrial = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'))
+ratios_introduced = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ratios_introduced.csv'))
+pp_id_behav_scan_mapping = pd.read_csv(os.path.join('data', 'behavioural', 'raw', 'pp_id_behav_scan_mapping.csv'))
 
 # Create empty output df
 pp_measures = pd.DataFrame()
@@ -48,7 +48,7 @@ for tempo, tempo_df in ITIs.groupby('stim_tempo_intended'):
 
 # sort df
 pp_measures = pp_measures.sort_values(by=['stim_tempo_intended', 'length', 'pp_id_scan']).reset_index(drop=True)
-pp_measures.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures.csv'), index=False)
+pp_measures.to_csv(os.path.join('data', 'behavioural', 'processed', 'pp_measures.csv'), index=False)
 
 # split by condition
 pp_measures_400_4 = pp_measures[pp_measures.condition == '400_4'].reset_index(drop=True)
@@ -57,7 +57,7 @@ pp_measures_600_4 = pp_measures[pp_measures.condition == '600_4'].reset_index(dr
 pp_measures_600_5 = pp_measures[pp_measures.condition == '600_5'].reset_index(drop=True)
 
 # save
-pp_measures_400_4.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_4004.csv'), index=False)
-pp_measures_400_5.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_4005.csv'), index=False)
-pp_measures_600_4.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_6004.csv'), index=False)
-pp_measures_600_5.to_csv(os.path.join('data', 'experiment', 'processed', 'pp_measures_6005.csv'), index=False)
+pp_measures_400_4.to_csv(os.path.join('data', 'behavioural', 'processed', 'pp_measures_4004.csv'), index=False)
+pp_measures_400_5.to_csv(os.path.join('data', 'behavioural', 'processed', 'pp_measures_4005.csv'), index=False)
+pp_measures_600_4.to_csv(os.path.join('data', 'behavioural', 'processed', 'pp_measures_6004.csv'), index=False)
+pp_measures_600_5.to_csv(os.path.join('data', 'behavioural', 'processed', 'pp_measures_6005.csv'), index=False)

@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'CPM' / 'behaviour'
+data_path = project_root / 'data' / 'brain' / 'CPM'
 
 # Load the data
 data = pd.read_csv(data_path / "manova_data.csv")

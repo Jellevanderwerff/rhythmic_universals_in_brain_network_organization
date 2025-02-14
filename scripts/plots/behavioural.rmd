@@ -51,10 +51,10 @@ labels <- as_labeller(c(
 
 
 ```{r load-data}
-ITIs <- read.csv(here("data", "experiment", "processed", "ITIs.csv"))
-ITIs.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
-pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
-interval.ratios <- read.csv(here("data", "experiment", "processed", "ratios_introduced.csv"))
+ITIs <- read.csv(here("data", "behavioural", "processed", "ITIs.csv"))
+ITIs.bytrial <- read.csv(here("data", "behavioural", "processed", "ITIs_bytrial.csv"))
+pp.measures <- read.csv(here("data", "behavioural", "processed", "pp_measures.csv"))
+interval.ratios <- read.csv(here("data", "behavioural", "processed", "ratios_introduced.csv"))
 
 correlations <- as.data.frame(list(
   "binary_ternary_behav" = read.mat(here("data", "brain", "correlations", "binary_or_ternary_introduced_all_behav.mat"))$all_behav,
@@ -427,7 +427,7 @@ ggsave(here("plots", "correlations_behav_conn", "binary_ternary_struct.pdf"), wi
 # Fixel-based analysis (isochrony vs. partial residuals)
 
 ```{r fixel-based}
-results <- read.csv(here("data", "brain", "fixel", "cortical_subcortical_regression.csv"))
+results <- read.csv(here("data", "brain", "fixel_based", "cortical_subcortical_regression.csv"))
 behav <- pp.measures[pp.measures$condition == "600_5" & !pp.measures$pp_id_behav %in% c(30, 45), ]
 
 # Create DataFrame
@@ -449,7 +449,7 @@ ggplot(fixel, aes(x = strial_precentral, y = isochrony_introduced, colour = "1",
   scale_fill_manual(values = c("1" = npor_colours$isochrony)) +
   theme(panel.grid.major.y = element_blank())
 
-ggsave(here("plots", "fixel", "isochrony_strial_precentral.pdf"), width = 4, height = 4)
+ggsave(here("plots", "fixel_based", "isochrony_strial_precentral.pdf"), width = 4, height = 4)
 
 ggplot(fixel, aes(x = thalamus_precentral, y = isochrony_introduced, colour = "1", fill = "1")) +
   geom_point(show.legend = FALSE) +
@@ -462,5 +462,5 @@ ggplot(fixel, aes(x = thalamus_precentral, y = isochrony_introduced, colour = "1
   scale_fill_manual(values = c("1" = npor_colours$isochrony)) +
   theme(panel.grid.major.y = element_blank())
 
-ggsave(here("plots", "fixel", "isochrony_thalamus_precentral.pdf"), width = 4, height = 4)
+ggsave(here("plots", "fixel_based", "isochrony_thalamus_precentral.pdf"), width = 4, height = 4)
 ```

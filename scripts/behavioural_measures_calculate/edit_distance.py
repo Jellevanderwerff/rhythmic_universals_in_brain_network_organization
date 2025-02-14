@@ -4,9 +4,9 @@ import thebeat
 import os
 
 # Load the data
-df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
-df_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
-fourier = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'fourier.csv'))
+df = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
+df_bytrial = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'))
+fourier = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'fourier.csv'))
 
 edit_distances = pd.DataFrame()
 
@@ -30,5 +30,5 @@ for sequence_id, sequence_df in df.groupby("sequence_id"):
     df.loc[df.sequence_id == sequence_id, 'edit_distance_norm_q'] = int(edit_distance)
     df_bytrial.loc[df_bytrial.sequence_id == sequence_id, 'edit_distance_norm_q'] = int(edit_distance)
 
-df.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
-df_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index=False)
+df.to_csv(os.path.join('data', 'experiment', 'behavioural', 'ITIs.csv'), index=False)
+df_bytrial.to_csv(os.path.join('data', 'experiment', 'behavioural', 'ITIs_bytrial.csv'), index=False)

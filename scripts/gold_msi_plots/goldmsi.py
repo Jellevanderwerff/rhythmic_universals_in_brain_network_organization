@@ -23,7 +23,8 @@ def validate_mappings(data, behavior, mappings):
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'demographics'
+data_path = project_root / 'data' / 'brain' / 'gold-msi'
+plots_path = project_root / 'plots' / 'gold-msi'
 
 # Load the data from Excel
 file_path = data_path / "goldmsi-training.xlsx"
@@ -121,7 +122,7 @@ ax.set_ylabel('')  # Remove the y-label
 ax.set_title(f'Pie Chart of {behavior}')
 
 # Define the output PDF file path using the script directory
-output_pdf_path = data_path / f'Pie_Chart_{behavior}.pdf'
+output_pdf_path = plots_path / f'Pie_Chart_{behavior}.pdf'
 
 # Save the figure to PDF in the specified path, making sure to include the whole figure
 try:

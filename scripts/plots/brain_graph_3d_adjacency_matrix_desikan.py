@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_path = project_root / 'data' / 'network_assignment'
+data_path = project_root / 'data' / 'brain' / 'network_assignment'
 
 # Load the matrix data: Gresponse('AvAdjacencyMat.rsFC.negative.Gresponse.mat'); Entropy difference ('AvAdjacencyMat.rsFC.negative.EntropyDiff.mat'); binary or ternary ('AvAdjacencyMat.rsFC.negative.binary_or_ternary_introduced.mat')
 mat_data = scipy.io.loadmat(data_path / 'AvAdjacencyMat.rsFC.negative.Gresponse.mat')

@@ -7,7 +7,8 @@ from pathlib import Path
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
 results_path = project_root / 'results' / 'fixel_based'
-data_path = project_root / 'data' / 'fixel_based'
+data_path = project_root / 'data' / 'brain' / 'fixel_based'
+plots_path = project_root / 'plots' / 'fixel_based'
 
 # load condition
 conditions = ["600_5"]
@@ -72,7 +73,7 @@ def create_scatter_plot(x, y, y_label, x_label, filename):
     plt.tick_params(axis='both', which='major', labelsize=16)
 
     # Save the figure as PDF in results_path with tight layout
-    plt.savefig(results_path / filename, format='pdf', bbox_inches='tight', pad_inches=0.3)
+    plt.savefig(plots_path / filename, format='pdf', bbox_inches='tight', pad_inches=0.3)
     plt.close()
 
 # Extract data for partial residuals plot

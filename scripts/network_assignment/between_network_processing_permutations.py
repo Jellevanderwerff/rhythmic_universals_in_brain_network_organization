@@ -15,21 +15,22 @@ import pandas as pd
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Set the data directory relative to the script location
-DATA_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'data', 'network_assignment')
+DATA_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'data', 'brain', 'network_assignment')
+PLOTS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'plots', 'network_assignment')
 
 def print_permutation_info(shuffled_mapping, count_shuffled, unique_networks):
     print("\nPermutation Information:")
-    
+
     # Count nodes in each network after shuffling
     network_counts = {network: 0 for network in unique_networks}
     for node, network in shuffled_mapping.items():
         network_counts[network] += 1
-    
+
     # Print network sizes
     print("Network sizes after shuffling:")
     for network, count in network_counts.items():
         print(f"{network}: {count} nodes")
-    
+
     # Print new connection matrix
     print("\nNew connection matrix:")
     print(pd.DataFrame(count_shuffled, index=unique_networks, columns=unique_networks))
@@ -40,10 +41,10 @@ def permutation_connections_count(adjacency_matrix, node_to_rsn_mapping, dkas_to
     nodes = list(node_to_rsn_mapping.keys())
     shuffled_nodes = np.random.permutation(nodes)
     shuffled_mapping = {old: node_to_rsn_mapping[new] for old, new in zip(nodes, shuffled_nodes)}
-    
+
     num_networks = len(unique_networks)
     count_shuffled = np.zeros((num_networks, num_networks))
-    
+
     # Find between- and within- (diagonal) network connections
     for i in range(num_networks):
         for j in range(num_networks):
@@ -60,7 +61,7 @@ def permutation_connections_count(adjacency_matrix, node_to_rsn_mapping, dkas_to
 
 def analyze_network_connectivity():
     behav = 'G_resp'  # Options: 'G_resp', 'entropy_diff_norm_q_avg', 'binary_or_ternary_introduced'
-    
+
     # Load the adjacency matrix
     if behav == 'G_resp':
         data = loadmat(os.path.join(DATA_DIR, 'AvAdjacencyMat.rsFC.negative.Gresponse.mat'))
@@ -90,12 +91,12 @@ def analyze_network_connectivity():
     mean_connectivity_high_list = []
     mean_connectivity_low_list = []
     num_plots = 0
-    
+
     adjacency_matrix = data[list(data.keys())[-1]]
-    
+
     # Load the DKA-to-network mapping
     dkas_to_networks = pd.read_csv(os.path.join(DATA_DIR, 'altenrnative_mapping_ShirerKabbara.matlab.csv'))
-    
+
     # Create a mapping of node index to RSN
     node_to_rsn_mapping = {}
     unique_networks = dkas_to_networks.columns
@@ -103,17 +104,17 @@ def analyze_network_connectivity():
         nodes = dkas_to_networks[network].dropna().values
         for node in nodes:
             node_to_rsn_mapping[int(node)] = network
-    
+
     # Find the indexes of non-zero values in the lower triangle (excluding the diagonal)
     row, col = np.where(np.tril(adjacency_matrix, -1))
     node_to_node_connections = np.column_stack((row, col))
-    
+
     # Compute the total number of connections between networks
     num_networks = len(unique_networks)
     between_network_connections_count = np.zeros((num_networks, num_networks))
     between_network_connection_strength_high = np.zeros((num_networks, num_networks))
     between_network_connection_strength_low = np.zeros((num_networks, num_networks))
-    
+
     # Initialize the p-value matrix with NaN values
     p_value_matrix = np.full((num_networks, num_networks), np.nan)
 
@@ -126,7 +127,7 @@ def analyze_network_connectivity():
             print(f"\nNetwork pair: {unique_networks[i]} - {unique_networks[j]}")
             print(f"Nodes in {unique_networks[i]}: {nodes_network1}")
             print(f"Nodes in {unique_networks[j]}: {nodes_network2}")
-            
+
             node_pairs = set()
             connected_pairs = []
             for k in nodes_network1:
@@ -137,10 +138,10 @@ def analyze_network_connectivity():
                         node_pairs.add((min(k-1, l-1), max(k-1, l-1)))
                         connected_pairs.append((k, l))  # Store the original node numbers
 
-            
+
             count = len(node_pairs)
             between_network_connections_count[i, j] = between_network_connections_count[j, i] = count
-            
+
             print(f"Number of connections: {count}")
             print("Connected node pairs:")
             for pair in connected_pairs:
@@ -149,7 +150,7 @@ def analyze_network_connectivity():
             # Calculate connection strengths
             conn_values_high = [maskedAverageMatrixHigh[k, l] for k, l in node_pairs]
             conn_values_low = [maskedAverageMatrixLow[k, l] for k, l in node_pairs]
-            
+
             between_network_connection_strength_low[i, j] = between_network_connection_strength_low[j, i] = np.mean(conn_values_low) if conn_values_low else 0
             between_network_connection_strength_high[i, j] = between_network_connection_strength_high[j, i] = np.mean(conn_values_high) if conn_values_high else 0
 
@@ -185,7 +186,7 @@ def analyze_network_connectivity():
             print(f"Number of participants in Low: {n_low}")
             print(f"Mean connectivity values in Low (size {mean_connectivity_low.shape}):")
             print(mean_connectivity_low)
-        
+
             # Perform the Mann-Whitney U test
             stat, p_value = mannwhitneyu(mean_connectivity_high, mean_connectivity_low, alternative='two-sided')
 
@@ -194,7 +195,7 @@ def analyze_network_connectivity():
 
      # Mask the p-value matrix so that only the lower triangular part has values
     upper_triangle_indices = np.triu_indices(num_networks, k=0)
-    p_value_matrix[upper_triangle_indices] = np.nan       
+    p_value_matrix[upper_triangle_indices] = np.nan
 
     # Extract p-values from the lower triangle (excluding the diagonal)
     i_lower = np.tril_indices(num_networks, k=-1)
@@ -214,7 +215,7 @@ def analyze_network_connectivity():
 
     print("\nFDR-corrected p-value matrix (only lower triangle):")
     print(pd.DataFrame(p_value_matrix_corrected, index=unique_networks, columns=unique_networks))
-    
+
 
     valid_network_pairs = []
     valid_mean_connectivity_high = []
@@ -224,12 +225,12 @@ def analyze_network_connectivity():
     for idx in range(num_plots):
         data_high = mean_connectivity_high_list[idx]
         data_low = mean_connectivity_low_list[idx]
-        
+
         # Check for NaN values
         if np.isnan(data_high).any() or np.isnan(data_low).any():
             print(f"Skipping plot for network pair '{network_pairs[idx]}' due to NaN values.")
             continue  # Skip to the next network pair
-        
+
         # If data is valid, append to the new lists
         valid_network_pairs.append(network_pairs[idx])
         valid_mean_connectivity_high.append(data_high)
@@ -261,40 +262,40 @@ def analyze_network_connectivity():
             data_high = valid_mean_connectivity_high[idx]
             data_low = valid_mean_connectivity_low[idx]
             network_name = valid_network_pairs[idx]
-            
+
             # Prepare DataFrame for seaborn
             df = pd.DataFrame({
                 'Connectivity': np.concatenate([data_low, data_high]),
                 'Group': ['Low']*len(data_low) + ['High']*len(data_high)
             })
-            
+
             # Create violin plot
             sns.violinplot(
-                x='Group', 
-                y='Connectivity', 
+                x='Group',
+                y='Connectivity',
                 hue='Group',
-                data=df, 
-                ax=ax, 
-                inner=None, 
-                palette='Set2', 
+                data=df,
+                ax=ax,
+                inner=None,
+                palette='Set2',
                 cut=0,
                 legend=False
             )
-            
+
             # Add individual data points
             sns.stripplot(
-                x='Group', 
-                y='Connectivity', 
-                data=df, 
-                ax=ax, 
-                color='black', 
+                x='Group',
+                y='Connectivity',
+                data=df,
+                ax=ax,
+                color='black',
                 alpha=0.5
             )
 
             # Calculate medians
             median_low = np.median(data_low)
             median_high = np.median(data_high)
-            
+
             # Plot median points with red diamond ('D') symbols
             ax.scatter(0, median_low, color='red', marker='D', s=100, label='Median Low')
             ax.scatter(1, median_high, color='red', marker='D', s=100, label='Median High')
@@ -317,14 +318,14 @@ def analyze_network_connectivity():
     # Save the figure
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     fig3_filename = f"{behav}_{script_name}_fig3.pdf"
-    fig3_path = os.path.join(output_dir, fig3_filename)
+    fig3_path = os.path.join(PLOTS_DIR, fig3_filename)
     plt.savefig(fig3_path, format='pdf', bbox_inches='tight')
     plt.close(fig)
 
     # Permutations
     N_PERMUTATIONS = 1000
     permutation_counts = np.zeros((num_networks, num_networks, N_PERMUTATIONS))
-    
+
     for p in range(N_PERMUTATIONS):
         print(f'\n Performing iteration {p+1} out of {N_PERMUTATIONS}')
         perm_count = permutation_connections_count(adjacency_matrix, node_to_rsn_mapping, dkas_to_networks, unique_networks)
@@ -343,7 +344,7 @@ def analyze_network_connectivity():
             observed = between_network_connections_count[i, j]
             perm_values = permutation_counts[i, j, :]
             network_pair_name = f"{unique_networks[i]} - {unique_networks[j]}"
-            
+
             if observed == 0:
                 p_value = np.nan
             else:
@@ -439,19 +440,19 @@ def analyze_network_connectivity():
     vmin2, vmax2 = 0, 1   # For p-values and FDR-adjusted p-values in subplots 2 and 3
 
     # Subplot 1: Original heatmap with connection counts (lower triangle only, lighter gray for NaN)
-    sns.heatmap(set_upper_triangle_nan(between_network_connections_count), ax=ax1, cmap=cmap_viridis_lighter, 
+    sns.heatmap(set_upper_triangle_nan(between_network_connections_count), ax=ax1, cmap=cmap_viridis_lighter,
                 xticklabels=unique_networks, yticklabels=unique_networks,
                 annot=True, fmt='.2f', cbar=True, vmin=vmin1, vmax=vmax1)
     ax1.set_xlabel('Total Number of Connections')
 
     # Subplot 2: Heatmap with raw p-values (lower triangle only, darker gray for NaN)
-    sns.heatmap(set_upper_triangle_nan(p_value_matrix), ax=ax2, cmap=cmap_viridis_darker, vmin=vmin2, vmax=vmax2, 
+    sns.heatmap(set_upper_triangle_nan(p_value_matrix), ax=ax2, cmap=cmap_viridis_darker, vmin=vmin2, vmax=vmax2,
                 xticklabels=unique_networks, yticklabels=unique_networks,
                 annot=True, fmt='.3f', cbar=True)
     ax2.set_xlabel('Raw P-values')
 
     # Subplot 3: Heatmap with FDR-adjusted p-values (lower triangle only, darker gray for NaN)
-    sns.heatmap(set_upper_triangle_nan(p_value_matrix_corrected), ax=ax3, cmap=cmap_viridis_darker, vmin=vmin2, vmax=vmax2, 
+    sns.heatmap(set_upper_triangle_nan(p_value_matrix_corrected), ax=ax3, cmap=cmap_viridis_darker, vmin=vmin2, vmax=vmax2,
                 xticklabels=unique_networks, yticklabels=unique_networks,
                 annot=True, fmt='.3f', cbar=True)
     ax3.set_xlabel('FDR-adjusted P-values')
@@ -462,7 +463,7 @@ def analyze_network_connectivity():
     # Save figure 1
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     fig1_filename = f"{behav}_{script_name}_fig1.pdf"
-    fig1_path = os.path.join(SCRIPT_DIR, '..', '..', 'results', 'network_assignment', fig1_filename)
+    fig1_path = os.path.join(PLOTS_DIR, fig1_filename)
     plt.savefig(fig1_path, format='pdf', bbox_inches='tight')
     plt.close(fig1)
 
@@ -476,7 +477,7 @@ def analyze_network_connectivity():
 
     # Create a custom colormap with gray for NaN values
     cmap = mcolors.ListedColormap(plt.colormaps['viridis'].colors)
-    cmap.set_bad(color='gray')  
+    cmap.set_bad(color='gray')
 
     # Replace 0 values with NaN to avoid color coding them
     between_network_connection_strength_low[between_network_connection_strength_low == 0] = np.nan
@@ -486,7 +487,7 @@ def analyze_network_connectivity():
     mask = np.triu(np.ones_like(between_network_connection_strength_low), k=0)
 
     # Subplot 1: Low Behavior
-    sns.heatmap(between_network_connection_strength_low, ax=ax1, cmap=cmap, 
+    sns.heatmap(between_network_connection_strength_low, ax=ax1, cmap=cmap,
                 xticklabels=unique_networks, yticklabels=unique_networks,
                 vmin=vmin, vmax=vmax,
                 mask=mask,
@@ -496,7 +497,7 @@ def analyze_network_connectivity():
     ax1.set_xlabel('Low Behavior')
 
     # Subplot 2: High Behavior
-    sns.heatmap(between_network_connection_strength_high, ax=ax2, cmap=cmap, 
+    sns.heatmap(between_network_connection_strength_high, ax=ax2, cmap=cmap,
                 xticklabels=unique_networks, yticklabels=unique_networks,
                 vmin=vmin, vmax=vmax,
                 mask=mask,
@@ -510,7 +511,7 @@ def analyze_network_connectivity():
 
     # Save figure 2
     fig2_filename = f"{behav}_{script_name}_fig2.pdf"
-    fig2_path = os.path.join(SCRIPT_DIR, '..', '..', 'results', 'network_assignment', fig2_filename)
+    fig2_path = os.path.join(PLOTS_DIR, fig2_filename)
     plt.savefig(fig2_path, format='pdf', bbox_inches='tight')
     plt.close(fig2)
 

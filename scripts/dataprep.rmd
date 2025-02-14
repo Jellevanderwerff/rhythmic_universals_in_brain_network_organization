@@ -34,7 +34,7 @@ source(here("scripts", "helper_functions.R"))
 ####### EXPERIMENT CONFIG PARAMETERS #######
 
 # Read in the experiment config file
-config <- read.ini(here("data", "experiment", "raw", "config.txt"))
+config <- read.ini(here("data", "behavioural", "raw", "config.txt"))
 # Change data types
 for (i in seq_along(config$experiment)) {
   config$experiment[i] <- as.double(config$experiment[i])
@@ -46,8 +46,8 @@ for (i in seq_along(config$training)) {
 ############# FILE LOCATIONS ############
 
 # folders
-data_participants_info_dir <- here("data", "experiment", "raw", "data_participants_info")
-data_participants_tapping_dir <- here("data", "experiment", "raw", "data_participants_tapping")
+data_participants_info_dir <- here("data", "behavioural", "raw", "data_participants_info")
+data_participants_tapping_dir <- here("data", "behavioural", "raw", "data_participants_tapping")
 
 # files
 data_participants_info_filenames <- list.files(data_participants_info_dir)
@@ -201,8 +201,8 @@ ITI_sd = sd(resp_iti)
 # save
 
 ```{r write-out}
-write.csv(ITIs, here("data", "experiment", "processed", "ITIs.csv"), row.names = FALSE)
-write.csv(ITIs.bytrial, here("data", "experiment", "processed", "ITIs_bytrial.csv"), row.names = FALSE)
-write.csv(tapping.removed, here("data", "experiment", "processed", "removed.csv"), row.names = FALSE)
+write.csv(ITIs, here("data", "behavioural", "processed", "ITIs.csv"), row.names = FALSE)
+write.csv(ITIs.bytrial, here("data", "behavioural", "processed", "ITIs_bytrial.csv"), row.names = FALSE)
+write.csv(tapping.removed, here("data", "behavioural", "processed", "removed.csv"), row.names = FALSE)
 ```
 

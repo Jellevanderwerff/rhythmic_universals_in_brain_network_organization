@@ -4,9 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import matplotlib
-matplotlib.use('Agg')
 
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
 
 fourier_df = pd.DataFrame()
 
@@ -72,4 +71,4 @@ for pp_id, pp_df in ITIs.groupby('pp_id_behav'):
                 }, index=[0])
                 fourier_df = pd.concat([fourier_df, df_piece], ignore_index=True)
 
-fourier_df.to_csv(os.path.join('data', 'experiment', 'processed', 'fourier.csv'), index=False)
+fourier_df.to_csv(os.path.join('data', 'behavioural', 'processed', 'fourier.csv'), index=False)

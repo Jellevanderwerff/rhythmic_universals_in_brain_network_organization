@@ -1,0 +1,69 @@
+DKRegionName,Abreviation,Network,R,G,B
+lh Banks superior temporal sulcus,BSTS,AUD,0.7686,0.2275,0.9804
+lh Caudal anterior-cingulate cortex,CACC,DAN,0,0.4627,0.0549
+lh Caudal middle frontal gyrus,CMFG,VAN,0.902,0.5804,0.1333
+lh Cuneus cortex,CUN,VIS,0.4706,0.0706,0.5255
+lh Entorhinal cortex,ENT,LIM,0.8627,0.9725,0.6431
+lh Fusiform gyrus,FUSI,VIS,0.4706,0.0706,0.5255
+lh Inferior parietal cortex,IPC,DMN,0.8039,0.2431,0.3059
+lh Inferior temporal gyrus,ITG,DAN,0,0.4627,0.0549
+lh Isthmus – cingulate cortex,ISTC,DMN,0.8039,0.2431,0.3059
+lh Lateral occipital cortex,LOCC,VIS,0.4706,0.0706,0.5255
+lh Lateral orbital frontal cortex,LOF,DMN,0.8039,0.2431,0.3059
+lh Lingual gyrus,LING,VIS,0.4706,0.0706,0.5255
+lh Medial orbital frontal cortex,MOF,DMN,0.8039,0.2431,0.3059
+lh Middle temporal gyrus,MTG,DMN,0.8039,0.2431,0.3059
+lh Parahippocampal gyrus,PHG,DMN,0.8039,0.2431,0.3059
+lh Paracentral lobule,PARC,MOT,0.2745,0.5098,0.7059
+lh Pars opercularis,POPE,DAN,0,0.4627,0.0549
+lh Pars orbitalis,PORB,DAN,0,0.4627,0.0549
+lh Pars triangularis,PTRI,DAN,0,0.4627,0.0549
+lh Pericalcarine cortex,PERI,VIS,0.4706,0.0706,0.5255
+lh Postcentral gyrus,PSTC,MOT,0.2745,0.5098,0.7059
+lh Posterior-cingulate cortex,PCC,DMN,0.8039,0.2431,0.3059
+lh Precentral gyrus,PREC,MOT,0.2745,0.5098,0.7059
+lh Precuneus cortex,PCUN,DMN,0.8039,0.2431,0.3059
+lh Rostral anterior cingulate cortex,RACC,DMN,0.8039,0.2431,0.3059
+lh Rostral middle frontal gyrus,RMFG,VAN,0.902,0.5804,0.1333
+lh Superior frontal gyrus,SFG,DMN,0.8039,0.2431,0.3059
+lh Superior parietal cortex,SPC,DAN,0,0.4627,0.0549
+lh Superior temporal gyrus,STG,AUD,0.7686,0.2275,0.9804
+lh Supramarginal gyrus,SMAR,VAN,0.902,0.5804,0.1333
+lh Frontal pole,FP,LIM,0.8627,0.9725,0.6431
+lh Temporal pole,TP,LIM,0.8627,0.9725,0.6431
+lh Transverse temporal cortex,TTC,AUD,0.7686,0.2275,0.9804
+lh Insula,INS,VAN,0.902,0.5804,0.1333
+rh Banks superior temporal sulcus,BSTS,AUD,0.7686,0.2275,0.9804
+rh Caudal anterior-cingulate cortex,CACC,DAN,0,0.4627,0.0549
+rh Caudal middle frontal gyrus,CMFG,VAN,0.902,0.5804,0.1333
+rh Cuneus cortex,CUN,VIS,0.4706,0.0706,0.5255
+rh Entorhinal cortex,ENT,LIM,0.8627,0.9725,0.6431
+rh Fusiform gyrus,FUSI,VIS,0.4706,0.0706,0.5255
+rh Inferior parietal cortex,IPC,DMN,0.8039,0.2431,0.3059
+rh Inferior temporal gyrus,ITG,DAN,0,0.4627,0.0549
+rh Isthmus – cingulate cortex,ISTC,DMN,0.8039,0.2431,0.3059
+rh Lateral occipital cortex,LOCC,VIS,0.4706,0.0706,0.5255
+rh Lateral orbital frontal cortex,LOF,DMN,0.8039,0.2431,0.3059
+rh Lingual gyrus,LING,VIS,0.4706,0.0706,0.5255
+rh Medial orbital frontal cortex,MOF,DMN,0.8039,0.2431,0.3059
+rh Middle temporal gyrus,MTG,DMN,0.8039,0.2431,0.3059
+rh Parahippocampal gyrus,PHG,DMN,0.8039,0.2431,0.3059
+rh Paracentral lobule,PARC,MOT,0.2745,0.5098,0.7059
+rh Pars opercularis,POPE,DAN,0,0.4627,0.0549
+rh Pars orbitalis,PORB,DAN,0,0.4627,0.0549
+rh Pars triangularis,PTRI,DAN,0,0.4627,0.0549
+rh Pericalcarine cortex,PERI,VIS,0.4706,0.0706,0.5255
+rh Postcentral gyrus,PSTC,MOT,0.2745,0.5098,0.7059
+rh Posterior-cingulate cortex,PCC,DMN,0.8039,0.2431,0.3059
+rh Precentral gyrus,PREC,MOT,0.2745,0.5098,0.7059
+rh Precuneus cortex,PCUN,DMN,0.8039,0.2431,0.3059
+rh Rostral anterior cingulate cortex,RACC,DMN,0.8039,0.2431,0.3059
+rh Rostral middle frontal gyrus,RMFG,VAN,0.902,0.5804,0.1333
+rh Superior frontal gyrus,SFG,DMN,0.8039,0.2431,0.3059
+rh Superior parietal cortex,SPC,DAN,0,0.4627,0.0549
+rh Superior temporal gyrus,STG,AUD,0.7686,0.2275,0.9804
+rh Supramarginal gyrus,SMAR,VAN,0.902,0.5804,0.1333
+rh Frontal pole,FP,LIM,0.8627,0.9725,0.6431
+rh Temporal pole,TP,LIM,0.8627,0.9725,0.6431
+rh Transverse temporal cortex,TTC,AUD,0.7686,0.2275,0.9804
+rh Insula,INS,VAN,0.902,0.5804,0.1333

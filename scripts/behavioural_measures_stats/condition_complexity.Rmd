@@ -28,9 +28,9 @@ source(here("scripts", "helper_functions.R"))
 source(here("scripts", "custom_ggplot_theme.R"))
 
 # Load dataframe
-df.bytrial <- read.csv(here("data", "experiment", "processed", "ITIs_bytrial.csv"))
+df.bytrial <- read.csv(here("data", "behavioural", "processed", "ITIs_bytrial.csv"))
 df.bytrial$condition <- as.factor(paste(df.bytrial$stim_tempo_intended, df.bytrial$length, sep = "_"))
-pp.measures <- read.csv(here("data", "experiment", "processed", "pp_measures.csv"))
+pp.measures <- read.csv(here("data", "behavioural", "processed", "pp_measures.csv"))
 ```
 
 ```{r anova}

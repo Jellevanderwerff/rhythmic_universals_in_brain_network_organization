@@ -38,7 +38,7 @@ K_MAX = 8      # maximum number of clusters to test for
 warnings.filterwarnings("ignore")
 
 # Load data
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
 
 # create df for k-means clusters
 df_clusters = pd.DataFrame()
@@ -179,8 +179,8 @@ df_silhouette.stim_tempo_intended = df_silhouette.stim_tempo_intended.astype(int
 df_silhouette.length = df_silhouette.length.astype(int)
 
 # open ITIs and ITIs_bytrial
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
-ITIs_bytrial = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
+ITIs_bytrial = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'))
 
 # add G measure to ITIs and ITIs_bytrial
 for stim_resp, stim_resp_df in G_df.groupby('stim_resp'):
@@ -228,5 +228,5 @@ ITIs = ITIs.sort_values(by = ["pp_id_behav", "stim_id"]).reset_index(drop = True
 ITIs_bytrial = ITIs_bytrial.sort_values(by = ["pp_id_behav", "stim_id"]).reset_index(drop = True)
 
 # save
-ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index = False)
-ITIs_bytrial.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs_bytrial.csv'), index = False)
+ITIs.to_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'), index = False)
+ITIs_bytrial.to_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs_bytrial.csv'), index = False)

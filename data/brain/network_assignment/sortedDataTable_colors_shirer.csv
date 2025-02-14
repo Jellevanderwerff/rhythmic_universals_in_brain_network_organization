@@ -1,0 +1,69 @@
+Nodes,DKRegionName,DKParcellation,Abreviation,Network,R,G,B
+1,lh Banks superior temporal sulcus,Desikan.bankssts (L),BSTS,AUD,0.7686,0.2275,0.9804
+2,lh Caudal anterior-cingulate cortex,Desikan.caudalanteriorcingulate (L),CACC,DAN,0,0.4627,0.0549
+3,lh Caudal middle frontal gyrus,Desikan.caudalmiddlefrontal (L),CMFG,VAN,0.902,0.5804,0.1333
+4,lh Cuneus cortex,Desikan.cuneus (L),CUN,VIS,0.4706,0.0706,0.5255
+5,lh Entorhinal cortex,Desikan.entorhinal (L),ENT,LIM,0.8627,0.9725,0.6431
+6,lh Fusiform gyrus,Desikan.fusiform (L),FUSI,VIS,0.4706,0.0706,0.5255
+7,lh Inferior parietal cortex,Desikan.inferiorparietal (L),IPC,DMN,0.8039,0.2431,0.3059
+8,lh Inferior temporal gyrus,Desikan.inferiortemporal (L),ITG,DAN,0,0.4627,0.0549
+9,lh Isthmus – cingulate cortex,Desikan.isthmuscingulate (L),ISTC,DMN,0.8039,0.2431,0.3059
+10,lh Lateral occipital cortex,Desikan.lateraloccipital (L),LOCC,VIS,0.4706,0.0706,0.5255
+11,lh Lateral orbital frontal cortex,Desikan.lateralorbitofrontal (L),LOF,DMN,0.8039,0.2431,0.3059
+12,lh Lingual gyrus,Desikan.lingual (L),LING,VIS,0.4706,0.0706,0.5255
+13,lh Medial orbital frontal cortex,Desikan.medialorbitofrontal (L),MOF,DMN,0.8039,0.2431,0.3059
+14,lh Middle temporal gyrus,Desikan.middletemporal (L),MTG,DMN,0.8039,0.2431,0.3059
+15,lh Parahippocampal gyrus,Desikan.parahippocampal (L),PHG,DMN,0.8039,0.2431,0.3059
+16,lh Paracentral lobule,Desikan.paracentral (L),PARC,MOT,0.2745,0.5098,0.7059
+17,lh Pars opercularis,Desikan.parsopercularis (L),POPE,DAN,0,0.4627,0.0549
+18,lh Pars orbitalis,Desikan.parsorbitalis (L),PORB,DAN,0,0.4627,0.0549
+19,lh Pars triangularis,Desikan.parstriangularis (L),PTRI,DAN,0,0.4627,0.0549
+20,lh Pericalcarine cortex,Desikan.pericalcarine (L),PERI,VIS,0.4706,0.0706,0.5255
+21,lh Postcentral gyrus,Desikan.postcentral (L),PSTC,MOT,0.2745,0.5098,0.7059
+22,lh Posterior-cingulate cortex,Desikan.posteriorcingulate (L),PCC,DMN,0.8039,0.2431,0.3059
+23,lh Precentral gyrus,Desikan.precentral (L),PREC,MOT,0.2745,0.5098,0.7059
+24,lh Precuneus cortex,Desikan.precuneus (L),PCUN,DMN,0.8039,0.2431,0.3059
+25,lh Rostral anterior cingulate cortex,Desikan.rostralanteriorcingulate (L),RACC,DMN,0.8039,0.2431,0.3059
+26,lh Rostral middle frontal gyrus,Desikan.rostralmiddlefrontal (L),RMFG,VAN,0.902,0.5804,0.1333
+27,lh Superior frontal gyrus,Desikan.superiorfrontal (L),SFG,DMN,0.8039,0.2431,0.3059
+28,lh Superior parietal cortex,Desikan.superiorparietal (L),SPC,DAN,0,0.4627,0.0549
+29,lh Superior temporal gyrus,Desikan.superiortemporal (L),STG,AUD,0.7686,0.2275,0.9804
+30,lh Supramarginal gyrus,Desikan.supramarginal (L),SMAR,VAN,0.902,0.5804,0.1333
+31,lh Frontal pole,Desikan.frontalpole (L),FP,LIM,0.8627,0.9725,0.6431
+32,lh Temporal pole,Desikan.temporalpole (L),TP,LIM,0.8627,0.9725,0.6431
+33,lh Transverse temporal cortex,Desikan.transversetemporal (L),TTC,AUD,0.7686,0.2275,0.9804
+34,lh Insula,Desikan.insula (L),INS,VAN,0.902,0.5804,0.1333
+35,rh Banks superior temporal sulcus,Desikan.bankssts (R),BSTS,AUD,0.7686,0.2275,0.9804
+36,rh Caudal anterior-cingulate cortex,Desikan.caudalanteriorcingulate (R),CACC,DAN,0,0.4627,0.0549
+37,rh Caudal middle frontal gyrus,Desikan.caudalmiddlefrontal (R),CMFG,VAN,0.902,0.5804,0.1333
+38,rh Cuneus cortex,Desikan.cuneus (R),CUN,VIS,0.4706,0.0706,0.5255
+39,rh Entorhinal cortex,Desikan.entorhinal (R),ENT,LIM,0.8627,0.9725,0.6431
+40,rh Fusiform gyrus,Desikan.fusiform (R),FUSI,VIS,0.4706,0.0706,0.5255
+41,rh Inferior parietal cortex,Desikan.inferiorparietal (R),IPC,DMN,0.8039,0.2431,0.3059
+42,rh Inferior temporal gyrus,Desikan.inferiortemporal (R),ITG,DAN,0,0.4627,0.0549
+43,rh Isthmus – cingulate cortex,Desikan.isthmuscingulate (R),ISTC,DMN,0.8039,0.2431,0.3059
+44,rh Lateral occipital cortex,Desikan.lateraloccipital (R),LOCC,VIS,0.4706,0.0706,0.5255
+45,rh Lateral orbital frontal cortex,Desikan.lateralorbitofrontal (R),LOF,DMN,0.8039,0.2431,0.3059
+46,rh Lingual gyrus,Desikan.lingual (R),LING,VIS,0.4706,0.0706,0.5255
+47,rh Medial orbital frontal cortex,Desikan.medialorbitofrontal (R),MOF,DMN,0.8039,0.2431,0.3059
+48,rh Middle temporal gyrus,Desikan.middletemporal (R),MTG,DMN,0.8039,0.2431,0.3059
+49,rh Parahippocampal gyrus,Desikan.parahippocampal (R),PHG,DMN,0.8039,0.2431,0.3059
+50,rh Paracentral lobule,Desikan.paracentral (R),PARC,MOT,0.2745,0.5098,0.7059
+51,rh Pars opercularis,Desikan.parsopercularis (R),POPE,DAN,0,0.4627,0.0549
+52,rh Pars orbitalis,Desikan.parsorbitalis (R),PORB,DAN,0,0.4627,0.0549
+53,rh Pars triangularis,Desikan.parstriangularis (R),PTRI,DAN,0,0.4627,0.0549
+54,rh Pericalcarine cortex,Desikan.pericalcarine (R),PERI,VIS,0.4706,0.0706,0.5255
+55,rh Postcentral gyrus,Desikan.postcentral (R),PSTC,MOT,0.2745,0.5098,0.7059
+56,rh Posterior-cingulate cortex,Desikan.posteriorcingulate (R),PCC,DMN,0.8039,0.2431,0.3059
+57,rh Precentral gyrus,Desikan.precentral (R),PREC,MOT,0.2745,0.5098,0.7059
+58,rh Precuneus cortex,Desikan.precuneus (R),PCUN,DMN,0.8039,0.2431,0.3059
+59,rh Rostral anterior cingulate cortex,Desikan.rostralanteriorcingulate (R),RACC,DMN,0.8039,0.2431,0.3059
+60,rh Rostral middle frontal gyrus,Desikan.rostralmiddlefrontal (R),RMFG,VAN,0.902,0.5804,0.1333
+61,rh Superior frontal gyrus,Desikan.superiorfrontal (R),SFG,DMN,0.8039,0.2431,0.3059
+62,rh Superior parietal cortex,Desikan.superiorparietal (R),SPC,DAN,0,0.4627,0.0549
+63,rh Superior temporal gyrus,Desikan.superiortemporal (R),STG,AUD,0.7686,0.2275,0.9804
+64,rh Supramarginal gyrus,Desikan.supramarginal (R),SMAR,VAN,0.902,0.5804,0.1333
+65,rh Frontal pole,Desikan.frontalpole (R),FP,LIM,0.8627,0.9725,0.6431
+66,rh Temporal pole,Desikan.temporalpole (R),TP,LIM,0.8627,0.9725,0.6431
+67,rh Transverse temporal cortex,Desikan.transversetemporal (R),TTC,AUD,0.7686,0.2275,0.9804
+68,rh Insula,Desikan.insula (R),INS,VAN,0.902,0.5804,0.1333

@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Get the project root directory
 project_root = Path(__file__).resolve().parents[2]
-data_directory_path = project_root / 'data' / 'plots'
+data_directory_path = project_root / 'data' / 'brain' / 'correlations'
 
 # Construct full paths to the .mat files
 entropyDiff_all_behav_path = os.path.join(data_directory_path, 'entropyDiff_all_behav.mat')
@@ -34,7 +34,7 @@ Binary_Ternary_NegConnStrength_values = Binary_Ternary_NegConnStrength[list(Bina
 
 # Plot Entropy difference vs Sum connection strength
 plt.figure(figsize=(10,6))
-sns.regplot(x=entropyDiff_NegConnStrength_values.squeeze(), y=entropyDiff_all_behav_values.squeeze(), 
+sns.regplot(x=entropyDiff_NegConnStrength_values.squeeze(), y=entropyDiff_all_behav_values.squeeze(),
             scatter_kws={'color':'black', 'alpha':0.7}, line_kws={'color':'blue'}, ci=95)
 plt.xlabel("Sum connection strength")
 plt.ylabel("Entropy difference")
@@ -45,7 +45,7 @@ plt.show()
 
 # Plot G-response vs Sum connection strength
 plt.figure(figsize=(10,6))
-sns.regplot(x=Gresponse_NegConnStrength_values.squeeze(), y=Gresponse_all_behav_values.squeeze(), 
+sns.regplot(x=Gresponse_NegConnStrength_values.squeeze(), y=Gresponse_all_behav_values.squeeze(),
             scatter_kws={'color':'black', 'alpha':0.7}, line_kws={'color':'blue'}, ci=95)
 plt.xlabel("Sum connection strength")
 plt.ylabel("G-response")
@@ -56,7 +56,7 @@ plt.show()
 
 # Plot Binary-Ternary ratios vs Sum connection strength
 plt.figure(figsize=(10,6))
-sns.regplot(x=Binary_Ternary_NegConnStrength_values.squeeze(), y=Binary_Ternary_all_behav_values.squeeze(), 
+sns.regplot(x=Binary_Ternary_NegConnStrength_values.squeeze(), y=Binary_Ternary_all_behav_values.squeeze(),
             scatter_kws={'color':'black', 'alpha':0.7}, line_kws={'color':'blue'}, ci=95)
 plt.xlabel("Sum connection strength")
 plt.ylabel("Binary and Ternary Ratios")

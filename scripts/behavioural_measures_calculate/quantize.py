@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import fractions
 
 # load data
-ITIs = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'))
-fourier_df = pd.read_csv(os.path.join('data', 'experiment', 'processed', 'fourier.csv'))
+ITIs = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'))
+fourier_df = pd.read_csv(os.path.join('data', 'behavioural', 'processed', 'fourier.csv'))
 
 for pp_id, pp_df in ITIs.groupby('pp_id_behav'):
     print(pp_id)
@@ -33,4 +33,4 @@ for pp_id, pp_df in ITIs.groupby('pp_id_behav'):
                         ITIs.loc[ITIs.sequence_id == sequence_id, 'resp_iti_norm_q'] = seq_q.iois
 
 # Save
-ITIs.to_csv(os.path.join('data', 'experiment', 'processed', 'ITIs.csv'), index=False)
+ITIs.to_csv(os.path.join('data', 'behavioural', 'processed', 'ITIs.csv'), index=False)

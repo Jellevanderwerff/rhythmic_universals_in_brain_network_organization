@@ -2,7 +2,7 @@ clear, clc
 
 %% Input parameters %%
 
-modality = {'functional'}; % 'functional' or 'structural_FBC' 
+modality = {'functional'}; % 'functional' or 'structural_FBC'
 corr_method = {'Spearman'}; % 'Pearson', 'Spearman','partial'
 thresh = 0.01; % threshold for feature selection: 0.01, 0.05, etc.
 mainmetrics = 'G_resp'; %'G_resp', 'entropy_diff_norm_q_avg','asynchrony_norm_abs_avg', 'tempo_deviation_abs_avg','isochrony_introduced','binary_or_ternary_introduced, 'edit_distance_norm_q_avg'
@@ -21,10 +21,10 @@ no_iterations = 1000;
 no_subj = size(all_mats,3);
 no_nodes = size(all_mats,1);
 
-%% Connectome-based predictive modeling (CPM) analysis 
+%% Connectome-based predictive modeling (CPM) analysis
 fprintf('\n Performing the calculation of the true experiment \n')
 [behav_pred_pos,behav_pred_neg,R_pos,R_neg,pos_mask,neg_mask,storeLast_pos,storeLast_neg,train_sumpos,train_sumneg]=predict_behaviour(modality,all_mats, all_behav, no_nodes, no_subj, thresh, corr_method)
-    
+
 pos_mask_true = pos_mask;
 neg_mask_true = neg_mask;
 
@@ -41,7 +41,7 @@ train_sumpos(end+1,:) = storeLast_pos;
 % save('AvAdjacencyMat.rsFC.negative.EntropyDiff.weighted.mat','neg_averageValues')
 % save('AvAdjacencyMat.rsFC.positive.CoV.weighted.mat','pos_averageValues')
 
-%% Calculate correlation coefficients 
+%% Calculate correlation coefficients
 
 [R_pos_true, P_pos_true] = corrcoef(behav_pred_pos, all_behav);
 
