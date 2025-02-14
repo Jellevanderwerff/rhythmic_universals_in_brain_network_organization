@@ -39,6 +39,9 @@ code, the results, and any produced plots without running any software.
 All Python packages and version numbers are included in the ``python_requirements.txt`` file. It is recommended to first create a [virtual environment](https://docs.python.org/3/library/venv.html), and
 then install these requirements using ``pip install -r python_requirements.txt`` in a terminal run from the folder where the requirements file has been stored.
 
+_Note._ The scripts refer to other files using relative file paths. This means that in order to run the files it is important to start any environment with
+the top project folder as the working directory.
+
 ## Folder structure
 This repository is organized as follows:
 ```
