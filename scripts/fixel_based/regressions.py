@@ -27,8 +27,8 @@ merged_data = pd.merge(design_matrix, by_pp_updated, on='subject_id')
 merged_data = pd.merge(merged_data, all_bundle_mask_average, on='subject_id')
 
 # List of behavioral variables and conditions to analyze
-behavioral_vars = ["G_resp", "entropy_diff_norm_q_avg", "binary_or_ternary_introduced", "isochrony_introduced"]
-conditions = ["600_5"]
+behavioral_vars = ["G_resp", "binary_or_ternary_introduced", "isochrony_introduced"]
+conditions = ["composite"]
 
 # Metrics types
 metrics_types = ["fd", "log_fc", "fdc"]

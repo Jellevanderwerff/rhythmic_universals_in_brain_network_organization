@@ -1,0 +1,46 @@
+Network_Pair,Observed_Count,Raw_P_Value,Z_Score,CI_Lower,CI_Upper,FDR_Adjusted_P_Value,Significant
+MotorNetwork - VisualNetwork ,0.0,,-0.6593300448179953,0.0,2.0,,
+DorsalAttentionNetwork  - VisualNetwork ,0.0,,-0.9394188840125955,0.0,3.0,,
+DorsalAttentionNetwork  - MotorNetwork,0.0,,-0.6978196051128176,0.0,3.0,,
+VentralAttentionNetwork  - VisualNetwork ,0.0,,-0.7552621107789407,0.0,3.0,,
+VentralAttentionNetwork  - MotorNetwork,0.0,,-0.590624491992872,0.0,2.0,,
+VentralAttentionNetwork  - DorsalAttentionNetwork ,0.0,,-0.8075838331474982,0.0,3.0,,
+LimbicNetwork  - VisualNetwork ,0.0,,-0.6343965450029466,0.0,2.0,,
+LimbicNetwork  - MotorNetwork,0.0,,-0.5310080107001003,0.0,2.0,,
+LimbicNetwork  - DorsalAttentionNetwork ,0.0,,-0.7051415610101406,0.0,2.0249999999999773,,
+LimbicNetwork  - VentralAttentionNetwork ,0.0,,-0.579696944818992,0.0,2.0,,
+AuditoryNetwork - VisualNetwork ,2.0,0.091,2.1348785199793423,0.0,2.0,0.21233333333333335,False
+AuditoryNetwork - MotorNetwork,0.0,,-0.5414503755171574,0.0,2.0,,
+AuditoryNetwork - DorsalAttentionNetwork ,1.0,0.391,0.5615009516679706,0.0,3.0,0.391,False
+AuditoryNetwork - VentralAttentionNetwork ,0.0,,-0.5972887269542831,0.0,2.0,,
+AuditoryNetwork - LimbicNetwork ,0.0,,-0.5093018667537471,0.0,2.0,,
+DefaultmodeNetwork  - VisualNetwork ,0.0,,-1.1377862814947968,0.0,5.0,,
+DefaultmodeNetwork  - MotorNetwork,0.0,,-0.8561742939887405,0.0,3.0,,
+DefaultmodeNetwork  - DorsalAttentionNetwork ,10.0,0.0,5.7914242376999265,0.0,5.0,0.0,True
+DefaultmodeNetwork  - VentralAttentionNetwork ,2.0,0.341,0.5992545603588817,0.0,4.0,0.391,False
+DefaultmodeNetwork  - LimbicNetwork ,0.0,,-0.8376015115939608,0.0,3.0,,
+DefaultmodeNetwork  - AuditoryNetwork,0.0,,-0.8829291467569877,0.0,4.0,,
+BasalGanglia - VisualNetwork ,0.0,,-0.745134701292922,0.0,3.0,,
+BasalGanglia - MotorNetwork,1.0,0.312,0.9485384370885087,0.0,2.0,0.391,False
+BasalGanglia - DorsalAttentionNetwork ,0.0,,-0.8098965325427012,0.0,3.0,,
+BasalGanglia - VentralAttentionNetwork ,0.0,,-0.6966376617188089,0.0,2.0,,
+BasalGanglia - LimbicNetwork ,0.0,,-0.5863387556014911,0.0,2.0,,
+BasalGanglia - AuditoryNetwork,4.0,0.003,5.58035474243931,0.0,2.0,0.0105,True
+BasalGanglia - DefaultmodeNetwork ,0.0,,-1.0036903804352324,0.0,4.0,,
+SubLimbic - VisualNetwork ,0.0,,-0.6354154139166964,0.0,2.0,,
+SubLimbic - MotorNetwork,1.0,0.228,1.3156211784896448,0.0,2.0,0.391,False
+SubLimbic - DorsalAttentionNetwork ,0.0,,-0.6851496969592683,0.0,2.0249999999999773,,
+SubLimbic - VentralAttentionNetwork ,0.0,,-0.5603068301724728,0.0,2.0,,
+SubLimbic - LimbicNetwork ,0.0,,-0.528127480949613,0.0,2.0,,
+SubLimbic - AuditoryNetwork,0.0,,-0.5166212670651544,0.0,2.0,,
+SubLimbic - DefaultmodeNetwork ,0.0,,-0.864163289561678,0.0,3.0249999999999773,,
+SubLimbic - BasalGanglia,0.0,,-0.5718667331563717,0.0,2.0,,
+Cerebellar - VisualNetwork ,0.0,,-0.3903855342097229,0.0,1.0,,
+Cerebellar - MotorNetwork,0.0,,-0.28828062584474007,0.0,1.0,,
+Cerebellar - DorsalAttentionNetwork ,0.0,,-0.42008396520191627,0.0,1.0,,
+Cerebellar - VentralAttentionNetwork ,0.0,,-0.33482729890816226,0.0,1.0,,
+Cerebellar - LimbicNetwork ,0.0,,-0.2712803247438012,0.0,1.0,,
+Cerebellar - AuditoryNetwork,0.0,,-0.304138126514911,0.0,1.0,,
+Cerebellar - DefaultmodeNetwork ,0.0,,-0.5177462127951077,0.0,2.0,,
+Cerebellar - BasalGanglia,0.0,,-0.36511106521161246,0.0,1.0,,
+Cerebellar - SubLimbic,0.0,,-0.3193820004894278,0.0,1.0,,

@@ -3,7 +3,7 @@ function [connectomeDirectory, behaviourDirectory, scriptsDirectory, all_mats, a
     currentDirectory = pwd;
     [mainscriptDirectory, ~, ~] = fileparts(currentDirectory);
     [baseDirectory, ~, ~] = fileparts(mainscriptDirectory);
-
+   
 
     % Set up directory paths
     connectomeDirectory = fullfile(baseDirectory, 'data', 'CPM', 'connectomes');
@@ -12,12 +12,12 @@ function [connectomeDirectory, behaviourDirectory, scriptsDirectory, all_mats, a
 
     % Load connectomes
     if strcmp(modality, 'functional')
-        fileName = 'desikanFconnectome47.mat';
+        fileName = 'desikanFconnectome47.subcortical.mat';
         connPath = fullfile(connectomeDirectory, fileName);
         load(connPath)
         all_mats = Z;  % Assuming 'Z' is loaded from the file
     elseif strcmp(modality, 'structural_FBC')
-        fileName = 'desikan_structural_cortical.mat';
+        fileName = 'desikan_structural_subcortical.mat';
         connPath = fullfile(connectomeDirectory, fileName);
         load(connPath)
         all_mats = connectomes;  % Assuming 'connectomes' is loaded from the file
@@ -26,7 +26,13 @@ function [connectomeDirectory, behaviourDirectory, scriptsDirectory, all_mats, a
     end
 
     % Load behavioural data
+   if strcmp(condition, 'composite')
+    filePath = fullfile(behaviourDirectory, ['pp_measures.csv']);
+    data = readtable(filePath);
+    all_behav = data.(mainmetrics);
+   else
     filePath = fullfile(behaviourDirectory, ['pp_measures_', condition, '.csv']);
     data = readtable(filePath);
     all_behav = data.(mainmetrics);
+   end
 end

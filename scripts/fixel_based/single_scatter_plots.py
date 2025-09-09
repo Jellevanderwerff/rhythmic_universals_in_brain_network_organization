@@ -11,7 +11,7 @@ data_path = project_root / 'data' / 'brain' / 'fixel_based'
 plots_path = project_root / 'plots' / 'fixel_based'
 
 # load condition
-conditions = ["600_5"]
+conditions = ["composite"]
 selected_condition = conditions[0]
 
 # Paths to the data files
