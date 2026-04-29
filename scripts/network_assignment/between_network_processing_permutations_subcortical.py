@@ -77,7 +77,7 @@ def analyze_network_connectivity():
     adjacency_matrix = data[list(data.keys())[-1]]
     
     # Load the DKA-to-network mapping
-    dkas_to_networks = pd.read_csv(os.path.join(DATA_DIR, 'altenrnative_mapping_ShirerKabbara.matlab_subcortical.csv'))
+    dkas_to_networks = pd.read_csv(os.path.join(DATA_DIR, 'mapping_ShirerKabbara.matlab_subcortical.csv'))
     
     # Create a mapping of node index to RSN
     node_to_rsn_mapping = {}
