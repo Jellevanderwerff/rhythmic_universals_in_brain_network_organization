@@ -4,7 +4,7 @@ modality = {'functional'}; % 'functional' or 'structural_FBC'
 corr_method = {'Spearman'}; % 'Pearson', 'Spearman','partial'
 thresh = 0.01; % threshold for feature selection: 0.01, 0.05, etc.
 mainmetrics = 'isochrony_introduced'; %'G_resp','entropy_diff_norm_q_avg','isochrony_introduced','binary_or_ternary_introduced'
-condition = '6005'; % '4004'(400 ms 4 events)'4005';'6004'; '6005'; 'composite'
+condition = 'composite'; % composite across the four conditions 4004, 4005, 6004, 6005
 figure_plot = {'yes'}; % create figure ('yes') or not ('no')
 mask_apply = {'no'}; % Whether to use masking for ROI analyses
 
